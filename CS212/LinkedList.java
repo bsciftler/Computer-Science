@@ -1,8 +1,18 @@
-//September
-public abstract class LinkedList {
-//Protected means that both LinkedList and child classes can USE these values
-	protected Node head;
-	protected int count=0;
+import java.io.*;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+
+public class LinkedList {
+
+	private Node head;
+	private int size;
+	
+	public LinkedList()
+	{
+		head=null;
+	}
 	
 	public LinkedList(int x)
 	{
@@ -21,59 +31,47 @@ public abstract class LinkedList {
 			System.out.print(current.getData()+" ");
 			current = current.getNext();
 		}
-		System.out.println(" ");
+		System.out.println();
 	}
 	
 	public void insert(int x)
 	{
-		
+		if(head==null)
+		{
+			head = new Node(x);
+			return;
+		}
 		if(x<=head.getData())
-		{ 
-			head = new Node(x, head); //You are creating a new node with value X=1. the next value points to the head (7).
+		{
+			head = new Node(x, head); // case 1
 			return;
 		}
 		Node current = head;
 		Node previous = head;
-		//x is 18 in the notes. So now it find 31. It will fail. But it is too late now.
-		//We create previous. Previous is always 1 behind current.
-		while(current!=null)
-		{
+		while(current!=null){
 			if(x>current.getData())
-			{//Case 1
+			{
 				previous = current;
 				current = current.getNext();
 			} 
 			else 
 			{
-				previous.setNext(new Node(x,current)); // Case 2
+				previous.setNext(new Node(x,current)); // case 2
 				return;
-				//First is constructor. the New Node. The Node is x=18. 
-				//Current is pointing to 31 for the 18. 
-				//You pass into setnext to change the pointer to 18.
-				//12 has its pointer changed. 
-				//OR, 3 lines
-				//Node temp= new Node(x);
-				//temp.setNext(current);
-				//previous.SetNext(temp); They are the same
 			}
 		}
 		previous.setNext(new Node(x)); // case 3
-		//if X=40. Then you do this.
-		//We need this because if X=40, you break while loop. So just do this.
 	}
 
-	//Adding Nodes
 	public boolean delete(int x)
 	{
 		if(head.getData()==x)
 		{
 			head = head.getNext(); // case 1
-			//This deletes the head. 
-			return true; //confirm deletion
+			return true;
 		}
 		Node current = head.getNext();
 		Node previous = head;
-		//Getting rid of current. It deletes by changing previous pointer to skip the Node.
 		while(current!=null){
 			if(current.getData()==x)
 			{
@@ -81,7 +79,7 @@ public abstract class LinkedList {
 				return true;
 			} 
 			else if(current.getData()>x)
-			{ 	//What if the number doesn't exist in the Nodes?
+			{
 				break;
 			} 
 			else 
@@ -90,30 +88,129 @@ public abstract class LinkedList {
 				current = current.getNext();
 			}
 		} // while
-		return false; //Nothing to delete
+		return false;
 	}
 	
 	public void append(int x)
-	{//Append is add to the end
+	{
+		if (head == null)
+		{
+			head = new Node(x);
+			return;
+		}
 		Node current = head;
 		while(current.getNext()!=null)
 		{
-			current = current.getNext(); //Keep going until no null pointer
+			current = current.getNext();
 		}
 		// Node temp = new Node(x);
 		// current.setNext(temp);
-		current.setNext(new Node(x)); //Create node where the is null pointer.
+		current.setNext(new Node(x));
 	}
+	
+//Homework 7 Additions=========================================================================================
 	
 	public int getSize()
 	{
 		Node current=head;
 		while (current!=null)
 		{
-			count=count+1;
-			current=current.getNext();
+			size++;
 		}
-		return count;
+		return size;
 	}
-	abstract void clearAll();	
+	
+	public void sum (int n)
+	{
+		int sum=0;
+		if (n <= 0)
+		{
+			try 
+			{
+		           PrintWriter add= 
+		        		  new PrintWriter(
+		                  new BufferedWriter(
+		                  new OutputStreamWriter(
+		                  new FileOutputStream("sum.txt"))));
+		           add.print("The sum of all values of the linked list is: " + sum);
+		           add.flush();
+		           add.close();
+			}
+			catch (IOException ioe) 
+			{         
+				System.out.print("IO Exception occured");
+			}
+			System.out.println("The sum of all values of the linked list is: " + sum);
+			return; //break out of the method.
+		}
+	
+		Node current=head;
+			//Move to Node n location
+			while(current!=null && n!=1)
+			{
+				current=current.getNext();
+				n--;
+			}
+		
+			//Sum it up
+			try
+			{
+				sum=current.sum(current);
+			}
+		
+			catch (MyException mE)
+			{
+				System.out.println("Error!!! A node in this linked list has a value less than 0!!!");
+			}
+			catch (NullPointerException nfe)
+			{
+				System.out.println("Null Pointer exception...please put a valid number of nodes");
+			}
+			System.out.println("The sum is: "+ sum);
+			
+			try 
+			{
+		           PrintWriter add= 
+		        		  new PrintWriter(
+		                  new BufferedWriter(
+		                  new OutputStreamWriter(
+		                  new FileOutputStream("sum.txt"))));
+		           add.print("The sum of the Linked List is: "+ sum);
+		           add.flush();
+		           add.close();
+			}
+			catch (IOException ioe) 
+			{         
+				System.out.print("IO Exception occured");
+			}
+	}
+	
+	public void printB()
+	{
+		Node current=head;
+		
+		try
+		{
+			 PrintWriter PrintBack = 
+				new PrintWriter( 
+				new BufferedWriter(
+				new OutputStreamWriter(
+                new FileOutputStream("trashcan.txt"))));
+	      
+			 current.printBackwards(PrintBack);	
+	         PrintBack.flush();
+	         PrintBack.close();
+		}
+		
+		catch (IOException ioe) 
+		{         
+			System.out.print("IO Exception occured");
+		}
+		catch (MyException mE)
+		{
+			System.out.println("There is a Number 9 in this Linked List...");
+		}
+		   
+	}//end of method
+	
 }
