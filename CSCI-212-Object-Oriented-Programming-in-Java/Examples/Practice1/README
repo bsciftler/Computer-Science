@@ -1,1 +1,3 @@
+1) Create a method that will simulate the rolling of a die 300 times. Use the random method of class Math to generate numbers between 1 and 6. Create an array of type int to count how many times a number was rolled. After all 300 rolls, print out to the console how many times each number was rolled. (Hint: The random method returns a number of type double between 0 and 1. In order to get a “random” number between 1 and 6, multiply the double returned by the random function by 6 and then call the ceil function from the Math class on this result.) 
+
 
