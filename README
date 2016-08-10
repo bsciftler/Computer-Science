@@ -1,8 +1,12 @@
-This repository contains all my work that is computer science related.
-All my recreational projects will be on the main branch page. As of now, I want to complete a Linear Algebra class that will have all the functions such as
-determinant 
-Matrix Multiplication (Completed)
-Matrix Addition
-Eigenvalues
+This repository contains all my computer science related work.
 The seperate folders contain all homework assignments for the Computer Science classes I took.
+All my recreational projects will be on the main branch page. As of now, I am working on creating a Linear Algebra Class. It will have functions such as:
+1) Matrix Multiplication (Completed)
+2) Matrix Addition (Completed)
+3) Eigenvalues (IP)
+4) Determinants (IP) (I will probably use Jordan-Gauss elimination for the challenge and it is more scalable for larger matrices)
+5) Using Matrix Multiplication to generate differential equations. (IP) 
+6) Using Matrix Multiplication to do Integration (IP)
+I will probably draw inpiration from my other math coureses to build other classes in due time.
+
 
