@@ -4,11 +4,13 @@ All my recreational projects will be on the main branch page. As of now, I am wo
 1) Matrix Multiplication (Completed)
 2) Matrix Addition (Completed)
 3) Eigenvalues (In Progress)
-4) Determinants (IP) (I will use Jordan-Gauss elimination to create an Upper Triangular matrix so it is scalable for large matrices)
+4) Determinants (In Progress) (I will use Jordan-Gauss elimination to create an Upper Triangular matrix so it is scalable for large matrices)
 5-6) (Completed)
 Given an input of an integer array to represent a polynomial equation e.g. {40, 10, 20, 10} to represent:
 40+10x+20x^2+10x^3. Use multiplication to get the differential and integral formulas.
+7) Get the Trace of a Square Matrix. (Completed)
 I will probably draw inpiration from my other math coureses to build other classes in due time.
+
 
 I have also created some bash scripts that serve as intrusion detection for Red Hat Enterprise Linux 5. I intend to update them during the summer to work for Red Hat Enterprise Linux 7 and place the scripts here.
 
