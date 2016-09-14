@@ -21,7 +21,7 @@ public abstract class LinkedList2
 	}
 	
 	protected int getSize(){return SIZE;}
-	
+	public abstract void print();
 	protected abstract Node find(int x);
 	
 	protected boolean delete(int newID)

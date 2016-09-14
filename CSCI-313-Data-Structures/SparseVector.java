@@ -60,7 +60,7 @@ public class SparseVector extends LinkedList2
 			return;
 		}
 		
-		if (dataSize >= 0)
+		if (dataSize >= 1)
 		{
 			insert(newID,newValue);
 			++dataSize;
@@ -86,7 +86,7 @@ public class SparseVector extends LinkedList2
 			}
 			else 
 			{
-				current.getPrevious().setNext(new Node(newID, newValue,current, current.getPrevious())); // case 2
+				current.getPrevious().setNext(new Node(newID, newValue,current, current.getPrevious())); 
 				current.setPrevious(current.getPrevious().getNext());
 				return;
 			}
@@ -127,7 +127,7 @@ public class SparseVector extends LinkedList2
 		}
 		return current;
 	}
-//=====================FOUR MATH FUNCTIONS====================================================
+//=======================================FOUR MATH FUNCTIONS====================================================
 	public void add (SparseVector B)
 	{
 		Node CurrentA=head;
