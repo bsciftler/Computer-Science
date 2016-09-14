@@ -28,16 +28,18 @@ public class LinkedInput
 		try
 		{
 			Lion.set(4,10);
-			Lion.set(7,15);
+			System.out.println("HEAD INFO: ID: "+ 	Lion.getHead().getID() + " SIZE: " + Lion.getDataSize() + " VAL: " + Lion.getHead().getValue());
+			Lion.set(2,15);
 			Lion.set(9,140);
 			Lion.set(10,14);
 			Lion.set(15,116);
-			//Lion.set(100, 0);
+			Lion.set(9, 0);
 		}
 		catch (VectorException V)
 		{
 			return;
 		}
 		Lion.print();
+		System.out.println("HEAD INFO: ID: "+ 	Lion.getHead().getID() + " SIZE: " + Lion.getDataSize() + " VAL: " + Lion.getHead().getValue());
 	}
 }

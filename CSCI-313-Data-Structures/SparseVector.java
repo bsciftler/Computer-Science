@@ -1,22 +1,15 @@
 import javax.swing.JOptionPane;
 
-public class SparseVector 
+public class SparseVector extends LinkedList2
 {
-	private Node head;
-	private int ID;
-	private int SIZE;
 	private int dataSize=0;
-	private int value;
 	
 	public SparseVector(int newSize)
 	{
 		SIZE=newSize;//Using all caps, as I am treating this as "final".
 	}
 	
-	public Node getHead()
-	{
-		return head;
-	}
+	public int getDataSize() { return dataSize;}
 	
 	public void print()
 	{
@@ -64,11 +57,14 @@ public class SparseVector
 		{
 			head=new Node (newID, newValue);
 			++dataSize;
+			return;
 		}
 		
-		if (dataSize >= 1)
+		if (dataSize >= 0)
 		{
 			insert(newID,newValue);
+			++dataSize;
+			return;
 		}
 	}
 	
@@ -80,12 +76,11 @@ public class SparseVector
 			head.getNext().setPrevious(head);
 			return;
 		}
-		
 		Node current = head;
 		while(current.getNext()!=null) //Case 2: Append in between
 		{
 			current = current.getNext();
-			if(current.getID() > current.getID())
+			if(newID > current.getID())
 			{
 				continue;
 			}
@@ -97,7 +92,6 @@ public class SparseVector
 			}
 		}// while
 		current.setNext(new Node(newID, newValue, null, current));//Case 3: Append at the end
-		++dataSize;
 	}
 	
 	public int getValue(int searchID)
@@ -112,17 +106,28 @@ public class SparseVector
 		}
 	}
 	
-	private void append (Node input)
+	protected Node find(int newID)
 	{
-		Node current=head;
-		while (current.getNext()!=null)
+//THIS WORKS ASSUMING THE LIST IS SORTED IN ASCENDING ORDER!!
+		Node current = head;
+		while (current!=null)
 		{
-			current=current.getNext();
+			if(current.getID()==newID)
+			{
+				return current;
+			} 
+			else if(current.getID()< newID)
+			{
+				current = current.getNext();
+			} 
+			else 
+			{
+				current = null;
+			}
 		}
-		input.setNext(null);
-		input.setPrevious(current);
+		return current;
 	}
-	
+//=====================FOUR MATH FUNCTIONS====================================================
 	public void add (SparseVector B)
 	{
 		Node CurrentA=head;
@@ -131,13 +136,23 @@ public class SparseVector
 		{
 			if (CurrentA.getID()==CurrentB.getID())
 			{
-				CurrentA.setValue(CurrentA.getID()+CurrentB.getID());
+				CurrentA.setValue(CurrentA.getValue()+ CurrentB.getValue());
 				CurrentA=CurrentA.getNext();
 				CurrentB=CurrentB.getNext();
 				continue;
 			}
-			CurrentA=CurrentA.getNext();
-			CurrentB=CurrentB.getNext();
+			if (CurrentA.getID() < CurrentB.getID())
+			{
+				CurrentA.setValue(CurrentA.getValue());
+				CurrentA=CurrentA.getNext();
+				continue;
+			}
+			if (CurrentA.getID() > CurrentB.getID())
+			{
+				CurrentB.setValue(CurrentB.getValue());
+				CurrentB=CurrentB.getNext();
+				continue;
+			}
 		}
 //==================LEFTOVER NODES CHECK================
 		if (CurrentA==null)
@@ -178,10 +193,21 @@ public class SparseVector
 					this.insert(CurrentA.getID(), CurrentA.getID() * CurrentB.getID());
 					//OR DO I DELETE?
 					continue;
-				}
+				}				
 			}
-			CurrentA=CurrentA.getNext();
-			CurrentB=CurrentB.getNext();
+			if (CurrentA.getID() < CurrentB.getID())
+			{
+				CurrentA.setValue(CurrentA.getValue());
+				CurrentA=CurrentA.getNext();
+				continue;
+			}
+			
+			if (CurrentA.getID() > CurrentB.getID())
+			{
+				CurrentA.setValue(CurrentB.getValue());
+				CurrentB=CurrentB.getNext();
+				continue;
+			}
 		}
 		//==================LEFTOVER NODES CHECK================
 		if (CurrentA==null)
@@ -225,8 +251,18 @@ public class SparseVector
 					continue;
 				}
 			}
-			CurrentA=CurrentA.getNext();
-			CurrentB=CurrentB.getNext();
+			if (CurrentA.getID() < CurrentB.getID())
+			{
+				CurrentA.setValue(CurrentA.getValue());
+				CurrentA=CurrentA.getNext();
+				continue;
+			}
+			if (CurrentA.getID() > CurrentB.getID())
+			{
+				CurrentB.setValue(CurrentB.getValue());
+				CurrentB=CurrentB.getNext();
+				continue;
+			}
 		}
 //==================LEFTOVER NODES CHECK================
 		if (CurrentA==null)
@@ -279,79 +315,45 @@ public class SparseVector
 					continue;
 				}
 			}
-			CurrentA=CurrentA.getNext();
-			CurrentB=CurrentB.getNext();
-		}
-		//==================LEFTOVER NODES CHECK================
-				if (CurrentA==null)
-				{
-					while (CurrentB!=null)
-					{
-						if (CurrentB.getValue()==0)
-						{
-							CurrentB=CurrentB.getNext();
-							continue;
-						}
-						this.append(CurrentB);
-						CurrentB=CurrentB.getNext();
-					}
-				}
-				if (CurrentB==null)
-				{
-					while (CurrentA!=null)
-					{
-						if (CurrentA.getValue()==0)
-						{
-							CurrentA=CurrentA.getNext();
-							continue;
-						}
-						this.append(CurrentA);
-						CurrentA=CurrentA.getNext();
-					}
-				}
-	}
-	
-	private Node find(int newID)
-	{
-//THIS WORKS ASSUMING THE LIST IS SORTED IN ASCENDING ORDER!!
-		Node current = head;
-		while (current!=null)
-		{
-			if(current.getID()==newID)
+			if (CurrentA.getID() < CurrentB.getID())
 			{
-				return current;
-			} 
-			else if(current.getID()< newID)
+				CurrentA.setValue(CurrentA.getValue());
+				CurrentA=CurrentA.getNext();
+				continue;
+			}
+			if (CurrentA.getID() > CurrentB.getID())
 			{
-				current = current.getNext();
-			} 
-			else 
-			{
-				current = null;
+				CurrentB.setValue(CurrentB.getValue());
+				CurrentB=CurrentB.getNext();
+				continue;
 			}
 		}
-		return current;
-	}
-
-	private boolean delete(int newID)
-	{
-		Node found = find(newID);
-		if (found == null)
+//==================LEFTOVER NODES CHECK================
+		if (CurrentA==null)
 		{
-			return false;
+			while (CurrentB!=null)
+			{
+				if (CurrentB.getValue()==0)
+				{	
+					CurrentB=CurrentB.getNext();
+					continue;
+				}
+				this.append(CurrentB);
+				CurrentB=CurrentB.getNext();
+				}
+			}			
+		if (CurrentB==null)
+		{
+			while (CurrentA!=null)
+			{
+				if (CurrentA.getValue()==0)
+				{
+					CurrentA=CurrentA.getNext();
+					continue;
+				}
+				this.append(CurrentA);
+				CurrentA=CurrentA.getNext();
+			}
 		}
-		if(found.getPrevious()!=null)
-		{
-			found.getPrevious().setNext(found.getNext());
-		} 
-		else
-		{
-			head = head.getNext();
-		}
-		if(found.getNext()!=null)
-		{
-			found.getNext().setPrevious(found.getPrevious());
-		}
-		return true;
 	}
 }
