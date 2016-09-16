@@ -12,6 +12,7 @@ public class SparseVector extends LinkedList2
 	public int getDataSize() { return dataSize;}
 	public int getSize() {return SIZE;}
 	public int getNumElement() {return dataSize;}
+	
 	public int [] getAllIDs()
 	{
 		int [] values=new int[dataSize];
@@ -38,25 +39,6 @@ public class SparseVector extends LinkedList2
 			++counter;
 		}
 		return values;
-	}
-
-
-	public SparseVector addition (SparseMatrix B)
-	{
-		SparseVector Answer=new SparseVector(this.getSize());
-		return Answer;
-	}
-	
-	public SparseVector subtraction (SparseMatrix B)
-	{
-		SparseVector Answer=new SparseVector(this.getSize());
-		return Answer;
-	}
-	
-	public SparseVector multiplication (SparseMatrix B)
-	{
-		SparseVector Answer=new SparseVector(this.getSize());
-		return Answer;
 	}
 	
 	public void print()
@@ -175,29 +157,43 @@ public class SparseVector extends LinkedList2
 		}
 		return current;
 	}
-//=======================================FOUR MATH FUNCTIONS====================================================
-	public void add (SparseVector B)
+//=============================THREE MATH FUNTIONS=========================================================
+
+	public SparseVector addition (SparseVector B) throws VectorException
 	{
+		if (this.getSize()!=B.getSize())
+		{
+			throw new VectorException("THE SIZE OF BOTH SPARE VECTORS ARE NOT THE SAME!!");
+		}
+		SparseVector Answer=new SparseVector(this.getSize());
+		
 		Node CurrentA=head;
 		Node CurrentB=B.getHead();
+		
 		while (CurrentA != null && CurrentB!= null)
 		{
 			if (CurrentA.getID()==CurrentB.getID())
 			{
-				CurrentA.setValue(CurrentA.getValue()+ CurrentB.getValue());
+				if (CurrentA.getValue()-CurrentB.getValue()==0)
+				{
+					CurrentA=CurrentA.getNext();
+					CurrentB=CurrentB.getNext();
+					continue;
+				}
+				Answer.set(CurrentA.getID(), CurrentA.getValue()+ CurrentB.getValue());
 				CurrentA=CurrentA.getNext();
 				CurrentB=CurrentB.getNext();
 				continue;
 			}
 			if (CurrentA.getID() < CurrentB.getID())
 			{
-				CurrentA.setValue(CurrentA.getValue());
+				Answer.set(CurrentA.getID(), CurrentA.getValue());
 				CurrentA=CurrentA.getNext();
 				continue;
 			}
 			if (CurrentA.getID() > CurrentB.getID())
 			{
-				CurrentB.setValue(CurrentB.getValue());
+				Answer.set(CurrentB.getID(), CurrentB.getValue());
 				CurrentB=CurrentB.getNext();
 				continue;
 			}
@@ -207,7 +203,7 @@ public class SparseVector extends LinkedList2
 		{
 			while (CurrentB!=null)
 			{
-				this.append(CurrentB);
+				Answer.append(CurrentB);
 				CurrentB=CurrentB.getNext();
 			}
 		}
@@ -215,44 +211,48 @@ public class SparseVector extends LinkedList2
 		{
 			while (CurrentA!=null)
 			{
-				this.append(CurrentA);
+				Answer.append(CurrentA);
 				CurrentA=CurrentA.getNext();
 			}
 		}
+		return Answer;
 	}
 	
-	public void subtract (SparseVector B)
+	public SparseVector subtract (SparseVector B) throws VectorException
 	{
+		if (this.getSize()!=B.getSize())
+		{
+			throw new VectorException("THE SIZE OF BOTH SPARE VECTORS ARE NOT THE SAME!!");
+		}
+		SparseVector Answer=new SparseVector(this.getSize());
+		
 		Node CurrentA=head;
 		Node CurrentB=B.getHead();
+		
 		while (CurrentA != null && CurrentB!= null)
 		{
 			if (CurrentA.getID()==CurrentB.getID())
 			{
-				if (CurrentA.getValue() - CurrentB.getValue()==0)
+				if (CurrentA.getValue()+CurrentB.getValue()==0)
 				{
 					CurrentA=CurrentA.getNext();
 					CurrentB=CurrentB.getNext();
-					//OR YOU DELETE???
 					continue;
 				}
-				else
-				{
-					this.insert(CurrentA.getID(), CurrentA.getID() * CurrentB.getID());
-					//OR DO I DELETE?
-					continue;
-				}				
+				Answer.set(CurrentA.getID(), CurrentA.getValue()+ CurrentB.getValue());
+				CurrentA=CurrentA.getNext();
+				CurrentB=CurrentB.getNext();
+				continue;
 			}
 			if (CurrentA.getID() < CurrentB.getID())
 			{
-				CurrentA.setValue(CurrentA.getValue());
+				Answer.set(CurrentA.getID(), CurrentA.getValue());
 				CurrentA=CurrentA.getNext();
 				continue;
 			}
-			
 			if (CurrentA.getID() > CurrentB.getID())
 			{
-				CurrentA.setValue(CurrentB.getValue());
+				Answer.set(CurrentB.getID(), CurrentB.getValue());
 				CurrentB=CurrentB.getNext();
 				continue;
 			}
@@ -262,7 +262,7 @@ public class SparseVector extends LinkedList2
 		{
 			while (CurrentB!=null)
 			{
-				this.append(CurrentB);
+				Answer.append(CurrentB);
 				CurrentB=CurrentB.getNext();
 			}
 		}
@@ -270,14 +270,20 @@ public class SparseVector extends LinkedList2
 		{
 			while (CurrentA!=null)
 			{
-				this.append(CurrentA);
+				Answer.append(CurrentA);
 				CurrentA=CurrentA.getNext();
 			}
 		}
+		return Answer;
 	}
 	
-	public void multiply (SparseVector B)
+	public void multiply (SparseVector B) throws VectorException
 	{
+		if (this.getSize()!=B.getSize())
+		{
+			throw new VectorException("THE SIZE OF BOTH SPARE VECTORS ARE NOT THE SAME!!");
+		}
+		SparseVector Answer=new SparseVector(this.getSize());
 		Node CurrentA=head;
 		Node CurrentB=B.getHead();
 		
@@ -285,29 +291,26 @@ public class SparseVector extends LinkedList2
 		{
 			if (CurrentA.getID()==CurrentB.getID())
 			{
-				if (CurrentA.getValue()==0 || CurrentB.getValue()==0)
+				if (CurrentA.getValue()== 0 || CurrentB.getValue()==0)
 				{
 					CurrentA=CurrentA.getNext();
 					CurrentB=CurrentB.getNext();
-					//OR YOU DELETE???
 					continue;
 				}
-				else
-				{
-					this.insert(CurrentA.getID(), CurrentA.getID() * CurrentB.getID());
-					//OR DO I DELETE?
-					continue;
-				}
+				Answer.set(CurrentA.getID(), CurrentA.getValue()+ CurrentB.getValue());
+				CurrentA=CurrentA.getNext();
+				CurrentB=CurrentB.getNext();
+				continue;
 			}
 			if (CurrentA.getID() < CurrentB.getID())
 			{
-				CurrentA.setValue(CurrentA.getValue());
+				Answer.set(CurrentA.getID(), CurrentA.getValue());
 				CurrentA=CurrentA.getNext();
 				continue;
 			}
 			if (CurrentA.getID() > CurrentB.getID())
 			{
-				CurrentB.setValue(CurrentB.getValue());
+				Answer.set(CurrentB.getID(), CurrentB.getValue());
 				CurrentB=CurrentB.getNext();
 				continue;
 			}
@@ -322,7 +325,7 @@ public class SparseVector extends LinkedList2
 					CurrentB=CurrentB.getNext();
 					continue;
 				}
-				this.append(CurrentB);
+				Answer.append(CurrentB);
 				CurrentB=CurrentB.getNext();
 			}	
 		}
@@ -335,7 +338,7 @@ public class SparseVector extends LinkedList2
 					CurrentA=CurrentA.getNext();
 					continue;
 				}
-				this.append(CurrentA);
+				Answer.append(CurrentA);
 				CurrentA=CurrentA.getNext();
 			}
 		}

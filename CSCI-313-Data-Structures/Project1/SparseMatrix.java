@@ -1,11 +1,16 @@
 public class SparseMatrix 
 {
+	private class MatrixBox <E> 
+	{
+
+	}
+	
 	private int SIZE;
 	private int numRows=0;
 	private int numColumns=0;
 	private int numofElements=0;
-	private int rowHead;//FIRST ROW
-	private int columnHead;//FIRST COLUMN
+	private RowNode rowHead;//FIRST ROW
+	private ColumnNode columnHead;//FIRST COLUMN
 	
 	public SparseMatrix(int length)
 	{
@@ -13,8 +18,8 @@ public class SparseMatrix
 	}
 	
 	public int getSize(){return SIZE;}
-	public int getRHead() {return rowHead;}
-	public int getCHead() {return columnHead;}
+	public RowNode getRHead() {return rowHead;}
+	public ColumnNode getCHead() {return columnHead;}
 
 	private boolean outofBounds(int row, int column)
 	{
@@ -49,21 +54,14 @@ public class SparseMatrix
 	private Node find(int row, int column)
 	{
 //THIS WORKS ASSUMING THE LIST IS SORTED IN ASCENDING ORDER!!
-		Node Rcurrent = rowHead;
-		Node CCurrent = columnHead;
-		while (Rcurrent!=null && Current!=null)
+		Node current=null;
+		RowNode Rcurrent = rowHead;
+		ColumnNode CCurrent = columnHead;
+		while (Rcurrent!=null)
 		{
-			if(current.getID()==newID)
+			if(Rcurrent.getRowID()==row)
 			{
-				return current;
-			} 
-			else if(current.getID()< newID)
-			{
-				current = current.getNext();
-			} 
-			else 
-			{
-				current = null;
+				
 			}
 		}
 		return current;
@@ -72,32 +70,77 @@ public class SparseMatrix
 	
 	public void addElement(int row, int column, int ID, int value)
 	{
-		new Node (row, column, value);
+		if (value==0)
+		{
+			
+		}
+		
+		if (numofElements==0)
+		{
+			rowHead=new RowNode (row);
+			columnHead=new ColumnNode (column);
+			rowHead.setNextNode(new Node (ID, row, column, value));
+			columnHead.setNextNode(new Node (ID, row, column, value));
+			return;
+		}
+		if (numofElements>=1)
+		{
+			
+		}
+		new Node (ID, row, column, value);
 		new RowNode (row);
 		new ColumnNode (column);
 	}
 	
 	public int [] getOneRowID()
 	{
+		RowNode current=rowHead;
 		int [] answer=new int [numRows];
+		int counter=0;
+		while(current!=null)
+		{
+		// answer[counter]=current.getNextNode().getRowID();
+		//	current=current.getNextNode();
+		}
 		return answer;
 	}
 
 	public int [] getOneRowValue()
 	{
+		RowNode current=rowHead;
 		int [] answer=new int [numRows];
+		int counter=0;
+		while(current!=null)
+		{
+			//answer[counter]=current.getNextNode().getRowID();
+			//current=current.getNextNode();
+		}
 		return answer;
 	}
 	
 	public int [] getOneColumnID()
 	{
-		int [] answer=new int [numColumns];
+		RowNode current=rowHead;
+		int [] answer=new int [numRows];
+		int counter=0;
+		while(current!=null)
+		{
+			//answer[counter]=current.getNextNode().getRowID();
+			//current=current.getNextNode();
+		}
 		return answer;
 	}
 	
 	public int [] getOneColumnValue()
 	{
-		int [] answer=new int [numColumns];
+		RowNode current=rowHead;
+		int [] answer=new int [numRows];
+		int counter=0;
+		while(current!=null)
+		{
+			answer[counter]=current.getNextNode().getRowID();
+			current=current.getNextNode();
+		}
 		return answer;
 	}
 	
@@ -108,20 +151,32 @@ public class SparseMatrix
 	}
 //=====================================FINAL PART================================
 	
-	public SparseMatrix addition (SparseMatrix B)
+	public SparseMatrix addition (SparseMatrix B) throws VectorException
 	{
+		if (this.getSize()!=B.getSize())
+		{
+			throw new VectorException("NOT THE SAME SIZE");
+		}
 		SparseMatrix Answer=new SparseMatrix(this.getSize());
 		return Answer;
 	}
 	
-	public SparseMatrix subtraction (SparseMatrix B)
+	public SparseMatrix subtraction (SparseMatrix B) throws VectorException
 	{
+		if (this.getSize()!=B.getSize())
+		{
+			throw new VectorException("NOT THE SAME SIZE");
+		}
 		SparseMatrix Answer=new SparseMatrix(this.getSize());
 		return Answer;
 	}
 	
-	public SparseMatrix multiplication (SparseMatrix B)
+	public SparseMatrix multiplication (SparseMatrix B) throws VectorException
 	{
+		if (this.getSize()!=B.getSize())
+		{
+			throw new VectorException("NOT THE SAME SIZE");
+		}
 		SparseMatrix Answer=new SparseMatrix(this.getSize());
 		return Answer;
 	}
