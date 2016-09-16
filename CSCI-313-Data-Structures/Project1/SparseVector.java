@@ -10,6 +10,54 @@ public class SparseVector extends LinkedList2
 	}
 	
 	public int getDataSize() { return dataSize;}
+	public int getSize() {return SIZE;}
+	public int getNumElement() {return dataSize;}
+	public int [] getAllIDs()
+	{
+		int [] values=new int[dataSize];
+		Node current=head;
+		int counter=0;
+		while (current!=null)
+		{
+			values[counter]=current.getValue();
+			current=current.getNext();
+			++counter;
+		}
+		return values;
+	}
+	
+	public int [] getAllValues()
+	{
+		int [] values=new int[dataSize];
+		Node current=head;
+		int counter=0;
+		while (current!=null)
+		{
+			values[counter]=current.getID();
+			current=current.getNext();
+			++counter;
+		}
+		return values;
+	}
+
+
+	public SparseVector addition (SparseMatrix B)
+	{
+		SparseVector Answer=new SparseVector(this.getSize());
+		return Answer;
+	}
+	
+	public SparseVector subtraction (SparseMatrix B)
+	{
+		SparseVector Answer=new SparseVector(this.getSize());
+		return Answer;
+	}
+	
+	public SparseVector multiplication (SparseMatrix B)
+	{
+		SparseVector Answer=new SparseVector(this.getSize());
+		return Answer;
+	}
 	
 	public void print()
 	{
@@ -292,68 +340,4 @@ public class SparseVector extends LinkedList2
 			}
 		}
 	}
-	
-	public void divide (SparseVector B)
-	{
-		Node CurrentA=head;
-		Node CurrentB=B.getHead();
-		while (CurrentA != null && CurrentB!= null)
-		{
-			if (CurrentA.getID()==CurrentB.getID())
-			{
-				if (CurrentA.getValue()==0 || CurrentB.getValue()==0)
-				{
-					CurrentA=CurrentA.getNext();
-					CurrentB=CurrentB.getNext();
-					//OR YOU DELETE???
-					continue;
-				}
-				else
-				{
-					this.insert(CurrentA.getID(), CurrentA.getID() * CurrentB.getID());
-					//OR DO I DELETE?
-					continue;
-				}
-			}
-			if (CurrentA.getID() < CurrentB.getID())
-			{
-				CurrentA.setValue(CurrentA.getValue());
-				CurrentA=CurrentA.getNext();
-				continue;
-			}
-			if (CurrentA.getID() > CurrentB.getID())
-			{
-				CurrentB.setValue(CurrentB.getValue());
-				CurrentB=CurrentB.getNext();
-				continue;
-			}
-		}
-//==================LEFTOVER NODES CHECK================
-		if (CurrentA==null)
-		{
-			while (CurrentB!=null)
-			{
-				if (CurrentB.getValue()==0)
-				{	
-					CurrentB=CurrentB.getNext();
-					continue;
-				}
-				this.append(CurrentB);
-				CurrentB=CurrentB.getNext();
-				}
-			}			
-		if (CurrentB==null)
-		{
-			while (CurrentA!=null)
-			{
-				if (CurrentA.getValue()==0)
-				{
-					CurrentA=CurrentA.getNext();
-					continue;
-				}
-				this.append(CurrentA);
-				CurrentA=CurrentA.getNext();
-			}
-		}
-	}
-}
+}//END OF CLASS
