@@ -1,7 +1,7 @@
 
 public class VectorException extends Exception
 {
-	public VectorException(String output)
+	public VectorException (String output)
 	{
 		super(output);
 	}
