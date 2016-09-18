@@ -35,7 +35,7 @@ public class LLSparseM implements SparseM
 		if (outofBounds(row,column))
 		{
 			JOptionPane.showMessageDialog(null, "OUT OF BOUNDS!!!");
-			return -1;
+			return 0;
 		}
 		
 		//Find the Element
@@ -84,13 +84,23 @@ public class LLSparseM implements SparseM
 		}
 		
 	}
+	
+	public SparseMNode getRowHead()
+	{
+		return rowHead;
+	}
+	
+	public SparseMNode getColumnHead()
+	{
+		return columnHead;
+	}
 
 	public void setElement(int ridx, int cidx, int value)
 	{
 		
 		if (outofBounds(ridx,cidx))
 		{
-			JOptionPane.showMessageDialog(null, "INVALID ROW AND OR COLUMN, OUT OF BOUNDS!!");
+			JOptionPane.showMessageDialog(null, "INVALID ROW AND/OR COLUMN, OUT OF BOUNDS!!");
 			return;
 		}
 		
@@ -245,17 +255,52 @@ public class LLSparseM implements SparseM
 	}
 
 //=====================Other Methods I made-===================================================================
+	
+	public void print()
+	{
+		if (numofElements==0)
+		{
+			for (int i=0;i<ROWS;i++)
+			{
+				for (int j=0;j<COLUMNS;j++)
+				{
+					System.out.println("0");
+				}
+				System.out.println(" ");
+			}
+		}
+		SparseMNode RowPrint=rowHead;
+//THIS ONLY WORKS FOR THE FIRST ROW!!!!!!!!!!!!!!!!!!
+		if (numofElements >= 1)
+		{
+			for (int i=0;i<ROWS;i++)
+			{
+				for (int j=0;j<COLUMNS;j++)
+				{
+					if (RowPrint!=null && RowPrint.getColumn()==j)
+					{
+						System.out.print(RowPrint.getValue());
+						RowPrint=RowPrint.getNextColumn();
+					}
+					else
+					{
+						System.out.print("0");
+					}
+				}
+				System.out.println(" ");
+			}
+		}
+		return;
+	}
+	
+	
 	private boolean outofBounds(int row, int column)
 	{
-		if (row > ROWS || row < 0)
+		if (row > ROWS || row < 0 || column < 0 || column > COLUMNS)
 		{
-			return false;
+			return true;
 		}
-		if (column > COLUMNS || column < 0)
-		{
-			return false;
-		}
-		return true;
+		return false;
 	}
 	
 	private SparseMNode findRowID (int rowSearch)
@@ -271,6 +316,7 @@ public class LLSparseM implements SparseM
 		}
 		return current;//return null
 	}
+	
 	private SparseMNode findColumnID (int columnSearch)
 	{
 		SparseMNode current= columnHead;
