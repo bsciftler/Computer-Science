@@ -136,9 +136,12 @@ public class LLSparseM implements SparseM
 
 	public int [] getRowIndices()
 	{
-		//WHAT IF ROW DOESNT EXIST?
 		SparseMNode current = rowHead;
-		int [] Rows=new int [rowCount()];//Too big???
+		int [] Rows=new int [rowCount()];//Or use COLUMN/ROW?
+		if (current==null)
+		{
+			return Rows;
+		}
 		int counter=0;
 		while (current!=null)
 		{
@@ -151,10 +154,13 @@ public class LLSparseM implements SparseM
 
 	public int[] getColIndices()
 	{
-		//WHAT IF COLUMN DOES NOT EXIST?
-		int [] ColIndex=new int[columnCount()];
-		int counter=0;
 		SparseMNode current= columnHead;
+		int [] ColIndex=new int[columnCount()];//or use COLUMN/ROW?
+		if (current==null)
+		{
+			return ColIndex;
+		}
+		int counter=0;
 		while (current!=null)
 		{
 			ColIndex[counter]=current.getColumn();
@@ -166,10 +172,13 @@ public class LLSparseM implements SparseM
 
 	public int[] getOneRowColIndices(int ridx)
 	{
-		//WHAT IF ROW DOESNT EXIST?
-		int [] RowIndex=new int[columnCount()];
+		int [] RowIndex=new int[columnCount()];//USE COLUMN/ROW?
 		int counter=0;
 		SparseMNode current= findRowID(ridx).getNextColumn();
+		if (current==null)
+		{
+			return RowIndex;
+		}
 		while (current!=null)
 		{
 			RowIndex[counter]=current.getColumn();
@@ -181,9 +190,13 @@ public class LLSparseM implements SparseM
 
 	public int[] getOneRowValues(int ridx)
 	{
-		//WHAT IF ROW DOESNT EXIST?
 		SparseMNode current = findRowID(ridx).getNextColumn();
-		int [] RowVals=new int [columnCount()];//Too big???
+		int [] RowVals=new int [columnCount()];///USE COLUMN/ROW?
+		if (current==null)
+		{
+			return RowVals;
+		}
+		
 		int counter=0;
 		while (current!=null)
 		{
@@ -196,9 +209,12 @@ public class LLSparseM implements SparseM
 
 	public int[] getOneColRowIndices(int cidx)
 	{
-		//WHAT IF ROW DOESNT EXIST?
 		SparseMNode current = findColumnID(cidx).getNextRow();
-		int [] ColumnRowID=new int [rowCount()];//Too big???
+		int [] ColumnRowID=new int [rowCount()];//USE ROW/COLUMN
+		if (current==null)
+		{
+			return ColumnRowID;
+		}
 		int counter=0;
 		while (current!=null)
 		{
@@ -211,9 +227,12 @@ public class LLSparseM implements SparseM
 
 	public int[] getOneColValues(int cidx)
 	{
-		//WHAT IF ROW DOESNT EXIST?
 		SparseMNode current = findColumnID(cidx).getNextRow();
-		int [] ColumnRowVals=new int [rowCount()];//Too big???
+		int [] ColumnRowVals=new int [rowCount()];///USE COLUMN/ROW?
+		if (current==null)
+		{
+			return ColumnRowVals;
+		}
 		int counter=0;
 		while (current!=null)
 		{
@@ -314,7 +333,7 @@ public class LLSparseM implements SparseM
 			}
 			current=current.getNextRow();
 		}
-		return current;//return null
+		return current;//return null if thats the case
 	}
 	
 	private SparseMNode findColumnID (int columnSearch)
@@ -322,13 +341,13 @@ public class LLSparseM implements SparseM
 		SparseMNode current= columnHead;
 		while (current!=null)
 		{
-			if (current.getRowID()==columnSearch)
+			if (current.getColumn()==columnSearch)
 			{
 				return current;
 			}
 			current=current.getNextColumn();
 		}
-		return current; //return null
+		return current; //return null if thats the case
 	}
 	
 	private int rowCount()
