@@ -163,13 +163,14 @@ public class LLMainClass
 					System.out.println("IDX " + idx[i] + " VAL " + val[i]);
 				System.out.println("END");			
 			}
+			
 			else if(dtype.equals("MAT"))
 			{
 				fname = args[1];
 				SparseM M = ParseMatrix(fname);	// read M from the first file
 				
 				if(M == null)
-				{	
+				{
 					// if invalid input file, print NULL and exit
 					System.out.println("NULL: Illegal Matrix Input, Fname " + fname);
 					return;
