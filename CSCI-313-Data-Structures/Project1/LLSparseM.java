@@ -243,33 +243,62 @@ public class LLSparseM implements SparseM
 		return ColumnRowVals;
 	}
 //===========================================PART 2==============================================================
-	public SparseM addition(SparseM otherM) throws VectorException
+//ERROR LLSPARSEM???
+	public LLSparseM addition(LLSparseM otherM) throws VectorException
 	{
 		if (this.nrows()!=otherM.nrows() && this.ncols()!=otherM.ncols())
 		{
 			throw new VectorException("NOT THE SAME SIZE");
 		}
 		LLSparseM Answer=new LLSparseM(this.ncols(),this.nrows());
+		SparseMNode ARow = this.getRowHead();
+		SparseMNode AColumn = this.getColumnHead();
+		SparseMNode	BRow =otherM.getRowHead();
+		SparseMNode	BColumn = otherM.getColumnHead();
+		//Assign Row by Row
+		if (ARow.getRowID()==BRow.getRowID() && ARow.getColumn()==BRow.getColumn())
+		{
+			Answer.insert(ARow.getRowID(), ARow.getColumn(), ARow.getValue()*BRow.getValue());
+		}
+		//Tidy up the columns
+		
 		return Answer;
 	}
 
-	public SparseM substraction(SparseM otherM)throws VectorException
+	public LLSparseM substraction(LLSparseM otherM)throws VectorException
 	{
 		if (this.nrows()!=otherM.nrows() && this.ncols()!=otherM.ncols())
 		{
 			throw new VectorException("NOT THE SAME SIZE");
 		}
-		LLSparseM Answer=new LLSparseM(this.ncols(),this.nrows());
+		LLSparseM Answer=new LLSparseM(this.nrows(),this.ncols());
+		SparseMNode ARow = this.getRowHead();
+		SparseMNode AColumn = this.getColumnHead();
+		SparseMNode	BRow =otherM.getRowHead();
+		SparseMNode	BColumn = otherM.getColumnHead();
+		if (ARow.getRowID()==BRow.getRowID() && ARow.getColumn()==BRow.getColumn())
+		{
+			Answer.insert(ARow.getRowID(), ARow.getColumn(), ARow.getValue()+BRow.getValue());
+		}
 		return Answer;
 	}
 
-	public SparseM multiplication(SparseM otherM)throws VectorException
+	public LLSparseM multiplication(LLSparseM otherM)throws VectorException
 	{
 		if (this.nrows()!=otherM.nrows() && this.ncols()!=otherM.ncols())
 		{
 			throw new VectorException("NOT THE SAME SIZE");
 		}
-		LLSparseM Answer=new LLSparseM(this.ncols(),this.nrows());
+		LLSparseM Answer=new LLSparseM(this.nrows(),this.ncols());
+		SparseMNode ARow = this.getRowHead();
+		SparseMNode AColumn = this.getColumnHead();
+		SparseMNode	BRow =otherM.getRowHead();
+		SparseMNode	BColumn = otherM.getColumnHead();
+		
+		if (ARow.getRowID()==BRow.getRowID() && ARow.getColumn()==BRow.getColumn())
+		{
+			Answer.insert(ARow.getRowID(), ARow.getColumn(), ARow.getValue()*BRow.getValue());
+		}
 		return Answer;
 	}
 
@@ -381,7 +410,7 @@ public class LLSparseM implements SparseM
 		SparseMNode CurrentRow=rowHead;
 		SparseMNode CurrentColumn=columnHead;
 
-		//CASE 1A: New Row, New Column
+		//CASE 1A: New Row, New Column. Change the Head(s)
 		if(rowID<rowHead.getRowID() && columnID < columnHead.getColumn())
 		{
 			rowHead = new SparseMNode(rowID, rowHead, NEW); //Append before the Head
@@ -416,6 +445,7 @@ public class LLSparseM implements SparseM
 			else
 			{
 				SlowRow.setNextRow(new SparseMNode(rowID,NEW,CurrentRow));
+				break;
 			}
 		}
 	//Case 2B: Fix the Columns
@@ -445,6 +475,7 @@ public class LLSparseM implements SparseM
 					{
 						CModify.setNextRow(NEW);
 						NEW.setNextRow(SlowColumn);
+						break;
 					}
 				}
 			}

@@ -1,4 +1,3 @@
-
 public interface SparseVec 
 {	
 	// problem 1

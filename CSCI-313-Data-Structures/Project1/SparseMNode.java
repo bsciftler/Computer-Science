@@ -1,4 +1,3 @@
-
 public class SparseMNode
 {
 	private int value;

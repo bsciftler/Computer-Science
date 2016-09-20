@@ -1,4 +1,3 @@
-
 public class LLSparseVecNode
 {
 	private int ID;
@@ -8,7 +7,7 @@ public class LLSparseVecNode
 	
 	public LLSparseVecNode (int newID, int newValue, LLSparseVecNode n, LLSparseVecNode p)
 	{
-		value=newValue;
+		ID=newID;
 		value=newValue;
 		next=n;
 		previous=p;

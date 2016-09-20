@@ -21,7 +21,6 @@ private int SIZE=0;
 		return numOfElements;
 	}
 
-	@Override
 	public int getElement(int index)
 	{
 		if (find(index)==null)
@@ -64,6 +63,12 @@ private int SIZE=0;
 			return;
 		}
 		
+		if (find(newID)!=null)
+		{
+			find(newID).setValue(newValue);
+			return;
+		}
+		
 		if (numOfElements >= SIZE)
 		{
 			throw new VectorException("OVERFLOW!!!");
@@ -84,7 +89,6 @@ private int SIZE=0;
 		}
 	}
 
-	@Override
 	public int[] getAllIndices()
 	{
 		int [] Index=new int[numOfElements];
@@ -113,7 +117,7 @@ private int SIZE=0;
 		return values;
 	}
 
-	public SparseVec addition(SparseVec B) throws VectorException
+	public LLSparseVec addition(SparseVec B) throws VectorException
 	{
 		if (this.getLength()!=B.getLength())
 		{
@@ -172,15 +176,13 @@ private int SIZE=0;
 		return Answer;
 	}
 
-	@Override
-	public SparseVec substraction(SparseVec B) throws VectorException
+	public LLSparseVec substraction(SparseVec B) throws VectorException
 	{
 		if (this.getLength()!=B.getLength())
 		{
 			throw new VectorException("THE SIZE OF BOTH SPARE VECTORS ARE NOT THE SAME!!");
 		}
 		LLSparseVec Answer=new LLSparseVec(this.getLength());
-		
 		LLSparseVecNode CurrentA=head;
 		LLSparseVecNode CurrentB=B.getHead();
 		
@@ -232,13 +234,13 @@ private int SIZE=0;
 		return Answer;
 	}
 
-	public SparseVec multiplication(SparseVec B) throws VectorException
+	public LLSparseVec multiplication(SparseVec B) throws VectorException
 	{
 		if (this.getLength()!=B.getLength())
 		{
 			throw new VectorException("THE SIZE OF BOTH SPARE VECTORS ARE NOT THE SAME!!");
 		}
-		SparseVec Answer=new LLSparseVec(this.getLength());
+		LLSparseVec Answer=new LLSparseVec(this.getLength());
 		LLSparseVecNode CurrentA=head;
 		LLSparseVecNode CurrentB=B.getHead();
 		
@@ -329,8 +331,8 @@ private int SIZE=0;
 		{
 			//++counter;
 			//System.out.println("Node # " + counter );
-			System.out.println("Node ID# " + current.getID() );
-			System.out.println("Node Value " + current.getValue());
+			System.out.print("Node ID# " + current.getID() + "  ");
+			System.out.print("Node Value " + current.getValue());
 			System.out.println(" ");
 			current=current.getNext();
 		}
@@ -372,11 +374,11 @@ private int SIZE=0;
 			if(current.getID()==newID)
 			{
 				return current;
-			} 
+			}
 			else if(current.getID()< newID)
 			{
 				current = current.getNext();
-			} 
+			}
 			else 
 			{
 				current = null;
@@ -406,5 +408,4 @@ private int SIZE=0;
 		}
 		return true;
 	}
-
 }
