@@ -19,7 +19,7 @@ public class MyInput
 			tiger.setElement(17, 50);
 		
 			lion.setElement(19, 20);
-			liger=tiger.addition(lion);
+			liger=tiger.multiplication(lion);
 		}
 		catch (VectorException e)
 		{

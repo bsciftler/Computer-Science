@@ -254,20 +254,18 @@ private int SIZE=0;
 					CurrentB=CurrentB.getNext();
 					continue;
 				}
-				Answer.setElement(CurrentA.getID(), CurrentA.getValue()+ CurrentB.getValue());
+				Answer.setElement(CurrentA.getID(), CurrentA.getValue()* CurrentB.getValue());
 				CurrentA=CurrentA.getNext();
 				CurrentB=CurrentB.getNext();
 				continue;
 			}
 			if (CurrentA.getID() < CurrentB.getID())
 			{
-				Answer.setElement(CurrentA.getID(), CurrentA.getValue());
 				CurrentA=CurrentA.getNext();
 				continue;
 			}
 			if (CurrentA.getID() > CurrentB.getID())
 			{
-				Answer.setElement(CurrentB.getID(), CurrentB.getValue());
 				CurrentB=CurrentB.getNext();
 				continue;
 			}
