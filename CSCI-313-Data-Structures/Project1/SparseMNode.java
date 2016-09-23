@@ -23,7 +23,8 @@ public class SparseMNode
 		nextRow=NR;
 		nextColumn=NC;
 	}
-	
+
+//Basic Column Node
 	public SparseMNode(SparseMNode NR, SparseMNode NC, int column)
 	{
 		columnID=column;
@@ -33,7 +34,7 @@ public class SparseMNode
 	
 	//Get Methods
 	public int getValue() {return value;}
-	public int getColumn () {return columnID;}
+	public int getColumnID() {return columnID;}
 	public int getRowID() {return rowID;}
 	public SparseMNode getNextRow() {return nextRow;}
 	public SparseMNode getNextColumn() {return nextColumn;}

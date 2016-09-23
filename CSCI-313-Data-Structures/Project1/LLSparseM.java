@@ -163,7 +163,7 @@ public class LLSparseM implements SparseM
 		int counter=0;
 		while (current!=null)
 		{
-			ColIndex[counter]=current.getColumn();
+			ColIndex[counter]=current.getColumnID();
 			current=current.getNextColumn();
 			++counter;
 		}
@@ -181,7 +181,7 @@ public class LLSparseM implements SparseM
 		}
 		while (current!=null)
 		{
-			RowIndex[counter]=current.getColumn();
+			RowIndex[counter]=current.getColumnID();
 			current=current.getNextColumn();
 			++counter;
 		}
@@ -256,9 +256,9 @@ public class LLSparseM implements SparseM
 		SparseMNode	BRow =otherM.getRowHead();
 		SparseMNode	BColumn = otherM.getColumnHead();
 		//Assign Row by Row
-		if (ARow.getRowID()==BRow.getRowID() && ARow.getColumn()==BRow.getColumn())
+		if (ARow.getRowID()==BRow.getRowID() && ARow.getColumnID()==BRow.getColumnID())
 		{
-			Answer.insert(ARow.getRowID(), ARow.getColumn(), ARow.getValue()*BRow.getValue());
+			Answer.insert(ARow.getRowID(), ARow.getColumnID(), ARow.getValue()*BRow.getValue());
 		}
 		//Tidy up the columns
 		
@@ -276,9 +276,9 @@ public class LLSparseM implements SparseM
 		SparseMNode AColumn = this.getColumnHead();
 		SparseMNode	BRow =otherM.getRowHead();
 		SparseMNode	BColumn = otherM.getColumnHead();
-		if (ARow.getRowID()==BRow.getRowID() && ARow.getColumn()==BRow.getColumn())
+		if (ARow.getRowID()==BRow.getRowID() && ARow.getColumnID()==BRow.getColumnID())
 		{
-			Answer.insert(ARow.getRowID(), ARow.getColumn(), ARow.getValue()+BRow.getValue());
+			Answer.insert(ARow.getRowID(), ARow.getColumnID(), ARow.getValue()+BRow.getValue());
 		}
 		return Answer;
 	}
@@ -295,9 +295,9 @@ public class LLSparseM implements SparseM
 		SparseMNode	BRow =otherM.getRowHead();
 		SparseMNode	BColumn = otherM.getColumnHead();
 		
-		if (ARow.getRowID()==BRow.getRowID() && ARow.getColumn()==BRow.getColumn())
+		if (ARow.getRowID()==BRow.getRowID() && ARow.getColumnID()==BRow.getColumnID())
 		{
-			Answer.insert(ARow.getRowID(), ARow.getColumn(), ARow.getValue()*BRow.getValue());
+			Answer.insert(ARow.getRowID(), ARow.getColumnID(), ARow.getValue()*BRow.getValue());
 		}
 		return Answer;
 	}
@@ -324,7 +324,7 @@ public class LLSparseM implements SparseM
 			{
 				for (int j=0;j<COLUMNS;j++)
 				{
-					if (RowPrint!=null && RowPrint.getColumn()==j)
+					if (RowPrint!=null && RowPrint.getColumnID()==j)
 					{
 						System.out.print(RowPrint.getValue());
 						RowPrint=RowPrint.getNextColumn();
@@ -369,7 +369,7 @@ public class LLSparseM implements SparseM
 		SparseMNode current= columnHead;
 		while (current!=null)
 		{
-			if (current.getColumn()==columnSearch)
+			if (current.getColumnID()==columnSearch)
 			{
 				return current;
 			}
@@ -405,81 +405,44 @@ public class LLSparseM implements SparseM
 	//STILL IN PROGRESS
 	private void insert(int rowID, int columnID, int value)
 	{
-		SparseMNode NEW= new SparseMNode(rowID,columnID,value,null,null);
-		SparseMNode CurrentRow=rowHead;
-		SparseMNode CurrentColumn=columnHead;
-
-		//CASE 1A: New Row, New Column. Change the Head(s)
-		if(rowID<rowHead.getRowID() && columnID < columnHead.getColumn())
+		SparseMNode NEW=new SparseMNode(rowID,columnID,value,null,null);
+		if (rowHead.getRowID() < rowID)
 		{
-			rowHead = new SparseMNode(rowID, rowHead, NEW); //Append before the Head
-			columnHead = new SparseMNode(NEW,columnHead,columnID);
+			rowHead = new SparseMNode(rowID,rowHead,NEW);//NEW ROWHEAD! (RowID, nextRow, nextColumn)
+			columnRepair(rowID,columnID,NEW);
 			return;
 		}
-		
-		if (CurrentRow.getRowID()==rowID && CurrentColumn.getColumn() < columnID)
+		SparseMNode previousRow=rowHead;
+		SparseMNode currentRow=rowHead;
+		while (currentRow.getNextRow()!=null)
 		{
-			NEW.setNextColumn(CurrentRow.getNextColumn());
-			CurrentRow.setNextColumn(NEW);
-		}		
-		
-		if (CurrentRow.getRowID() < rowID && CurrentColumn.getColumn() == columnID)
-		{
-			NEW.setNextRow(CurrentColumn.getNextRow());
-			CurrentRow.setNextRow(NEW);
-		}
-	//Case 2: Append in between Originals and Tails Case 2A: Row
-//ROW CONSTRUCTION: ROWID, NEXT Row, NEXT Column
-//COLUMN CONSTRUCTION: NEXT ROW, NEXT COLUMN, COLUMN ID
-		while(CurrentRow.getNextColumn()!=null) 
-		{
-			SparseMNode SlowRow=CurrentRow;
-			CurrentRow=CurrentRow.getNextRow();
-			if (rowID > CurrentRow.getRowID())
+			currentRow=currentRow.getNextRow();
+			if (rowID > currentRow.getRowID())
 			{
-				SlowRow=SlowRow.getNextRow();
-				CurrentRow=CurrentRow.getNextRow();
-				continue;
+				previousRow=currentRow;
+				currentRow=currentRow.getNextRow();
 			}
 			else
 			{
-				SlowRow.setNextRow(new SparseMNode(rowID,NEW,CurrentRow));
-				break;
+				previousRow.setNextColumn(NEW);
+				return;
 			}
 		}
-	//Case 2B: Fix the Columns
-		while (CurrentColumn.getNextRow()!=null)
+		currentRow.setNextRow(new SparseMNode(rowID,null,NEW));//(RowID, nextRow, nextColumn)
+	}
+	
+	private void columnRepair (int rowID, int columnID, SparseMNode NEW)
+	{
+//NOTE THE InsertRow Method already created the new Node. This is designed to fix the Columns Linked List.
+		if (columnHead.getColumnID() < columnID)
 		{
-			SparseMNode SlowColumn=CurrentColumn;
-			CurrentColumn=CurrentColumn.getNextColumn();
-			if (columnID > CurrentColumn.getColumn())
-			{
-				SlowColumn=SlowColumn.getNextColumn();
-				CurrentColumn=CurrentColumn.getNextColumn();
-				continue;
-			}
-			else
-			{
-				SparseMNode CModify=SlowColumn;
-				SlowColumn=SlowColumn.getNextRow();
-				while (SlowColumn.getNextRow()!=null)
-				{
-					if (rowID > SlowColumn.getRowID())
-					{
-						CModify=CModify.getNextRow();
-						SlowColumn=SlowColumn.getNextRow();
-						continue;
-					}
-					else
-					{
-						CModify.setNextRow(NEW);
-						NEW.setNextRow(SlowColumn);
-						break;
-					}
-				}
-			}
+			columnHead = new SparseMNode(NEW,columnHead,columnID);//NEW COLUMNHEAD! (nextRow, nextColumn, columnID)
 		}
-		CurrentRow.setNextColumn(new SparseMNode(rowID,null,NEW));
-		CurrentColumn.setNextRow(new SparseMNode(rowID,null,NEW));
+		SparseMNode currentColumn=columnHead;
+		while (currentColumn.getNextColumn()!=null)
+		{
+			
+		}
+		currentColumn.setNextColumn(new SparseMNode(NEW,null,columnID));//NEW COLUMN! (nextRow, nextColumn, columnID)
 	}
 }
