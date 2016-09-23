@@ -422,9 +422,21 @@ public class LLSparseM implements SparseM
 				previousRow=currentRow;
 				currentRow=currentRow.getNextRow();
 			}
+			else if (currentRow.getRowID()==rowID)
+			{
+				while (currentRow.getNextColumn()!=null)
+				{
+					if (currentRow.getColumnID()==columnID)
+					{
+						currentRow=currentRow.getNextColumn();
+					}
+					currentRow=currentRow.getNextColumn();
+				}
+			}
 			else
 			{
 				previousRow.setNextColumn(NEW);
+				previousRow.setNextRow(currentRow);
 				return;
 			}
 		}
@@ -438,11 +450,34 @@ public class LLSparseM implements SparseM
 		{
 			columnHead = new SparseMNode(NEW,columnHead,columnID);//NEW COLUMNHEAD! (nextRow, nextColumn, columnID)
 		}
+		SparseMNode previousColumn=columnHead;
 		SparseMNode currentColumn=columnHead;
 		while (currentColumn.getNextColumn()!=null)
 		{
-			
+			currentColumn=currentColumn.getNextColumn();
+			if (columnID > currentColumn.getColumnID())
+			{
+				previousColumn=currentColumn;
+				currentColumn=currentColumn.getNextRow();
+			}
+			else if (currentColumn.getColumnID()==columnID)
+			{
+				while (currentColumn.getNextColumn()!=null)
+				{
+					if (currentColumn.getColumnID()==columnID)
+					{
+						currentColumn=currentColumn.getNextColumn();
+					}
+					currentColumn=currentColumn.getNextColumn();
+				}
+			}
+			else
+			{
+				previousColumn.setNextColumn(NEW);
+				previousColumn.setNextRow(currentColumn);
+				return;
+			}
 		}
-		currentColumn.setNextColumn(new SparseMNode(NEW,null,columnID));//NEW COLUMN! (nextRow, nextColumn, columnID)
+		currentColumn.setNextRow(new SparseMNode(NEW,null,columnID));//NEW COLUMN! (nextRow, nextColumn, columnID)
 	}
 }
