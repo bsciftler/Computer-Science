@@ -196,7 +196,7 @@ private int SIZE=0;
 					CurrentB=CurrentB.getNext();
 					continue;
 				}
-				Answer.setElement(CurrentA.getID(), CurrentA.getValue()+ CurrentB.getValue());
+				Answer.setElement(CurrentA.getID(), CurrentA.getValue()-CurrentB.getValue());
 				CurrentA=CurrentA.getNext();
 				CurrentB=CurrentB.getNext();
 				continue;
@@ -209,7 +209,7 @@ private int SIZE=0;
 			}
 			if (CurrentA.getID() > CurrentB.getID())
 			{
-				Answer.setElement(CurrentB.getID(), CurrentB.getValue());
+				Answer.setElement(CurrentB.getID(), 0 - CurrentB.getValue());
 				CurrentB=CurrentB.getNext();
 				continue;
 			}
@@ -219,8 +219,10 @@ private int SIZE=0;
 		{
 			while (CurrentB!=null)
 			{
+				CurrentB.setValue(CurrentB.getValue()*-1);
 				Answer.append(CurrentB);
 				CurrentB=CurrentB.getNext();
+				continue;
 			}
 		}
 		if (CurrentB==null)
@@ -229,6 +231,7 @@ private int SIZE=0;
 			{
 				Answer.append(CurrentA);
 				CurrentA=CurrentA.getNext();
+				continue;
 			}
 		}
 		return Answer;
@@ -270,33 +273,8 @@ private int SIZE=0;
 				continue;
 			}
 		}
-//==================LEFTOVER NODES CHECK================
-		if (CurrentA==null)
-		{
-			while (CurrentB!=null)
-			{
-				if (CurrentB.getValue()==0)
-				{
-					CurrentB=CurrentB.getNext();
-					continue;
-				}
-				Answer.append(CurrentB);
-				CurrentB=CurrentB.getNext();
-			}	
-		}
-		if (CurrentB==null)
-		{
-			while (CurrentA!=null)
-			{
-				if (CurrentA.getValue()==0)
-				{
-					CurrentA=CurrentA.getNext();
-					continue;
-				}
-				Answer.append(CurrentA);
-				CurrentA=CurrentA.getNext();
-			}
-		}
+//Note on Leftover Nodes:
+//As any leftover Node would be multiplied by 0. I will skip this step as it will be multiplied by 0.
 		return Answer;
 	}
 //=================================================EXTRA USED CLASSES==============================
@@ -312,7 +290,7 @@ private int SIZE=0;
 		{
 			current=current.getNext();
 		}
-		input.setNext(null);
+		current.setNext(input);
 		input.setPrevious(current);
 	}
 	

@@ -12,19 +12,32 @@ public class MyInput
 		
 		try 
 		{
-			tiger.setElement(19, 30);
+			tiger.setElement(19, 20);
 			tiger.setElement(12, 13 );
 			tiger.setElement(7, 20);
 			tiger.setElement(13, 35);
 			tiger.setElement(17, 50);
-		
-			lion.setElement(19, 20);
+			//tiger.setElement(getRandom(), getRandom());
+			
+			
+			lion.setElement(100, 62);
+			//lion.setElement(19, 20);
+			//lion.setElement(53,30);
+			//lion.setElement(getRandom(), getRandom());
+			lion.setElement(getRandom(), getRandom());
+			lion.setElement(getRandom(), getRandom());
+			//lion.setElement(getRandom(), getRandom());
+			//lion.setElement(getRandom(), getRandom());
+			//lion.setElement(getRandom(), getRandom());
+			
 			liger=tiger.multiplication(lion);
 		}
 		catch (VectorException e)
 		{
 			e.printStackTrace();
 		}
+		getRandom();
+		//lion.setElement(getRandom(), getRandom());
 		System.out.println("TIGER LL");
 		tiger.print();
 		System.out.println("LION LL");
