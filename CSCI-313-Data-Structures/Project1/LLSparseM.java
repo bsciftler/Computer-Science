@@ -404,14 +404,39 @@ public class LLSparseM implements SparseM
 		return count;
 	}
 	
+	public void printAllNodes()
+	{
+		SparseMNode Row=rowHead;
+		while (Row !=null)
+		{
+			SparseMNode Column=Row.getNextColumn();
+			while (Column != null)
+			{
+				System.out.println("Row: " + Column.getRowID() + " Column: " +Column.getColumnID() +" Value: " + Column.getValue());
+				Column=Column.getNextColumn();
+			}
+			Row=Row.getNextRow();
+		}
+	}
+	
+	public void printRow()
+	{
+		SparseMNode Row=rowHead.getNextColumn();
+		while (Row!=null)
+		{
+			System.out.println("Row: " + Row.getRowID() + " Column: " +Row.getColumnID() +" Value: " + Row.getValue());
+			Row=Row.getNextColumn();
+		}
+	}
+	
 	//STILL IN PROGRESS
 	private void insert(int rowID, int columnID, int value)
 	{
-		SparseMNode NEW=new SparseMNode(rowID,columnID,value,null,null);
+		SparseMNode NEWNODE=new SparseMNode(rowID,columnID,value,null,null);
 		if (rowHead.getRowID() < rowID)
 		{
-			rowHead = new SparseMNode(rowID,rowHead,NEW);//NEW ROWHEAD! (RowID, nextRow, nextColumn)
-			columnInsert(rowID,columnID,NEW);//Adjust the Columns LinkedList.
+			rowHead = new SparseMNode(rowID,rowHead,NEWNODE);//NEW ROWHEAD! (RowID, nextRow, nextColumn)
+			columnInsert(rowID,columnID,NEWNODE);//Adjust the Columns LinkedList.
 			return;
 		}
 		SparseMNode previousRow=rowHead;
@@ -419,7 +444,6 @@ public class LLSparseM implements SparseM
 		
 		while (currentRow.getNextRow()!=null)
 		{
-			currentRow=currentRow.getNextRow();
 			if (rowID > currentRow.getRowID())
 			{
 				previousRow=currentRow;
@@ -430,19 +454,22 @@ public class LLSparseM implements SparseM
 			{
 		//This is insertion sort if the Row Already exists.
 		//This will adjust the LinkedList Left to Right. I will need another method to alter Top to bottom.
-		//Travel Left to Right through the Rows as the column already exists. Do another Insert Sort.
-				if (currentRow.getNextColumn().getColumnID() < columnID)
-				{
-					SparseMNode PlaceHolder=currentRow.getNextColumn();
-					currentRow.setNextColumn(NEW);
-					NEW.setNextColumn(PlaceHolder);
-					return;
-				}
+		//Travel Left to Right through the Rows as the column already exists.
+		//Do another Insert Sort with respect to The Left to Right Linked List.
 				SparseMNode previousRowNode=currentRow.getNextColumn();
 				SparseMNode currentRowNode=currentRow.getNextColumn();
-				while (currentRowNode.getNextRow()!=null)
+				
+				if (currentRowNode.getColumnID() < columnID)
 				{
-					if (rowID > currentRowNode.getRowID())
+					currentRow.setNextColumn(NEWNODE);
+					NEWNODE.setNextColumn(currentRowNode);
+					columnInsert(rowID,columnID,NEWNODE);
+					return;
+				}
+		
+				while (currentRowNode.getNextColumn()!=null)
+				{
+					if (columnID > currentRowNode.getColumnID())
 					{
 						previousRowNode=currentRowNode;
 						currentRowNode=currentRowNode.getNextColumn();
@@ -450,25 +477,30 @@ public class LLSparseM implements SparseM
 					}
 					else
 					{
-						previousRowNode.setNextRow(NEW);
-						NEW.setNextRow(currentRowNode);
-						columnInsert(rowID,columnID,NEW);//Fix the Columns Linked List
+						previousRowNode.setNextColumn(NEWNODE);
+						NEWNODE.setNextColumn(currentRowNode);
+						columnInsert(rowID,columnID,NEWNODE);//Fix the Columns Linked List
 						return;
 					}
 				}
+				currentRow.setNextColumn(NEWNODE);
+				columnInsert(rowID,columnID,NEWNODE);
+				return;
 			}
 			else// if RowID < currentRow.getRow()
 			{
-				SparseMNode NEWROW= new SparseMNode (rowID,currentRow,NEW);//(RowID, nextRow, nextColumn)
+				SparseMNode NEWROW= new SparseMNode (rowID,currentRow,NEWNODE);//(RowID, nextRow, nextColumn)
 				previousRow.setNextRow(NEWROW);
 				NEWROW.setNextRow(currentRow);
-				NEWROW.setNextColumn(NEW);
-				columnInsert(rowID,columnID,NEW);//Fix the Columns Linked List
+				NEWROW.setNextColumn(NEWNODE);
+				columnInsert(rowID,columnID,NEWNODE);//Fix the Columns Linked List
 				return;
 			}
 		}
 		//Create a new Row because RowID is larger than all existing rows.
-		currentRow.setNextRow(new SparseMNode(rowID,null,NEW));//(RowID, nextRow, nextColumn)
+		SparseMNode NEWROW=new SparseMNode(rowID,null,NEWNODE);//(RowID, nextRow, nextColumn)
+		currentRow.setNextRow(NEWROW);
+		columnInsert(rowID,columnID,NEWNODE);
 		return;
 	}
 	
@@ -480,70 +512,63 @@ public class LLSparseM implements SparseM
 			columnHead = new SparseMNode(NEWNODE,columnHead,columnID);//NEW COLUMNHEAD! (nextRow, nextColumn, columnID)
 			return;
 		}
-		else if (columnID == columnHead.getColumnID())
+		SparseMNode currentColumn=columnHead;
+		SparseMNode previousColumn=columnHead;
+		while (currentColumn.getNextColumn()!=null)
 		{
-			SparseMNode Dummy=columnHead.getNextRow();
-			columnHead.setNextRow(NEWNODE);
-			NEWNODE.setNextRow(Dummy);
-			return;
-		}
-		else
-		{
-			SparseMNode currentColumn=columnHead;
-			SparseMNode previousColumn=columnHead;
-			while (currentColumn.getNextColumn()!=null)
+			if (columnID > currentColumn.getColumnID())
 			{
-				if(currentColumn.getColumnID()==columnID)
+				//Keep Traveling across the Columns LinkedList (Top to Bottom)
+				previousColumn=currentColumn;
+				currentColumn=currentColumn.getNextRow();
+				continue;
+			}
+			
+			else if(currentColumn.getColumnID()==columnID)
+			{
+				//Travel Down the Rows as the column already exists. Do another Insert Sort.
+				if (currentColumn.getNextRow().getRowID() < rowID)
 				{
-					//Travel Down the Rows as the column already exists. Do another Insert Sort.
-					if (currentColumn.getNextRow().getRowID() < rowID)
+					SparseMNode PlaceHolder=currentColumn.getNextRow();
+					currentColumn.setNextRow(NEWNODE);
+					NEWNODE.setNextRow(PlaceHolder);
+					return;
+				}
+				SparseMNode previousRowNode=currentColumn.getNextRow();
+				SparseMNode currentRowNode=currentColumn.getNextRow();
+				while (currentRowNode.getNextRow()!=null)
+				{
+					if (rowID > currentRowNode.getRowID())
 					{
-						SparseMNode PlaceHolder=currentColumn.getNextRow();
-						currentColumn.setNextRow(NEWNODE);
-						NEWNODE.setNextRow(PlaceHolder);
+						previousRowNode=currentRowNode;
+						currentRowNode=currentRowNode.getNextRow();
+						continue;
+					}
+					else
+					{
+						previousRowNode.setNextRow(NEWNODE);							
+						NEWNODE.setNextRow(currentRowNode);
 						return;
 					}
-					SparseMNode previousRowNode=currentColumn.getNextRow();
-					SparseMNode currentRowNode=currentColumn.getNextRow();
-					while (currentRowNode.getNextRow()!=null)
-					{
-						if (rowID > currentRowNode.getRowID())
-						{
-							previousRowNode=currentRowNode;
-							currentRowNode=currentRowNode.getNextRow();
-							continue;
-						}
-						else
-						{
-							previousRowNode.setNextRow(NEWNODE);
-							NEWNODE.setNextRow(currentRowNode);
-							return;
-						}
-					}
-					//Append at last Row of the Column
-					currentRowNode.setNextRow(NEWNODE);
-					return;
 				}
-				else if(currentColumn.getColumnID() < columnID)
-				{
-					SparseMNode NEWCOLUMN = new SparseMNode(NEWNODE,currentColumn,columnID);//Create new Column in between current and previous
-					//NEW COLUMN!!!(nextRow, nextColumn, columnID)
-					//Because a new Column was made and I know it was a new Row. I can just connect New no problem.
-					previousColumn.setNextColumn(NEWCOLUMN);
-					NEWCOLUMN.setNextColumn(currentColumn);
-					NEWCOLUMN.setNextRow(NEWNODE);
-					return;
-				}
-				else
-				{
-					//Keep Traveling across the Columns LinkedList
-					previousColumn=currentColumn;
-					currentColumn=currentColumn.getNextRow();
-				}
+				//Append at Column if currentColumn.getNextColumn is null
+				currentRowNode.setNextRow(NEWNODE);
+				return;
 			}
-			//CurrentColumn is the last column. CID is bigger than all existing columns, build a new column.
-			currentColumn.setNextColumn(new SparseMNode(NEWNODE,null,columnID));//NEW COLUMN!!!(nextRow, nextColumn, columnID)
-			return;
+			else//columnID < currentColumn.getColumnID
+			{
+				SparseMNode NEWCOLUMN = new SparseMNode(NEWNODE,currentColumn,columnID);//Create new Column in between current and previous
+				//NEW COLUMN!!!(nextRow, nextColumn, columnID)
+				//Because a new Column was made and I know it was a new Row. I can just connect New no problem.
+				previousColumn.setNextColumn(NEWCOLUMN);
+				NEWCOLUMN.setNextColumn(currentColumn);
+				NEWCOLUMN.setNextRow(NEWNODE);
+				return;
+			}
 		}
-	}
+		//CurrentColumn is the last column. CID is bigger than all existing columns, build a new column.
+		currentColumn.setNextColumn(new SparseMNode(NEWNODE,null,columnID));//NEW COLUMN!!!(nextRow, nextColumn, columnID)
+		return;
+		}
+
 }//END OF CLASS

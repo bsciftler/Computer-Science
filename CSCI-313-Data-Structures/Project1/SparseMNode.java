@@ -17,24 +17,24 @@ public class SparseMNode
 	}
 	
 //Basic Row Node
-	public SparseMNode(int row, SparseMNode NR, SparseMNode NC)
+	public SparseMNode(int row, SparseMNode NextRow, SparseMNode NextColumn)
 	{
 		rowID=row;
-		nextRow=NR;
-		nextColumn=NC;
+		nextRow=NextRow;
+		nextColumn=NextColumn;
 	}
-
+	
 //Basic Column Node
-	public SparseMNode(SparseMNode NR, SparseMNode NC, int column)
+	public SparseMNode(SparseMNode NextRow, SparseMNode NextColumn, int column)
 	{
+		nextRow=NextRow;
+		nextColumn=NextColumn;
 		columnID=column;
-		nextRow=NR;
-		nextColumn=NC;
 	}
 	
 	//Get Methods
 	public int getValue() {return value;}
-	public int getColumnID() {return columnID;}
+	public int getColumnID () {return columnID;}
 	public int getRowID() {return rowID;}
 	public SparseMNode getNextRow() {return nextRow;}
 	public SparseMNode getNextColumn() {return nextColumn;}

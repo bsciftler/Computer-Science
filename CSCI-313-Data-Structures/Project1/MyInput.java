@@ -2,14 +2,10 @@ public class MyInput
 {
 	public static void main (String [] args)
 	{
+	/*
 		LLSparseVec tiger=new LLSparseVec(10);
 		LLSparseVec lion = new LLSparseVec(10);
 		LLSparseVec liger=null;
-//UPLOAD
-		//MYINPUT 
-		//LLSPARSEVECNODE
-		//LLSPARSEVEC	
-		
 		try 
 		{
 			tiger.setElement(19, 20);
@@ -44,16 +40,27 @@ public class MyInput
 		lion.print();
 		System.out.println("Fusion");
 		liger.print();
-	/* SPARSE MATRIX TEST
-	 * 	
-		LLSparseM lion= new LLSparseM(1,10);//Row/Column
-		lion.setElement(1, 2, 4);//Row,Column,Value
-		lion.setElement(1, 2, 30);//WHY IS IT NOT BEING REPLACED???
-		System.out.println(lion.getRowHead().getRowID());//ROW HEAD, ROW ID
-		System.out.println(lion.getColumnHead().getColumn());//COLUMN HEAD, COLUMN ID
-		System.out.println(lion.getColumnHead().getNextRow().getValue());
-		lion.print();
 	*/
+		
+	//Sparse Matrix Test 	
+		//NOTE THE REPLACE DOES NOT WORK!!
+		
+		LLSparseM lion= new LLSparseM(1,10);//Row/Column
+		lion.setElement(1, 5, 4);//Row,Column,Value
+		lion.setElement(1, 2, 30);
+		//lion.setElement(2, 3, 10);
+		System.out.println("Row Head RowID: "+lion.getRowHead().getRowID());//ROW HEAD, ROW ID
+		System.out.println("Column Head Column ID: "+lion.getColumnHead().getColumnID());//COLUMN HEAD, COLUMN ID
+		//System.out.println("Second RowID: "+lion.getRowHead().getNextRow().getRowID());//ROW HEAD, ROW ID
+		System.out.println("Second Column ID: "+lion.getColumnHead().getNextColumn().getColumnID());//ROW HEAD, ROW ID
+		System.out.println("Column Travel:");
+		System.out.println("Node 1: " + lion.getColumnHead().getNextRow().getValue());
+		System.out.println("Node 2: " + lion.getColumnHead().getNextColumn().getNextRow().getValue());
+		System.out.println("Row Travel:");
+		System.out.println("Node 1: " + lion.getRowHead().getNextColumn().getValue());
+		System.out.println("Node 2: " + lion.getRowHead().getNextColumn().getNextColumn().getValue());
+		System.out.println("Print by Row:");
+		lion.printRow();
 	}
 	public static int getRandom()
 	{
