@@ -54,11 +54,11 @@ public class MyInput
 		//System.out.println("Second RowID: "+lion.getRowHead().getNextRow().getRowID());//ROW HEAD, ROW ID
 		System.out.println("Second Column ID: "+lion.getColumnHead().getNextColumn().getColumnID());//ROW HEAD, ROW ID
 		System.out.println("Column Travel:");
-		System.out.println("Node 1: " + lion.getColumnHead().getNextRow().getValue());
-		System.out.println("Node 2: " + lion.getColumnHead().getNextColumn().getNextRow().getValue());
+		System.out.println("Node 1: " + lion.getColumnHead().getNextElement().getValue());
+		System.out.println("Node 2: " + lion.getColumnHead().getNextColumn().getNextElement().getValue());
 		System.out.println("Row Travel:");
-		System.out.println("Node 1: " + lion.getRowHead().getNextColumn().getValue());
-		System.out.println("Node 2: " + lion.getRowHead().getNextColumn().getNextColumn().getValue());
+		System.out.println("Node 1: " + lion.getRowHead().getNextElement().getValue());
+		System.out.println("Node 2: " + lion.getRowHead().getNextElement().getNextColumn().getValue());
 		System.out.println("Print by Row:");
 		lion.printRow();
 	}
