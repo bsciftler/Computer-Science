@@ -45,20 +45,26 @@ public class MyInput
 	//Sparse Matrix Test 	
 		//NOTE THE REPLACE DOES NOT WORK!!
 		
-		LLSparseM lion= new LLSparseM(1,10);//Row/Column
-		lion.setElement(1, 5, 4);//Row,Column,Value
+		LLSparseM lion= new LLSparseM(1,5);//Row/Column
+		//lion.setElement(1, 5, 4);//Row,Column,Value
 		lion.setElement(1, 2, 30);
-		//lion.setElement(2, 3, 10);
+		lion.setElement(1, 3, 10);
+		lion.setElement(1, 4, 55);
+		lion.clearElement(1, 4);
+		lion.setElement(1, 5, 34);
+		
 		System.out.println("Row Head RowID: "+lion.getRowHead().getRowID());//ROW HEAD, ROW ID
 		System.out.println("Column Head Column ID: "+lion.getColumnHead().getColumnID());//COLUMN HEAD, COLUMN ID
-		//System.out.println("Second RowID: "+lion.getRowHead().getNextRow().getRowID());//ROW HEAD, ROW ID
-		System.out.println("Second Column ID: "+lion.getColumnHead().getNextColumn().getColumnID());//ROW HEAD, ROW ID
-		System.out.println("Column Travel:");
-		System.out.println("Node 1: " + lion.getColumnHead().getNextElement().getValue());
-		System.out.println("Node 2: " + lion.getColumnHead().getNextColumn().getNextElement().getValue());
-		System.out.println("Row Travel:");
-		System.out.println("Node 1: " + lion.getRowHead().getNextElement().getValue());
-		System.out.println("Node 2: " + lion.getRowHead().getNextElement().getNextColumn().getValue());
+		//System.out.println("Second Column ID: "+lion.getColumnHead().getNextColumn().getColumnID());//ROW HEAD, ROW ID
+		//System.out.println("Column Travel:");
+		//System.out.println("Node 1: " + lion.getColumnHead().getNextElement().getValue());
+		//System.out.println("Node 2: " + lion.getColumnHead().getNextColumn().getNextElement().getValue());
+		//System.out.println("Node 3: " + lion.getColumnHead().getNextColumn().getNextColumn().getNextElement().getValue());
+		//System.out.println("Row Travel:");
+		//System.out.println("Node 1: " + lion.getRowHead().getNextElement().getValue());
+		//System.out.println("Node 2: " + lion.getRowHead().getNextElement().getNextColumn().getValue());
+		//System.out.println("Node 3: " + lion.getRowHead().getNextElement().getNextColumn().getNextColumn().getValue());
+//System.out.println("Node 3: " + lion.getRowHead().getNextElement().getNextColumn().getNextColumn().getNextColumn().getValue());	
 		System.out.println("Print by Row:");
 		lion.printRow();
 	}
