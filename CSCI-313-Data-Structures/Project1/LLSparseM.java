@@ -385,7 +385,7 @@ public class LLSparseM implements SparseM
 			return ColumnRowID;
 		}
 		int counter=0;
-		while (current!=null)
+		while (current!=null && counter!=numofColumns)
 		{
 			ColumnRowID[counter]=current.getRowID();
 			current=current.getNextRow();
@@ -403,7 +403,7 @@ public class LLSparseM implements SparseM
 			return ColumnRowVals;
 		}
 		int counter=0;
-		while (current!=null)
+		while (current!=null && counter!=numofColumns)
 		{
 			ColumnRowVals[counter]=current.getValue();
 			current=current.getNextRow();
@@ -640,7 +640,7 @@ public class LLSparseM implements SparseM
 	private void insert(int rowID, int columnID, int value)
 	{
 		SparseMNode NEWNODE=new SparseMNode(rowID,columnID,value,null,null);
-		if (rowHead.getRowID() < rowID)
+		if (rowID < rowHead.getRowID())
 		{
 			rowHead = new SparseMRow(rowID,rowHead,NEWNODE);//NEW ROWHEAD! (RowID, nextRow, nextColumn)
 			++numofRows;
