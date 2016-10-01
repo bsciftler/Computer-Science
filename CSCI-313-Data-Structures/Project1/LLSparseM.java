@@ -4,49 +4,51 @@ import javax.swing.JOptionPane;
 public class LLSparseM implements SparseM 
 {
 	//Basic Row Node
-		public class SparseMRow
+	public class SparseMRow
+	{
+		private int row;
+		private SparseMNode nextElement;
+		private SparseMRow nextRow;	
+		public SparseMRow(int rowID, SparseMRow NextRow, SparseMNode nextColumn)
 		{
-			private int row;
-			private SparseMNode nextElement;
-			private SparseMRow nextRow;
-			public SparseMRow(int rowID, SparseMRow NextRow, SparseMNode nextColumn)
-			{
-				row=rowID;
-				nextElement=nextColumn;
-				nextRow=NextRow;
-			}
-			//Get Methods
-			public int getRowID(){return row;}
-			public SparseMNode getNextElement() {return nextElement;}
-			public SparseMRow getNextRow() {return nextRow;}
-			//Set Methods
-			public void setNextElement(SparseMNode Nextele){nextElement=Nextele;}
-			public void setNextRow(SparseMRow NR){nextRow=NR;}
-		}
+			row=rowID;
+			nextElement=nextColumn;
+			nextRow=NextRow;
+		}	
+		//Get Methods
+		public int getRowID(){return row;}
+		public SparseMNode getNextElement() {return nextElement;}			
+		public SparseMRow getNextRow() {return nextRow;}
+		//Set Methods
+		public void setNextElement(SparseMNode Nextele){nextElement=Nextele;}			
+		public void setNextRow(SparseMRow NR){nextRow=NR;}
+	}
 		
 	//Basic Column Node
-		public class SparseMColumn
+	public class SparseMColumn
+	{		
+		private int column;
+		private SparseMNode nextElement;
+		private SparseMColumn nextColumn;			
+		public SparseMColumn(int columnID, SparseMNode nextRow, SparseMColumn NextColumn)	
 		{
-			private int column;
-			private SparseMNode nextElement;
-			private SparseMColumn nextColumn;
-			public SparseMColumn(int columnID, SparseMNode nextRow, SparseMColumn NextColumn)
-			{
-				column=columnID;
-				nextElement=nextRow;
-				nextColumn=NextColumn;
-			}
-			//Get Methods
-			public int getColumnID(){return column;}
-			public SparseMNode getNextElement() {return nextElement;}
-			public SparseMColumn getNextColumn() {return nextColumn;}
-			//Set Methods
-			public void setNextElement(SparseMNode Nextele){nextElement=Nextele;}
-			public void setNextColumn(SparseMColumn NC){nextColumn=NC;}
+			column=columnID;
+			nextElement=nextRow;
+			nextColumn=NextColumn;
 		}
+		//Get Methods
+		public int getColumnID(){return column;}
+		public SparseMNode getNextElement() {return nextElement;}
+		public SparseMColumn getNextColumn() {return nextColumn;}
+		//Set Methods
+		public void setNextElement(SparseMNode Nextele){nextElement=Nextele;}
+		public void setNextColumn(SparseMColumn NC){nextColumn=NC;}
+	}
 	
 	private int ROWS=0;//Pretend its FINAL
 	private int COLUMNS=0;//Pretend its FINAL
+	private int numofRows=0;
+	private int numofColumns=0;
 	private int numofElements=0;
 	private SparseMRow rowHead;//FIRST ROW
 	private SparseMColumn columnHead;//FIRST COLUMN
@@ -113,6 +115,7 @@ public class LLSparseM implements SparseM
 		{
 			deleteRow(ridx,cidx);//Delete with respect to Rows
 			deleteColumn(ridx,cidx);//Delete with respect to Columns
+			--numofElements;
 			return;
 		}
 		else
@@ -122,12 +125,79 @@ public class LLSparseM implements SparseM
 		}
 	}
 	
+	private void RowandColumnInspector(int ridx,int cidx, String CMD)
+	{
+		if (CMD.equalsIgnoreCase("RowCHECK"))//Make sure I delete Row Node if needed
+		{
+			if (findRow(ridx).getNextElement()==null)
+			{
+				if (findRow(ridx)==rowHead)
+				{
+					rowHead=rowHead.getNextRow();
+					--numofRows;
+					return;
+				}
+				SparseMRow previous=rowHead;
+				SparseMRow current=rowHead;
+				while (current!=null)
+				{
+					if (current.getNextElement()==null)
+					{
+						previous.setNextRow(current.getNextRow());
+						--numofRows;
+						return;
+					}
+					else
+					{
+						previous=current;
+						current=current.getNextRow();
+					}
+				}
+			}
+			return;
+		}
+		else if (CMD.equalsIgnoreCase("ColumnCheck"))//Make sure I delete Column Node if needed
+		{
+			if (findColumn(cidx).getNextElement()==null)
+			{
+				if (findColumn(cidx)==columnHead)
+				{
+					columnHead=columnHead.getNextColumn();
+					--numofColumns;
+					return;
+				}
+				SparseMColumn previous=columnHead;
+				SparseMColumn current=columnHead;
+				while (current!=null)
+				{
+					if (current.getNextElement()==null)
+					{
+						previous.setNextColumn(current.getNextColumn());
+						--numofColumns;
+						return;
+					}
+					else
+					{
+						previous=current;
+						current=current.getNextColumn();
+					}
+				}
+				return;
+			}
+		}
+		else
+		{
+			JOptionPane.showMessageDialog(null, "Invaalid Command at RowandColumnsInspector method");
+		}
+	}
+	
 	private void deleteRow(int ridx, int cidx)
 	{
 		SparseMNode RowTARGET=findRow(ridx).getNextElement();
 		if (RowTARGET.getColumnID()==cidx)
 		{
 			findRow(ridx).setNextElement(RowTARGET.getNextColumn());
+			RowandColumnInspector(ridx,cidx, new String("RowCheck"));
 			return;
 		}
 		SparseMNode previous=RowTARGET;
@@ -136,6 +206,7 @@ public class LLSparseM implements SparseM
 			if(RowTARGET.getColumnID()==cidx)
 			{
 				previous.setNextColumn(RowTARGET.getNextColumn());
+				RowandColumnInspector(ridx,cidx,new String("RowCheck"));
 				return;
 			}
 			else
@@ -148,10 +219,12 @@ public class LLSparseM implements SparseM
 	
 	private void deleteColumn(int ridx, int cidx)
 	{
+		//Delete Column Node?
 		SparseMNode ColumnTarget=findColumn(cidx).getNextElement();
 		if (ColumnTarget.getRowID()==ridx)
 		{
 			findColumn(cidx).setNextElement(ColumnTarget.getNextRow());
+			RowandColumnInspector(ridx,cidx,new String("ColumnCheck"));
 			return;
 		}
 		SparseMNode CPrevious=ColumnTarget;
@@ -160,6 +233,7 @@ public class LLSparseM implements SparseM
 			if (ColumnTarget.getRowID()==ridx)
 			{
 				CPrevious.setNextRow(ColumnTarget.getNextRow());
+				RowandColumnInspector(ridx,cidx,new String("ColumnCheck"));
 				return;
 			}
 			else
@@ -216,6 +290,8 @@ public class LLSparseM implements SparseM
 			rowHead=new SparseMRow(ridx,null,FirstElement);//ROW CONS: ROWID, NEXT Row, NEXT Column
 			columnHead=new SparseMColumn(cidx,FirstElement,null);//COLUMN CONS: COLID, NextRowm Next Column
 			++numofElements;
+			++numofRows;
+			++numofColumns;
 			return;
 		}
 		
@@ -230,7 +306,7 @@ public class LLSparseM implements SparseM
 	public int [] getRowIndices()
 	{
 		SparseMRow current = rowHead;
-		int [] Rows=new int [rowCount()];//Or use COLUMN/ROW?
+		int [] Rows=new int [numofRows];
 		if (current==null)
 		{
 			return Rows;
@@ -248,7 +324,7 @@ public class LLSparseM implements SparseM
 	public int[] getColIndices()
 	{
 		SparseMColumn current= columnHead;
-		int [] ColIndex=new int[columnCount()];//or use COLUMN/ROW?
+		int [] ColIndex=new int[numofColumns];//or use COLUMN/ROW?
 		if (current==null)
 		{
 			return ColIndex;
@@ -265,7 +341,7 @@ public class LLSparseM implements SparseM
 
 	public int[] getOneRowColIndices(int ridx)
 	{
-		int [] RowIndex=new int[columnCount()];//USE COLUMN/ROW?
+		int [] RowIndex=new int[numofColumns];
 		int counter=0;
 		SparseMNode current= findRow(ridx).getNextElement();
 		if (current==null)
@@ -284,7 +360,7 @@ public class LLSparseM implements SparseM
 	public int[] getOneRowValues(int ridx)
 	{
 		SparseMNode current = findRow(ridx).getNextElement();
-		int [] RowVals=new int [columnCount()];///USE COLUMN/ROW?
+		int [] RowVals=new int [numofRows];///USE COLUMN/ROW?
 		if (current==null)
 		{
 			return RowVals;
@@ -303,7 +379,7 @@ public class LLSparseM implements SparseM
 	public int[] getOneColRowIndices(int cidx)
 	{
 		SparseMNode current = findColumn(cidx).getNextElement();
-		int [] ColumnRowID=new int [rowCount()];//USE ROW/COLUMN
+		int [] ColumnRowID=new int [numofColumns];//USE ROW/COLUMN
 		if (current==null)
 		{
 			return ColumnRowID;
@@ -321,7 +397,7 @@ public class LLSparseM implements SparseM
 	public int[] getOneColValues(int cidx)
 	{
 		SparseMNode current = findColumn(cidx).getNextElement();
-		int [] ColumnRowVals=new int [rowCount()];///USE COLUMN/ROW?
+		int [] ColumnRowVals=new int [numofColumns];///USE COLUMN/ROW?
 		if (current==null)
 		{
 			return ColumnRowVals;
@@ -346,7 +422,7 @@ public class LLSparseM implements SparseM
 		LLSparseM Answer=new LLSparseM(this.ncols(),this.nrows());
 		SparseMRow ARow = this.getRowHead();
 		SparseMColumn AColumn = this.getColumnHead();
-		SparseMRow	BRow =otherM.getRowHead();
+		SparseMRow BRow =otherM.getRowHead();
 		SparseMColumn BColumn = otherM.getColumnHead();
 		//Traverse Both Matrixes
 		while (ARow.getNextRow()!=null)
@@ -473,31 +549,7 @@ public class LLSparseM implements SparseM
 		}
 		return current; //return null if thats the case
 	}
-	
-	private int rowCount()
-	{
-		SparseMRow current=rowHead;
-		int count=0;
-		while (current!=null)
-		{
-			current=current.getNextRow();
-			++count;
-		}
-		return count;
-	}
-	
-	private int columnCount()
-	{
-		SparseMColumn current=columnHead;
-		int count=0;
-		while (current!=null)
-		{
-			current=current.getNextColumn();
-			++count;
-		}
-		return count;
-	}
-	
+		
 	public void printAllNodes()
 	{
 		SparseMRow Row=rowHead;
@@ -510,26 +562,6 @@ public class LLSparseM implements SparseM
 				Column=Column.getNextColumn();
 			}
 			Row=Row.getNextRow();
-		}
-	}
-	
-	public void printRow()
-	{
-		SparseMNode Row=rowHead.getNextElement();
-		while (Row!=null)
-		{
-			System.out.println("Row: " + Row.getRowID() + " Column: " +Row.getColumnID() +" Value: " + Row.getValue());
-			Row=Row.getNextColumn();
-		}
-	}
-	
-	public void printColumn()
-	{
-		SparseMNode Col=columnHead.getNextElement();
-		while (Col!=null)
-		{
-			System.out.println("Row: " + Col.getRowID() + " Column: " + Col.getColumnID() +" Value: " + Col.getValue());
-			Col=Col.getNextRow();
 		}
 	}
 	
@@ -611,6 +643,7 @@ public class LLSparseM implements SparseM
 		if (rowHead.getRowID() < rowID)
 		{
 			rowHead = new SparseMRow(rowID,rowHead,NEWNODE);//NEW ROWHEAD! (RowID, nextRow, nextColumn)
+			++numofRows;
 			columnInsert(rowID,columnID,NEWNODE);//Fix the Columns LinkedList.
 			return;
 		}
@@ -647,6 +680,7 @@ public class LLSparseM implements SparseM
 				previousRow.setNextRow(NEWROW);
 				NEWROW.setNextRow(currentRow);
 				NEWROW.setNextElement(NEWNODE);
+				++numofRows;
 				columnInsert(rowID,columnID,NEWNODE);//Fix the Columns Linked List
 				return;
 			}
@@ -654,6 +688,7 @@ public class LLSparseM implements SparseM
 		//Create a new Row because RowID is larger than all existing rows.
 		previousRow.setNextRow(new SparseMRow(rowID,null,NEWNODE));
 		columnInsert(rowID,columnID,NEWNODE);
+		++numofRows;
 		return;
 	}
 	
@@ -663,6 +698,7 @@ public class LLSparseM implements SparseM
 		if (columnID < columnHead.getColumnID())
 		{
 			columnHead = new SparseMColumn(columnID,NEWNODE,columnHead);//NEW COLUMNHEAD! (CIDX, nextRow, nextColumn)
+			++numofColumns;
 			return;
 		}
 		else if (columnID==columnHead.getColumnID())
@@ -697,12 +733,13 @@ public class LLSparseM implements SparseM
 				previousColumn.setNextColumn(NEWCOLUMN);
 				NEWCOLUMN.setNextColumn(currentColumn);
 				NEWCOLUMN.setNextElement(NEWNODE);
+				++numofColumns;
 				return;
 			}
 		}
 		//CurrentColumn is the last column. CID is bigger than all existing columns, build a new column.
 		previousColumn.setNextColumn(new SparseMColumn(columnID,NEWNODE,null));//NEW COLUMN!!!(nextRow, nextColumn, columnID)
+		++numofColumns;
 		return;
-		}
-
+	}
 }//END OF CLASS
