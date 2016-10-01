@@ -25,8 +25,7 @@ public class SparseMNode
 	
 	//Set Methods
 	public void setValue(int val){value=val;}
-	public void setNextRow(SparseMNode C){nextColumn=C;}	
-	public void setNextColumn(SparseMNode R){nextRow=R;}	
-
+	public void setNextRow(SparseMNode R){nextRow=R;}	
+	public void setNextColumn(SparseMNode C){nextColumn=C;}	
 }
 
