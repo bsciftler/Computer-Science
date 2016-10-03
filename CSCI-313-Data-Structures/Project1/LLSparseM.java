@@ -408,7 +408,7 @@ public class LLSparseM implements SparseM
 		SparseMRow BRow =otherM.getRowHead();
 		SparseMColumn BColumn = otherM.getColumnHead();
 		//Traverse Both Matrixes
-		while (ARow.getNextRow()!=null)
+		while (ARow.getNextRow()!=null && BRow.getNextRow()!=null)
 		{
 			SparseMRow TravelARow=ARow;
 			while (TravelARow!=null)
@@ -475,43 +475,56 @@ public class LLSparseM implements SparseM
 		if (numofElements >= 1)
 		{
 			SparseMRow Row=rowHead;
+			int RowCOUNT=1;
 			while (Row !=null)
 			{
-				int RowPrint=1;
-				if (Row.getRowID()==RowPrint)
+				if (Row.getRowID()==RowCOUNT)
 				{
 					SparseMNode Column=Row.getNextElement();
 					int col=1;
-					while (Column != null)
+					while (Column != null && col !=COLUMNS+1)
 					{
 						if (Column.getColumnID()==col)
 						{
-							System.out.print(Column.getValue());
+							System.out.print(" " + Column.getValue() + " ");
+							++col;
 							Column=Column.getNextColumn();
 						}
 						else
 						{
-							System.out.print("0A");
+							System.out.print("0");
 							++col;
 						}
-						if (col==numofColumns+1)
-						{
-							break;
-						}
 					}
-					System.out.println(" ");
+					if (col!=COLUMNS)//Left Over 0's after Last Node
+					{
+						for (int i=0;i<COLUMNS-col+1;i++)
+						{
+							System.out.print("0");
+						}
+						System.out.println(" ");
+					}
+					RowCOUNT++;
 					Row=Row.getNextRow();
+					continue;
 				}
-				else //Empty Row
+				else //Print Empty Row.
 				{
 					for (int i=0;i<COLUMNS;i++)
 					{
-						System.out.print("0B");
+						System.out.print("0");
 					}
-					++RowPrint;
+					RowCOUNT++;
 					System.out.println(" ");
 				}
-				Row=Row.getNextRow();
+			}//End of While
+			for (int j=0;j<ROWS-RowCOUNT;j++)//To accommodate any missing rows.
+			{
+				for (int i=0;i<COLUMNS;i++)
+				{
+					System.out.print("0");
+				}
+				System.out.println(" ");
 			}
 		}
 	}
