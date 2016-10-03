@@ -60,13 +60,12 @@ public class LLSparseM implements SparseM
 	}
 
 	public int nrows(){return ROWS;}
-
 	public int ncols() {return COLUMNS;}
-
 	public int numElements() {return numofElements;}
-	
 	public int getnumofRows(){return numofRows;}
 	public int getnumofColumns(){return numofColumns;}
+	public SparseMRow getRowHead(){return rowHead;}
+	public SparseMColumn getColumnHead(){return columnHead;}
 
 	public int getElement(int ridx, int cidx)
 	{
@@ -236,16 +235,6 @@ public class LLSparseM implements SparseM
 				ColumnTarget=ColumnTarget.getNextColumn();
 			}
 		}
-	}
-	
-	public SparseMRow getRowHead()
-	{
-		return rowHead;
-	}
-	
-	public SparseMColumn getColumnHead()
-	{
-		return columnHead;
 	}
 
 	public void setElement(int ridx, int cidx, int value)
@@ -588,7 +577,7 @@ public class LLSparseM implements SparseM
 			while (Row != null)
 			{
 				System.out.println("Column: " + Row.getColumnID() + " Row: " + Row.getRowID() + " Value: " + Row.getValue());
-				Row=Row.getNextColumn();
+				Row=Row.getNextRow();
 			}
 			Col=Col.getNextColumn();
 		}
@@ -596,8 +585,8 @@ public class LLSparseM implements SparseM
 	
 	private void existingColumnNodefix(int rowID, SparseMNode NEWNODE, SparseMColumn FOUND)
 	{
+		//Case 1: Append between Found and New Node
 		SparseMNode currentColumnNode=FOUND.getNextElement();
-	
 		if (rowID < currentColumnNode.getRowID())
 		{
 			NEWNODE.setNextRow(currentColumnNode);
@@ -605,6 +594,7 @@ public class LLSparseM implements SparseM
 			return;
 		}
 		
+		//Case 2: Fix Matrix going Top to Bottom.
 		SparseMNode previousColumnNode=FOUND.getNextElement();
 		while (currentColumnNode!=null)
 		{
@@ -636,6 +626,7 @@ public class LLSparseM implements SparseM
 			FOUND.setNextElement(NEWNODE);
 			return;
 		}
+		//Case 2: Fix the Linked List Left to Right.
 		SparseMNode previousRowNode=FOUND.getNextElement();
 		while (currentRowNode!=null)
 		{
@@ -732,7 +723,6 @@ public class LLSparseM implements SparseM
 				currentColumn=currentColumn.getNextColumn();
 				continue;
 			}
-			
 			else if(currentColumn.getColumnID()==columnID)
 			{
 				existingColumnNodefix(rowID,NEWNODE,currentColumn);
