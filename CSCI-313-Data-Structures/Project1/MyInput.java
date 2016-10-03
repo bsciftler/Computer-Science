@@ -60,26 +60,27 @@ public class MyInput
 	
 		//Sparse Matrix Test 	
 		
-		LLSparseM lion= new LLSparseM(3,3);//Row/Column
+		LLSparseM lion= new LLSparseM(5,5);//Row/Column
 		//lion.setElement(1, 5, 4);//Row,Column,Value
 		//Test SET AND CLEAR
 		lion.setElement(2, 1, 30);
-		lion.setElement(3, 1, 10);
-		lion.setElement(4, 1, 55);
-		lion.setElement(5, 1, 34);
-		lion.setElement(2, 2, 15);
-		lion.setElement(3, 5, 515);
+		lion.setElement(3, 2, 10);
+		//lion.setElement(4, 1, 55);
+		//lion.setElement(5, 1, 34);
+		//lion.setElement(2, 2, 15);
+		lion.setElement(3, 5, 50);
 		
 JOptionPane.showMessageDialog(null, "The Sparse Matrix Lion " + lion.nrows() +" X "+lion.ncols() + " with " + lion.numElements() + " non zero elements ");
 JOptionPane.showMessageDialog(null, "Row: 3 " + "Column: 1 " + "Element: "+ lion.getElement(2, 1));
-int [] RowID=lion.getRowIndices();
-int [] ColID=lion.getColIndices();
-int [] OneRowColID=lion.getOneRowColIndices(2);
-int [] OneRowVal=lion.getOneRowValues(3);
-int [] OneColRowID=lion.getOneColRowIndices(1);
-int [] OneColVal=lion.getOneColValues(1);
+//int [] RowID=lion.getRowIndices();
+//int [] ColID=lion.getColIndices();
+//int [] OneRowColID=lion.getOneRowColIndices(2);
+//int [] OneRowVal=lion.getOneRowValues(3);
+//int [] OneColRowID=lion.getOneColRowIndices(1);
+//int [] OneColVal=lion.getOneColValues(1);
 System.out.println("Row Head RowID: "+lion.getRowHead().getRowID());//ROW HEAD, ROW ID
 System.out.println("Column Head Column ID: "+lion.getColumnHead().getColumnID());//COLUMN HEAD, COLUMN ID
+System.out.println("Active Rows: " + lion.getnumofRows() + " Active Columns " + lion.getnumofColumns());
 		//System.out.println("Second Column ID: "+lion.getColumnHead().getNextColumn().getColumnID());//ROW HEAD, ROW ID
 		//System.out.println("Column Travel:");
 		//System.out.println("Node 1: " + lion.getColumnHead().getNextElement().getValue());
@@ -92,5 +93,8 @@ System.out.println("Column Head Column ID: "+lion.getColumnHead().getColumnID())
 //System.out.println("Node 3: " + lion.getRowHead().getNextElement().getNextColumn().getNextColumn().getNextColumn().getValue());	
 		System.out.println("Print by Row:");
 		lion.printAllNodes();
+		lion.print();
+		System.out.println("Print by Column");
+		lion.PrintAllColNodes();
 	}
 }
