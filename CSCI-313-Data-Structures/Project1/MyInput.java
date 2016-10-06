@@ -59,16 +59,19 @@ public class MyInput
 	 */
 	
 		//Sparse Matrix Test 	
-		
+		LLSparseM tiger= new LLSparseM(5,5);
+		tiger.setElement(1, 4, 4);
+		tiger.setElement(1, 5, 4);
+		//You are NOT yet Done WITH ROWS/COLUMN BUILDING!!! BUG EXISTS
 		LLSparseM lion= new LLSparseM(5,5);//Row/Column
-		//lion.setElement(1, 5, 4);//Row,Column,Value
-		//Test SET AND CLEAR
+		lion.setElement(1, 5, 4);//Row,Column,Value
 		lion.setElement(2, 1, 30);
+		lion.setElement(2, 2, 15);
 		lion.setElement(3, 2, 10);
+		lion.setElement(3, 5, 50);
 		lion.setElement(4, 1, 55);
 		lion.setElement(5, 1, 34);
-		lion.setElement(2, 2, 15);
-		lion.setElement(3, 5, 50);
+
 		
 JOptionPane.showMessageDialog(null, "The Sparse Matrix Lion " + lion.nrows() +" X "+lion.ncols() + " with " + lion.numElements() + " non zero elements ");
 JOptionPane.showMessageDialog(null, "Row: 3 " + "Column: 1 " + "Element: "+ lion.getElement(2, 1));
@@ -80,13 +83,11 @@ JOptionPane.showMessageDialog(null, "Row: 3 " + "Column: 1 " + "Element: "+ lion
 //int [] OneColVal=lion.getOneColValues(1);
 System.out.println("Row Head RowID: "+lion.getRowHead().getRowID());//ROW HEAD, ROW ID
 System.out.println("Column Head Column ID: "+lion.getColumnHead().getColumnID());//COLUMN HEAD, COLUMN ID
-System.out.println("Active Rows: " + lion.getnumofRows() + " Active Columns " + lion.getnumofColumns());
-
+System.out.println("Active Rows: " + lion.getnumofRows() + " Active Columns " + lion.getnumofColumns());	
 		System.out.println("Print by Row:");
 		lion.printAllNodes();
+		lion.print();
 		System.out.println("Print by Column");
 		lion.PrintAllColNodes();
-		System.out.println("Print Matrix");
-		lion.print();
 	}
 }
