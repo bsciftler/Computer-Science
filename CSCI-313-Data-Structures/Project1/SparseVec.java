@@ -18,5 +18,4 @@ public interface SparseVec
 												// return a new vector storing the result
 	SparseVec multiplication(SparseVec otherV);	// this matrix .* otherV
 												// return a new vector storing the result
-	LLSparseVecNode getHead();
 }

@@ -28,5 +28,4 @@ public interface SparseM
 												// return a new matrix storing the result
 	SparseM multiplication(SparseM otherM);	// this matrix .* with otherM
 												// return a new matrix storing the result
-	<SparseMRow> SparseMRow getRowHead();
 }
