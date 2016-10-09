@@ -1,17 +1,17 @@
 import java.util.Scanner;
 import java.io.File;
 
-public class LLMainClass 
+public class LLMainClass
 {
 	public static SparseM ParseMatrix(String file_name)
 	{
 	    Scanner sc = null;
 	    String tmps;
 	    SparseM M = null;
-	    try 
+	    try
 	    {
 	        sc = new Scanner(new File(file_name));
-		    while (sc.hasNext()) 
+		    while (sc.hasNext())
 		    {
 		    	tmps = sc.next();
 		    	if(tmps.equals("MATRIX"))
@@ -46,7 +46,7 @@ public class LLMainClass
 		    sc.close();
 		    return M;
 	    } 
-	    catch (Exception e) 
+	    catch (Exception e)
 	    {
 	        return null;
 	    }
@@ -82,8 +82,7 @@ public class LLMainClass
 		    		int val = sc.nextInt(); // value
 		    		V.setElement(idx, val);
 		    	}
-		    	else if(tmps.equals("CLEAR"))
-		    	{
+		    	else if(tmps.equals("CLEAR")){
 		    		// clear an element
 		    		int idx = sc.nextInt(); // index
 		    		V.clearElement(idx);		    		
@@ -91,7 +90,7 @@ public class LLMainClass
 		    }
 		    sc.close();
 		    return V;
-	    }
+	    } 
 	    catch (Exception e)
 	    {
 	        return null;
@@ -99,10 +98,8 @@ public class LLMainClass
 	}
 	
 	
-	public static void main(String[] args)
-	{
-		try
-		{
+	public static void main(String[] args) {
+		try{
 			int n = args.length;
 			if(n < 2)
 			{
@@ -125,8 +122,7 @@ public class LLMainClass
 				}
 				
 				SparseVec tmpV;
-				for(int i = 2; i < n; i+=2)
-				{
+				for(int i = 2; i < n; i+=2){
 					operator = args[i];
 					fname = args[i+1];
 					tmpV = ParseVector(fname);	// read tmpM from the next file
@@ -140,8 +136,7 @@ public class LLMainClass
 						V = V.substraction(tmpV); 		// substract tmpV from V
 					else if(operator.equals("M"))
 						V = V.multiplication(tmpV); 	// multiply tmpV to V
-					else
-					{
+					else{
 						System.out.println("NULL: Illegal operator: " + operator );
 						return;
 					}
@@ -162,23 +157,19 @@ public class LLMainClass
 				for(int i = 0; i < ne; i++)
 					System.out.println("IDX " + idx[i] + " VAL " + val[i]);
 				System.out.println("END");			
-			}
-			
-			else if(dtype.equals("MAT"))
-			{
+			}else if(dtype.equals("MAT")){
 				fname = args[1];
 				SparseM M = ParseMatrix(fname);	// read M from the first file
 				
 				if(M == null)
-				{
+				{	
 					// if invalid input file, print NULL and exit
 					System.out.println("NULL: Illegal Matrix Input, Fname " + fname);
 					return;
 				}
 				
 				SparseM tmpM;
-				for(int i = 2; i < n; i+=2)
-				{
+				for(int i = 2; i < n; i+=2){
 					operator = args[i];
 					fname = args[i+1];
 					tmpM = ParseMatrix(fname);	// read tmpM from the next file
@@ -189,11 +180,10 @@ public class LLMainClass
 					if(operator.equals("A"))
 						M = M.addition(tmpM); 			// add tmpM to M
 					else if(operator.equals("S"))
-						M = M.substraction(tmpM); 		// substract tmpM from M
+						M = M.substraction(tmpM); 		// subtract tmpM from M
 					else if(operator.equals("M"))
 						M = M.multiplication(tmpM); 	// multiply tmpM to M
-					else
-					{
+					else{
 						System.out.println("NULL: Illegal operator: " + operator );
 						return;
 					}
@@ -214,7 +204,8 @@ public class LLMainClass
 				// print the matrix in rows
 				int[] ridx_list = M.getRowIndices();
 				System.out.println("NUM_ROWS "+ridx_list.length);
-				for(int ridx : ridx_list){
+				for(int ridx : ridx_list)
+				{
 					System.out.println("ROW "+ridx);
 					int[] one_row_cidx_list = M.getOneRowColIndices(ridx);
 					int[] one_row_vals_list = M.getOneRowValues(ridx);
@@ -225,8 +216,7 @@ public class LLMainClass
 				// print the matrix in cols
 				int[] cidx_list = M.getColIndices();
 				System.out.println("NUM_COLS "+cidx_list.length);
-				for(int cidx : cidx_list)
-				{
+				for(int cidx : cidx_list){
 					System.out.println("COL "+cidx);
 					int[] one_col_ridx_list = M.getOneColRowIndices(cidx);
 					int[] one_col_vals_list = M.getOneColValues(cidx);
@@ -241,7 +231,7 @@ public class LLMainClass
 				System.out.println("The first argument has to be either VEC or MAT, meaning the data is Vector or Matrix");
 				return;
 			}
-	    }
+	    } 
 		catch (Exception e)
 		{
 	    	System.out.println("NULL: Something is wrong");

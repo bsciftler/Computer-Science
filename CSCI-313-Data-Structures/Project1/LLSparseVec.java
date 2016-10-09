@@ -44,10 +44,15 @@ private int SIZE=0;
 		{
 			JOptionPane.showMessageDialog(null, "Sparse Node with ID "+ newID+" does not exist!");
 		}
+		
+		if (outOfBounds(newID))
+		{
+			JOptionPane.showMessageDialog(null, "Invalid ID: OUT OF BOUNDS!!");
+		}
 		return;
 	}
 
-	public void setElement(int newID, int newValue) throws VectorException
+	public void setElement(int newID, int newValue)
 	{
 		if (newValue==0)
 		{
@@ -71,7 +76,8 @@ private int SIZE=0;
 		
 		if (numOfElements >= SIZE)
 		{
-			throw new VectorException("OVERFLOW!!!");
+			JOptionPane.showMessageDialog(null, "OVERFLOW!!!");
+			return;
 		}
 		
 		if (numOfElements == 0)
@@ -117,11 +123,12 @@ private int SIZE=0;
 		return values;
 	}
 
-	public LLSparseVec addition(SparseVec B) throws VectorException
+	public LLSparseVec addition(SparseVec B)
 	{
 		if (this.getLength()!=B.getLength())
 		{
-			throw new VectorException("THE SIZE OF BOTH SPARE VECTORS ARE NOT THE SAME!!");
+			JOptionPane.showMessageDialog(null, "INVALID: Both Sparse Vectors are not the same size!!");
+			return null;
 		}
 		LLSparseVec Answer=new LLSparseVec(this.getLength());
 		
@@ -176,11 +183,12 @@ private int SIZE=0;
 		return Answer;
 	}
 
-	public LLSparseVec substraction(SparseVec B) throws VectorException
+	public LLSparseVec substraction(SparseVec B)
 	{
 		if (this.getLength()!=B.getLength())
 		{
-			throw new VectorException("THE SIZE OF BOTH SPARE VECTORS ARE NOT THE SAME!!");
+			JOptionPane.showMessageDialog(null, "INVALID: Both Sparse Vectors are not the same size!!");
+			return null;
 		}
 		LLSparseVec Answer=new LLSparseVec(this.getLength());
 		LLSparseVecNode CurrentA=head;
@@ -237,11 +245,12 @@ private int SIZE=0;
 		return Answer;
 	}
 
-	public LLSparseVec multiplication(SparseVec B) throws VectorException
+	public LLSparseVec multiplication(SparseVec B)
 	{
 		if (this.getLength()!=B.getLength())
 		{
-			throw new VectorException("THE SIZE OF BOTH SPARE VECTORS ARE NOT THE SAME!!");
+			JOptionPane.showMessageDialog(null, "INVALID: Both Sparse Vectors are not the same size!!");
+			return null;
 		}
 		LLSparseVec Answer=new LLSparseVec(this.getLength());
 		LLSparseVecNode CurrentA=head;
@@ -283,7 +292,7 @@ private int SIZE=0;
 		return head;
 	}
 	
-	public void append (LLSparseVecNode input)
+	private void append (LLSparseVecNode input)
 	{
 		LLSparseVecNode current=head;
 		while (current.getNext()!=null)
@@ -383,5 +392,17 @@ private int SIZE=0;
 			found.getNext().setPrevious(found.getPrevious());
 		}
 		return true;
+	}
+	
+	private boolean outOfBounds(int ele)
+	{
+		if (ele > SIZE || ele < 0)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 }

@@ -78,11 +78,11 @@ public class MyInput
 //int [] OneRowVal=lion.getOneRowValues(3);
 //int [] OneColRowID=lion.getOneColRowIndices(1);
 //int [] OneColVal=lion.getOneColValues(1);
-		System.out.println("GOKU");
+		System.out.println("Peanut Butter");
 		//tiger.info();
 		//tiger.printAllNodesByRow();
 		tiger.printMatrix();
-		System.out.println("VEGETA");
+		System.out.println("Jelly");
 		//lion.info();
 		//lion.printAllNodesByRow();
 		lion.printMatrix();
@@ -91,17 +91,11 @@ public class MyInput
 		LLSparseM liger=null;
 /* 
  * Progress Report:
- * Addition, Subtraction and Multiplication work with 1 Row/1 column matrix!!
+ * Looking good! I am almost done!!
  */
-		try 
-		{
-			liger = tiger.substraction(lion);
-		}
-		catch(VectorException e)
-		{
-			System.out.println("WRONG DIMENSIONS!!!");
-		}
-	System.out.println("VEGITO");
+		
+	liger = (LLSparseM) tiger.substraction(lion);
+	System.out.println("Peanut Butter and Jelly Sandwich");
 	//liger.info();
 	//liger.printAllNodesByRow();
 	liger.printMatrix();

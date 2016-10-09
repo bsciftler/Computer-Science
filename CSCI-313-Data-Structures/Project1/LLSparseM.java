@@ -180,6 +180,7 @@ public class LLSparseM implements SparseM
 		else
 		{
 			JOptionPane.showMessageDialog(null, "Invaalid Command at RowandColumnsInspector method");
+			return;
 		}
 	}
 	
@@ -242,6 +243,12 @@ public class LLSparseM implements SparseM
 		if (outofBounds(ridx,cidx))
 		{
 			JOptionPane.showMessageDialog(null, "INVALID ROW AND/OR COLUMN, OUT OF BOUNDS!!");
+			return;
+		}
+		
+		if (numofElements >= ROWS*COLUMNS)
+		{
+			JOptionPane.showMessageDialog(null, "Matrix overflow! Too many non-Zero elements!!");
 			return;
 		}
 		
@@ -408,11 +415,12 @@ public class LLSparseM implements SparseM
 	}
 //===========================================PART 2: Extra Credit==============================================================
 
-	public LLSparseM addition(LLSparseM otherM) throws VectorException
+	public SparseM addition(SparseM otherM)
 	{
 		if (this.nrows()!=otherM.nrows() && this.ncols()!=otherM.ncols())
 		{
-			throw new VectorException("NOT THE SAME SIZE");
+			JOptionPane.showMessageDialog(null, "INVALID ENTRY! MATRICIES NOT THE SAME SIZE!");
+			return null;
 		}
 		LLSparseM Answer=new LLSparseM(this.ncols(),this.nrows());
 		SparseMRow ARow = this.getRowHead();
@@ -519,15 +527,16 @@ public class LLSparseM implements SparseM
 		return Answer;
 	}
 
-	public LLSparseM substraction(LLSparseM otherM)throws VectorException
+	public SparseM substraction(SparseM otherM)
 	{
 		if (this.nrows()!=otherM.nrows() && this.ncols()!=otherM.ncols())
 		{
-			throw new VectorException("NOT THE SAME SIZE");
+			JOptionPane.showMessageDialog(null, "INVALID ENTRY! MATRICIES NOT THE SAME SIZE!");
+			return null;
 		}
 		LLSparseM Answer=new LLSparseM(this.nrows(),this.ncols());
 		SparseMRow ARow = this.getRowHead();
-		SparseMRow	BRow =otherM.getRowHead();
+		SparseMRow BRow =otherM.getRowHead();
 		//Traverse Both Matrixes
 		while (ARow!=null && BRow!=null)
 		{
@@ -625,11 +634,12 @@ public class LLSparseM implements SparseM
 		return Answer;
 	}
 
-	public LLSparseM multiplication(LLSparseM otherM)throws VectorException
+	public SparseM multiplication(SparseM otherM)
 	{
 		if (this.nrows()!=otherM.nrows() && this.ncols()!=otherM.ncols())
 		{
-			throw new VectorException("NOT THE SAME SIZE");
+			JOptionPane.showMessageDialog(null, "INVALID ENTRY! MATRICIES NOT THE SAME SIZE!");
+			return null;
 		}
 		LLSparseM Answer=new LLSparseM(this.nrows(),this.ncols());
 		SparseMRow ARow = this.getRowHead();

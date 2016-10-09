@@ -20,15 +20,15 @@ public class ArrayMainClass
 		    		// initialize the matrix
 		    		int nr = sc.nextInt();
 		    		int nc = sc.nextInt();
-		    		//M = new ArraySparseM(nr,nc);	
+		    		M = new ArraySparseM(nr,nc);	
 		    	}
 		    	else if(tmps.equals("END"))
-
+		    	{
 		    		// finished, return the matrix
 		    		sc.close();
 		    		return M;
 		    	}
-		    //else if(tmps.equals("SET"))
+		    	else if(tmps.equals("SET"))
 		    	{
 		    		// set an element
 		    		int ridx = sc.nextInt(); // row index
@@ -36,18 +36,17 @@ public class ArrayMainClass
 		    		int val = sc.nextInt();  // value
 		    		M.setElement(ridx, cidx, val);
 		    	}
-		   //else if(tmps.equals("CLEAR"))
-		    	{
+		    	else if(tmps.equals("CLEAR")){
 		    		// clear an element
 		    		int ridx = sc.nextInt(); // row index
 		    		int cidx = sc.nextInt(); // col index
 		    		M.clearElement(ridx, cidx);		    		
-		    	}	    	
-		    //}
+		    	}		    	
+		    }
 		    sc.close();
 		    return M;
 	    } 
-	    catch (Exception e) 
+	    catch (Exception e)
 	    {
 	        return null;
 	    }
@@ -68,8 +67,9 @@ public class ArrayMainClass
 		    	{
 		    		// initialize the matrix
 		    		int len = sc.nextInt();
-		    		//V = new ArraySparseVec(len);	
-		    	}else if(tmps.equals("END"))
+		    		V = new ArraySparseVec(len);	
+		    	}
+		    	else if(tmps.equals("END"))
 		    	{
 		    		// finished, return the matrix
 		    		sc.close();
@@ -91,7 +91,7 @@ public class ArrayMainClass
 		    }
 		    sc.close();
 		    return V;
-	    } 
+	    }
 	    catch (Exception e) 
 	    {
 	        return null;
@@ -124,8 +124,7 @@ public class ArrayMainClass
 				}
 				
 				SparseVec tmpV;
-				for(int i = 2; i < n; i+=2)
-				{
+				for(int i = 2; i < n; i+=2){
 					operator = args[i];
 					fname = args[i+1];
 					tmpV = ParseVector(fname);	// read tmpM from the next file
@@ -175,8 +174,7 @@ public class ArrayMainClass
 				}
 				
 				SparseM tmpM;
-				for(int i = 2; i < n; i+=2)
-				{
+				for(int i = 2; i < n; i+=2){
 					operator = args[i];
 					fname = args[i+1];
 					tmpM = ParseMatrix(fname);	// read tmpM from the next file
@@ -190,8 +188,7 @@ public class ArrayMainClass
 						M = M.substraction(tmpM); 		// substract tmpM from M
 					else if(operator.equals("M"))
 						M = M.multiplication(tmpM); 	// multiply tmpM to M
-					else
-					{
+					else{
 						System.out.println("NULL: Illegal operator: " + operator );
 						return;
 					}
@@ -212,8 +209,7 @@ public class ArrayMainClass
 				// print the matrix in rows
 				int[] ridx_list = M.getRowIndices();
 				System.out.println("NUM_ROWS "+ridx_list.length);
-				for(int ridx : ridx_list)
-				{
+				for(int ridx : ridx_list){
 					System.out.println("ROW "+ridx);
 					int[] one_row_cidx_list = M.getOneRowColIndices(ridx);
 					int[] one_row_vals_list = M.getOneRowValues(ridx);
@@ -224,8 +220,7 @@ public class ArrayMainClass
 				// print the matrix in cols
 				int[] cidx_list = M.getColIndices();
 				System.out.println("NUM_COLS "+cidx_list.length);
-				for(int cidx : cidx_list)
-				{
+				for(int cidx : cidx_list){
 					System.out.println("COL "+cidx);
 					int[] one_col_ridx_list = M.getOneColRowIndices(cidx);
 					int[] one_col_vals_list = M.getOneColValues(cidx);
@@ -234,15 +229,11 @@ public class ArrayMainClass
 				}
 				System.out.println("END");
 	
-			}
-			else
-			{
+			}else{
 				System.out.println("The first argument has to be either VEC or MAT, meaning the data is Vector or Matrix");
 				return;
 			}
-	    }
-		catch (Exception e)
-		{
+	    } catch (Exception e) {
 	    	System.out.println("NULL: Something is wrong");
 	        return;
 	    }
