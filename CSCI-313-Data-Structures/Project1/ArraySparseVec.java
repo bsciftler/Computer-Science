@@ -5,7 +5,8 @@ public class ArraySparseVec implements SparseVec {
 	private int [] elements;	// array storing the vector
 
 	// constructor initialize a sparse vector with a given length l
-	public ArraySparseVec(int l){
+	public ArraySparseVec(int l)
+	{
 		if(l <= 0) l = 1;			// if zero or negative l, set l = 1;
 		len = l;
 		elements = new int[len];	// allocate the vector
@@ -122,7 +123,8 @@ public class ArraySparseVec implements SparseVec {
 		SparseVec newVec = new ArraySparseVec(len);
 		
 		int tmp;
-		for(int i = 0; i < len; i++){
+		for(int i = 0; i < len; i++)
+		{
 			tmp = getElement(i) - otherV.getElement(i);
 			newVec.setElement(i,tmp);	// setElement take care of updating nelements
 		}
@@ -145,10 +147,5 @@ public class ArraySparseVec implements SparseVec {
 			newVec.setElement(i,tmp);	// setElement take care of updating nelements
 		}
 		return newVec;
-	}
-
-	public LLSparseVecNode getHead()
-	{
-		return null;
 	}
 }

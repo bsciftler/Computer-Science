@@ -124,7 +124,8 @@ public class ArrayMainClass
 				}
 				
 				SparseVec tmpV;
-				for(int i = 2; i < n; i+=2){
+				for(int i = 2; i < n; i+=2)
+				{
 					operator = args[i];
 					fname = args[i+1];
 					tmpV = ParseVector(fname);	// read tmpM from the next file
@@ -148,7 +149,6 @@ public class ArrayMainClass
 						return;
 					}
 				}
-				
 				// output the final matrix
 				System.out.println("Final_Vector");
 				int[] idx = V.getAllIndices();
@@ -174,7 +174,8 @@ public class ArrayMainClass
 				}
 				
 				SparseM tmpM;
-				for(int i = 2; i < n; i+=2){
+				for(int i = 2; i < n; i+=2)
+				{
 					operator = args[i];
 					fname = args[i+1];
 					tmpM = ParseMatrix(fname);	// read tmpM from the next file
@@ -188,7 +189,8 @@ public class ArrayMainClass
 						M = M.substraction(tmpM); 		// substract tmpM from M
 					else if(operator.equals("M"))
 						M = M.multiplication(tmpM); 	// multiply tmpM to M
-					else{
+					else
+					{
 						System.out.println("NULL: Illegal operator: " + operator );
 						return;
 					}
@@ -197,7 +199,6 @@ public class ArrayMainClass
 						return;
 					}				
 				}
-				
 				// output the final matrix
 				System.out.println("FINAL_MATRIX");
 				int nr, nc, ne;
@@ -209,18 +210,19 @@ public class ArrayMainClass
 				// print the matrix in rows
 				int[] ridx_list = M.getRowIndices();
 				System.out.println("NUM_ROWS "+ridx_list.length);
-				for(int ridx : ridx_list){
+				for(int ridx : ridx_list)
+				{
 					System.out.println("ROW "+ridx);
 					int[] one_row_cidx_list = M.getOneRowColIndices(ridx);
 					int[] one_row_vals_list = M.getOneRowValues(ridx);
 					for(int i = 0; i < one_row_cidx_list.length; ++i)
 						System.out.println("RIDX "+ridx+" CIDX " + one_row_cidx_list[i] + " VAL " + one_row_vals_list[i]);
 				}
-	
 				// print the matrix in cols
 				int[] cidx_list = M.getColIndices();
 				System.out.println("NUM_COLS "+cidx_list.length);
-				for(int cidx : cidx_list){
+				for(int cidx : cidx_list)
+				{
 					System.out.println("COL "+cidx);
 					int[] one_col_ridx_list = M.getOneColRowIndices(cidx);
 					int[] one_col_vals_list = M.getOneColValues(cidx);
@@ -229,11 +231,15 @@ public class ArrayMainClass
 				}
 				System.out.println("END");
 	
-			}else{
+			}
+			else
+			{
 				System.out.println("The first argument has to be either VEC or MAT, meaning the data is Vector or Matrix");
 				return;
 			}
-	    } catch (Exception e) {
+	    }
+		catch (Exception e)
+		{
 	    	System.out.println("NULL: Something is wrong");
 	        return;
 	    }

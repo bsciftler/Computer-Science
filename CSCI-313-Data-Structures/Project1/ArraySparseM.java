@@ -180,7 +180,8 @@ public class ArraySparseM implements SparseM
 		
 		int[] vals = new int[counter];
 		int counter2=0;
-		for(int c = 0; c < ncols; ++c){
+		for(int c = 0; c < ncols; ++c)
+		{
 			if(isnonzero[c])
 				vals[counter2++] = elements[ridx][c];
 		}
@@ -297,11 +298,5 @@ public class ArraySparseM implements SparseM
 				newM.setElement(r,c,tmp);	// setElement take care of updating nelements
 			}
 		return newM;
-	}
-
-	@Override
-	public <SparseMRow> SparseMRow getRowHead()
-	{
-		return null;
 	}
 }
