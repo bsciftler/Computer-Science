@@ -438,7 +438,7 @@ public class LLSparseM implements SparseM
 				}
 				else //NodeA.getColumnID() > NodeB.getColumnID()
 				{
-					Answer.setElement(NodeB.getRowID(), NodeB.getColumnID(), NodeB.getColumnID());
+					Answer.setElement(NodeB.getRowID(), NodeB.getColumnID(), NodeB.getValue());
 					NodeB=NodeB.getNextColumn();
 					continue;
 				}
@@ -479,13 +479,16 @@ public class LLSparseM implements SparseM
 		}
 		if (BRow==null)
 		{
-			SparseMNode NodeA=ARow.getNextElement();
-			while (NodeA!=null)
+			while (ARow!=null)
 			{
-				Answer.setElement(NodeA.getRowID(),NodeA.getColumnID(),NodeA.getValue());
-				NodeA=NodeA.getNextColumn();
+				SparseMNode NodeA=ARow.getNextElement();
+				while (NodeA!=null)
+				{
+					Answer.setElement(NodeA.getRowID(),NodeA.getColumnID(),NodeA.getValue());
+					NodeA=NodeA.getNextColumn();
+				}
+				BRow=BRow.getNextRow();
 			}
-			ARow=ARow.getNextRow();
 		}
 		return Answer;
 	}
@@ -519,7 +522,7 @@ public class LLSparseM implements SparseM
 				}
 				else //NodeA.getColumnID() > NodeB.getColumnID()
 				{
-					Answer.setElement(NodeB.getRowID(), NodeB.getColumnID(), NodeB.getColumnID());
+					Answer.setElement(NodeB.getRowID(), NodeB.getColumnID(), NodeB.getValue());
 					NodeB=NodeB.getNextColumn();
 				}
 			}
@@ -638,12 +641,12 @@ public class LLSparseM implements SparseM
 				{
 					SparseMNode Column=Row.getNextElement();
 					int col=1;
-					while (Column != null && col !=COLUMNS+1)
+					while (Column != null)
 					{
 						if (Column.getColumnID()==col)
 						{
 							System.out.print(" " + Column.getValue() + " ");
-							++col;
+							col++;
 							Column=Column.getNextColumn();
 						}
 						else
@@ -652,14 +655,14 @@ public class LLSparseM implements SparseM
 							++col;
 						}
 					}
-					if (col!=COLUMNS)//Left Over 0's after Last Node
+					if (col!=COLUMNS+1)//Left Over 0's after Last Node
 					{
-						for (int i=0;i<COLUMNS-col+1;i++)
+						for (int i=1;i<=COLUMNS-col+1;i++)
 						{
 							System.out.print("0");
 						}
-						System.out.println(" ");
 					}
+					System.out.println(" ");
 					RowCOUNT++;
 					Row=Row.getNextRow();
 					continue;
@@ -673,8 +676,8 @@ public class LLSparseM implements SparseM
 					RowCOUNT++;
 					System.out.println(" ");
 				}
-			}//End of While
-			for (int j=0;j<ROWS-RowCOUNT+1;j++)//To accommodate any missing rows.
+			}//End of While (Printing Rows).
+			for (int j=0;j<ROWS-RowCOUNT+1;j++)//To Print BLANK Rows.
 			{
 				for (int i=0;i<COLUMNS;i++)
 				{
@@ -907,6 +910,7 @@ public class LLSparseM implements SparseM
 		++numofColumns;
 		return;
 	}
+	
 	public void info()
 	{
 		System.out.println("This Sparse Matrix is a " + this.ncols() + " X " + this.nrows() + " Matrix");
