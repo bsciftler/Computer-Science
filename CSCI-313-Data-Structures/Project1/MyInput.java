@@ -2,7 +2,7 @@ public class MyInput
 {
 	public static int getRandom()
 	{
-		return (int)Math.ceil(Math.random()*30);
+		return (int)Math.ceil(Math.random()*5);
 	}
 	
 	public static void main (String [] args)
@@ -59,39 +59,51 @@ public class MyInput
 		//Sparse Matrix Test 	
 		LLSparseM tiger= new LLSparseM(5,5);
 		tiger.setElement(1, 1, 4);
-		tiger.setElement(1, 2, 4);
-		tiger.setElement(1, 3, 15);
+		tiger.setElement(2, 2, 4);
+		tiger.setElement(3, 3, 15);
 		tiger.setElement(1, 4, 14);
-		tiger.setElement(1, 5, 42);
+		tiger.setElement(4, 5, 42);
 		
 		LLSparseM lion= new LLSparseM(5,5);
 		lion.setElement(1, 1, 4);//Row,Column,Value
 		lion.setElement(1, 2, 30);
 		lion.setElement(1, 3, 15);
-		//lion.setElement(3, 2, 10);
-		//lion.setElement(3, 5, 50);
-		//lion.setElement(4, 1, 55);
-		//lion.setElement(5, 1, 34);
+		lion.setElement(3, 2, 10);
+		lion.setElement(3, 5, 50);
+		lion.setElement(4, 1, 55);
+		lion.setElement(5, 1, 34);
 //int [] RowID=lion.getRowIndices();
 //int [] ColID=lion.getColIndices();
 //int [] OneRowColID=lion.getOneRowColIndices(2);
 //int [] OneRowVal=lion.getOneRowValues(3);
 //int [] OneColRowID=lion.getOneColRowIndices(1);
-//int [] OneColVal=lion.getOneColValues(1);	
-		tiger.info();
-		lion.info();
-		tiger.printAllNodesByRow();
-		lion.printAllNodesByRow();
-		
+//int [] OneColVal=lion.getOneColValues(1);
+		System.out.println("GOKU");
+		//tiger.info();
+		//tiger.printAllNodesByRow();
+		tiger.printMatrix();
+		System.out.println("VEGETA");
+		//lion.info();
+		//lion.printAllNodesByRow();
+		lion.printMatrix();
+		//lion.printAllNodesByColumn();
+		//tiger.printAllNodesByColumn();
 		LLSparseM liger=null;
+/* 
+ * Progress Report:
+ * Addition, Subtraction and Multiplication work with 1 Row/1 column matrix!!
+ */
 		try 
 		{
-			liger = lion.addition(tiger);
+			liger = tiger.substraction(lion);
 		}
 		catch(VectorException e)
 		{
 			System.out.println("WRONG DIMENSIONS!!!");
 		}
+	System.out.println("VEGITO");
+	//liger.info();
+	//liger.printAllNodesByRow();
 	liger.printMatrix();
 	}
 }

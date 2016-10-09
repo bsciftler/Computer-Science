@@ -276,6 +276,7 @@ public class LLSparseM implements SparseM
 			return;
 		}
 	}
+	
 	private SparseMNode NodeSearch(int ridx, int cidx)
 	{
 		if (findRow(ridx)==null)
@@ -415,53 +416,78 @@ public class LLSparseM implements SparseM
 		}
 		LLSparseM Answer=new LLSparseM(this.ncols(),this.nrows());
 		SparseMRow ARow = this.getRowHead();
-		SparseMRow BRow =otherM.getRowHead();
+		SparseMRow BRow = otherM.getRowHead();
 		//Traverse Both Matrixes
 		while (ARow!=null && BRow!=null)
 		{
-			SparseMNode NodeA= ARow.getNextElement();
-			SparseMNode NodeB= BRow.getNextElement();
-			while (NodeA!=null && NodeB!=null)
+			if (ARow.getRowID() < BRow.getRowID())
 			{
-				if (NodeA.getColumnID()==NodeB.getColumnID())
-				{
-					Answer.setElement(NodeA.getRowID(), NodeA.getColumnID() , NodeA.getValue() + NodeB.getValue());
-					NodeA=NodeA.getNextColumn();
-					NodeB=NodeB.getNextColumn();
-					continue;
-				}
-				else if (NodeA.getColumnID() < NodeB.getColumnID())
-				{
-					Answer.setElement(NodeA.getRowID(), NodeA.getColumnID(), NodeA.getValue());
-					NodeA=NodeA.getNextColumn();
-					continue;
-				}
-				else //NodeA.getColumnID() > NodeB.getColumnID()
-				{
-					Answer.setElement(NodeB.getRowID(), NodeB.getColumnID(), NodeB.getValue());
-					NodeB=NodeB.getNextColumn();
-					continue;
-				}
-			}
-			//Take care of any stranded columns.
-			if (NodeA==null)
-			{
-				while (NodeB!=null)
-				{
-					Answer.setElement(NodeB.getRowID(), NodeB.getColumnID(), NodeB.getValue());
-					NodeB=NodeB.getNextColumn();
-				}
-			}
-			if (NodeB==null)
-			{
+				//I am essentially going to copy and paste this Row from Matrix A to the new Matrix.
+				SparseMNode NodeA=ARow.getNextElement();
 				while (NodeA!=null)
 				{
 					Answer.setElement(NodeA.getRowID(), NodeA.getColumnID(), NodeA.getValue());
 					NodeA=NodeA.getNextColumn();
 				}
+				ARow=ARow.getNextRow();
 			}
-			ARow=ARow.getNextRow();
-			BRow=BRow.getNextRow();
+			else if (ARow.getRowID() > BRow.getRowID())
+			{
+				//I am essentially going to copy and paste this Row from Matrix A to the new Matrix.
+				SparseMNode NodeB=BRow.getNextElement();
+				while (NodeB!=null)
+				{
+					Answer.setElement(NodeB.getRowID(), NodeB.getColumnID(), NodeB.getValue());
+					NodeB=NodeB.getNextColumn();
+				}
+				BRow=BRow.getNextRow();
+			}
+			else //Both are equal..therefore I can use something very similar to the Sparse Vector
+			{
+				SparseMNode NodeA= ARow.getNextElement();
+				SparseMNode NodeB= BRow.getNextElement();
+				while (NodeA!=null && NodeB!=null)
+				{
+					if (NodeA.getColumnID()==NodeB.getColumnID())
+					{
+						Answer.setElement(NodeA.getRowID(), NodeA.getColumnID() , NodeA.getValue() + NodeB.getValue());
+						NodeA=NodeA.getNextColumn();
+						NodeB=NodeB.getNextColumn();
+						continue;
+					}
+					else if (NodeA.getColumnID() < NodeB.getColumnID())
+					{
+						Answer.setElement(NodeA.getRowID(), NodeA.getColumnID(), NodeA.getValue());
+						NodeA=NodeA.getNextColumn();
+						continue;
+					}
+					else //NodeA.getColumnID() > NodeB.getColumnID()
+					{
+						Answer.setElement(NodeB.getRowID(), NodeB.getColumnID(), NodeB.getValue());
+						NodeB=NodeB.getNextColumn();
+						continue;
+					}
+				}
+				//Take care of any stranded columns.
+				if (NodeA==null)
+				{
+					while (NodeB!=null)
+					{
+						Answer.setElement(NodeB.getRowID(), NodeB.getColumnID(), NodeB.getValue());
+						NodeB=NodeB.getNextColumn();
+					}
+				}
+				if (NodeB==null)
+				{
+					while (NodeA!=null)
+					{
+						Answer.setElement(NodeA.getRowID(), NodeA.getColumnID(), NodeA.getValue());
+						NodeA=NodeA.getNextColumn();
+					}
+				}
+				ARow=ARow.getNextRow();
+				BRow=BRow.getNextRow();
+			}
 		}//END OF WHILE LOOP OF AROW AND BROW
 		//Take care of any stranded Rows. 
 		if (ARow==null)
@@ -505,46 +531,69 @@ public class LLSparseM implements SparseM
 		//Traverse Both Matrixes
 		while (ARow!=null && BRow!=null)
 		{
-			SparseMNode NodeA= ARow.getNextElement();
-			SparseMNode NodeB= BRow.getNextElement();
-			while (NodeA!=null && NodeB!=null)
+			if (ARow.getRowID() < BRow.getRowID())
 			{
-				if (NodeA.getColumnID()==NodeB.getColumnID())
-				{
-					Answer.setElement(NodeA.getRowID(), NodeA.getColumnID() , NodeA.getValue() - NodeB.getValue());
-					NodeA=NodeA.getNextColumn();
-					NodeB=NodeB.getNextColumn();
-				}
-				else if (NodeA.getColumnID() < NodeB.getColumnID())
-				{
-					Answer.setElement(NodeA.getRowID(), NodeA.getColumnID(), NodeA.getValue());
-					NodeA=NodeA.getNextColumn();
-				}
-				else //NodeA.getColumnID() > NodeB.getColumnID()
-				{
-					Answer.setElement(NodeB.getRowID(), NodeB.getColumnID(), NodeB.getValue());
-					NodeB=NodeB.getNextColumn();
-				}
-			}
-			//Take care of any stranded columns.
-			if (NodeA==null)
-			{
-				while (NodeB!=null)
-				{
-					Answer.setElement(NodeB.getRowID(), NodeB.getColumnID(), -1*NodeB.getValue());
-					NodeB=NodeB.getNextColumn();
-				}
-			}
-			if (NodeB==null)
-			{
+				SparseMNode NodeA=ARow.getNextElement();
 				while (NodeA!=null)
 				{
 					Answer.setElement(NodeA.getRowID(), NodeA.getColumnID(), NodeA.getValue());
 					NodeA=NodeA.getNextColumn();
 				}
+				ARow=ARow.getNextRow();
 			}
-			ARow=ARow.getNextRow();
-			BRow=BRow.getNextRow();
+			else if (ARow.getRowID() > BRow.getRowID())
+			{
+				SparseMNode NodeB=BRow.getNextElement();
+				while (NodeB!=null)
+				{
+					Answer.setElement(NodeB.getRowID(), NodeB.getColumnID(), -1*NodeB.getValue());
+					NodeB=NodeB.getNextColumn();
+				}
+				BRow=BRow.getNextRow();
+			}
+			else //As both Rows are Equal I can proceed using a similar method to the Sparse Vector
+			{
+				SparseMNode NodeA= ARow.getNextElement();
+				SparseMNode NodeB= BRow.getNextElement();
+				while (NodeA!=null && NodeB!=null)
+				{
+					if (NodeA.getColumnID()==NodeB.getColumnID())
+					{
+						Answer.setElement(NodeA.getRowID(), NodeA.getColumnID() , NodeA.getValue() - NodeB.getValue());
+						NodeA=NodeA.getNextColumn();
+						NodeB=NodeB.getNextColumn();
+					}
+					else if (NodeA.getColumnID() < NodeB.getColumnID())
+					{
+						Answer.setElement(NodeA.getRowID(), NodeA.getColumnID(), NodeA.getValue());
+						NodeA=NodeA.getNextColumn();
+					}
+					else //NodeA.getColumnID() > NodeB.getColumnID()
+					{
+						Answer.setElement(NodeB.getRowID(), NodeB.getColumnID(), -1*NodeB.getValue());
+						NodeB=NodeB.getNextColumn();
+					}
+				}
+				//Take care of any stranded columns.
+				if (NodeA==null)
+				{
+					while (NodeB!=null)
+					{
+						Answer.setElement(NodeB.getRowID(), NodeB.getColumnID(), -1*NodeB.getValue());
+						NodeB=NodeB.getNextColumn();
+					}
+				}
+				if (NodeB==null)
+				{
+					while (NodeA!=null)
+					{
+						Answer.setElement(NodeA.getRowID(), NodeA.getColumnID(), NodeA.getValue());
+						NodeA=NodeA.getNextColumn();
+					}
+				}
+				ARow=ARow.getNextRow();
+				BRow=BRow.getNextRow();
+			}
 		}
 		//Take care of any stranded Rows.
 		if (BRow==null)
@@ -587,28 +636,38 @@ public class LLSparseM implements SparseM
 		SparseMRow	BRow =otherM.getRowHead();
 		while (ARow!=null && BRow!=null)
 		{
-			SparseMNode NodeA= ARow.getNextElement();
-			SparseMNode NodeB= BRow.getNextElement();
-			while (NodeA!=null && NodeB!=null)
+			if (ARow.getRowID() < BRow.getRowID())
 			{
-				if (NodeA.getColumnID()==NodeB.getColumnID())
-				{
-					Answer.setElement(NodeA.getRowID(), NodeA.getColumnID() , NodeA.getValue() * NodeB.getValue());
-					NodeA=NodeA.getNextColumn();
-					NodeB=NodeB.getNextColumn();
-				}
-				else if (NodeA.getColumnID() < NodeB.getColumnID())
-				{
-					NodeA=NodeA.getNextColumn();
-				}
-				else //NodeA.getColumnID() > NodeB.getColumnID()
-				{
-					NodeB=NodeB.getNextColumn();
-				}
+				ARow=ARow.getNextRow(); //I can just skip as all values will be multiplied by 0.
 			}
-			ARow=ARow.getNextRow();
-			BRow=BRow.getNextRow();
-		//I do not check for standard nodes in the column as they will be multiplied by 0 (Deleted).
+			else if (ARow.getRowID() > BRow.getRowID())
+			{
+				BRow=BRow.getNextRow(); //I can just skip as all values will be multiplied by 0.
+			}
+			else//They are equal so therefore there are Node Values to multiply
+			{
+				SparseMNode NodeA= ARow.getNextElement();
+				SparseMNode NodeB= BRow.getNextElement();
+				while (NodeA!=null && NodeB!=null)
+				{
+					if (NodeA.getColumnID()==NodeB.getColumnID())
+					{
+						Answer.setElement(NodeA.getRowID(), NodeA.getColumnID() , NodeA.getValue() * NodeB.getValue());
+						NodeA=NodeA.getNextColumn();
+						NodeB=NodeB.getNextColumn();
+					}
+					else if (NodeA.getColumnID() < NodeB.getColumnID())
+					{
+						NodeA=NodeA.getNextColumn();
+					}
+					else //NodeA.getColumnID() > NodeB.getColumnID()
+					{
+						NodeB=NodeB.getNextColumn();
+					}
+				}
+				ARow=ARow.getNextRow();
+				BRow=BRow.getNextRow();
+			}
 		}
 		//I do not check any leftover nodes as any leftover nodes will be multiplied by 0 (Deleted).
 		return Answer;
