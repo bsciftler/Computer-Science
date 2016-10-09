@@ -1,1 +1,8 @@
-The First Project's tasks is uploaded on a pdf here.
+Assignment #1 holds the instructions for this project.
+
+Dr. Chao Chen has created the interfaces to make it clear what methods he wanted to see in the project.
+He also created the following classes:
+ArrayMain
+ArraySparseVec
+ArraySparseM
+The point of the classes was to give the class an idea of what he wanted to see when creating the LLSparseM and LLSparseVec class.
