@@ -98,8 +98,10 @@ public class LLMainClass
 	}
 	
 	
-	public static void main(String[] args) {
-		try{
+	public static void main(String[] args)
+	{
+		try
+		{
 			int n = args.length;
 			if(n < 2)
 			{
@@ -122,7 +124,8 @@ public class LLMainClass
 				}
 				
 				SparseVec tmpV;
-				for(int i = 2; i < n; i+=2){
+				for(int i = 2; i < n; i+=2)
+				{
 					operator = args[i];
 					fname = args[i+1];
 					tmpV = ParseVector(fname);	// read tmpM from the next file
@@ -133,10 +136,11 @@ public class LLMainClass
 					if(operator.equals("A"))
 						V = V.addition(tmpV); 			// add tmpV to V
 					else if(operator.equals("S"))
-						V = V.substraction(tmpV); 		// substract tmpV from V
+						V = V.substraction(tmpV); 		// subtract tmpV from V
 					else if(operator.equals("M"))
 						V = V.multiplication(tmpV); 	// multiply tmpV to V
-					else{
+					else
+					{
 						System.out.println("NULL: Illegal operator: " + operator );
 						return;
 					}
@@ -157,7 +161,9 @@ public class LLMainClass
 				for(int i = 0; i < ne; i++)
 					System.out.println("IDX " + idx[i] + " VAL " + val[i]);
 				System.out.println("END");			
-			}else if(dtype.equals("MAT")){
+			}
+			else if(dtype.equals("MAT"))
+			{	
 				fname = args[1];
 				SparseM M = ParseMatrix(fname);	// read M from the first file
 				
@@ -169,7 +175,8 @@ public class LLMainClass
 				}
 				
 				SparseM tmpM;
-				for(int i = 2; i < n; i+=2){
+				for(int i = 2; i < n; i+=2)
+				{
 					operator = args[i];
 					fname = args[i+1];
 					tmpM = ParseMatrix(fname);	// read tmpM from the next file
@@ -188,7 +195,8 @@ public class LLMainClass
 						return;
 					}
 					if(M == null)			// if the file is invalid, skip
-					{	System.out.println("NULL: Operation "+operator + " Failed, Fname "+ fname);
+					{	
+						System.out.println("NULL: Operation "+operator + " Failed, Fname "+ fname);
 						return;
 					}				
 				}
@@ -216,7 +224,8 @@ public class LLMainClass
 				// print the matrix in cols
 				int[] cidx_list = M.getColIndices();
 				System.out.println("NUM_COLS "+cidx_list.length);
-				for(int cidx : cidx_list){
+				for(int cidx : cidx_list)
+				{
 					System.out.println("COL "+cidx);
 					int[] one_col_ridx_list = M.getOneColRowIndices(cidx);
 					int[] one_col_vals_list = M.getOneColValues(cidx);
