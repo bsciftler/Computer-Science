@@ -22,10 +22,11 @@ public interface SparseM
 
 
 	// methods for problem 4
-	LLSparseM addition(LLSparseM otherM) throws VectorException;			// this matrix + otherM
+	SparseM addition(SparseM otherM); 		// this matrix + otherM
 												// return a new matrix storing the result
-	LLSparseM substraction(LLSparseM otherM) throws VectorException;		// this matrix - otherM
+	SparseM substraction(SparseM otherM);	// this matrix - otherM
 												// return a new matrix storing the result
-	LLSparseM multiplication(LLSparseM otherM) throws VectorException;		// this matrix .* with otherM
+	SparseM multiplication(SparseM otherM);	// this matrix .* with otherM
 												// return a new matrix storing the result
+	<SparseMRow> SparseMRow getRowHead();
 }
