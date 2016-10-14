@@ -1,6 +1,7 @@
 import javax.swing.JOptionPane;
 
-public class LLSparseVec implements SparseVec 
+public class LLSparseVec implements SparseVec
+//ASK CHEN WHAT COUNTS AS OUT OF BOUNDS!!!
 {
 private LLSparseVecNode head;
 private LLSparseVecNode tail;
@@ -375,10 +376,17 @@ private int SIZE=0;
 		{
 			return false;
 		}
+		if (found == tail)
+		{		
+			found.getPrevious().setNext(null);
+			tail=found.getPrevious();
+			return true;
+		}
+	
 		if(found.getPrevious()!=null)
 		{
 			found.getPrevious().setNext(found.getNext());
-		} 
+		}
 		else
 		{
 			head = head.getNext();
