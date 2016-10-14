@@ -2,61 +2,54 @@ public class MyInput
 {
 	public static int getRandom()
 	{
-		return (int)Math.ceil(Math.random()*5);
+		return (int)Math.ceil(Math.random()*10);
 	}
 	
 	public static void main (String [] args)
 	{
-	/*
+
 		LLSparseVec tiger=new LLSparseVec(10);
 		LLSparseVec lion = new LLSparseVec(10);
-		LLSparseVec liger=null;
-		try 
-		{
-			tiger.setElement(19, 20);
-			tiger.setElement(12, 13 );
-			tiger.setElement(7, 20);
-			tiger.setElement(13, 35);
-			tiger.setElement(17, 50);
-			//tiger.setElement(getRandom(), getRandom());
+		tiger.setElement(getRandom(), getRandom());
+		tiger.setElement(getRandom(), getRandom());
+		tiger.setElement(getRandom(), getRandom());
+		tiger.setElement(getRandom(), getRandom());
+		tiger.setElement(getRandom(), getRandom());
+		tiger.setElement(getRandom(), getRandom());			
 			
-			
-			lion.setElement(100, 62);
-			//lion.setElement(19, 20);
-			//lion.setElement(53,30);
-			//lion.setElement(getRandom(), getRandom());
-			lion.setElement(getRandom(), getRandom());
-			lion.setElement(getRandom(), getRandom());
-			//lion.setElement(getRandom(), getRandom());
-			//lion.setElement(getRandom(), getRandom());
-			//lion.setElement(getRandom(), getRandom());
-			
-			liger=tiger.multiplication(lion);
-		}
-		catch (VectorException e)
-		{
-			e.printStackTrace();
-		}
+		lion.setElement(getRandom(), getRandom());
+		lion.setElement(getRandom(), getRandom());
+		lion.setElement(getRandom(), getRandom());
+		lion.setElement(getRandom(), getRandom());
+		lion.setElement(getRandom(), getRandom());
+		lion.setElement(getRandom(), getRandom());
+		lion.setElement(getRandom(), getRandom());
+		lion.setElement(getRandom(), getRandom());
+		LLSparseVec liger=tiger.multiplication(lion);
+		
 		int [] Val=lion.getAllValues();
 		int [] IDX=lion.getAllIndices();
-		int VecSize=lion.getLength();
-		int VecValSize=lion.numElements();
-		System.out.println("Sparse Vector Lion has Length: " + VecSize + " and " + VecValSize + " non zero elements");
-		for (int i=0;i<VecValSize;i++)
+		
+		for (int i=0;i<lion.numElements();i++)
 		{
 			System.out.println("Index: " + IDX[i]);
 			System.out.println("Value: " + Val[i]);
 		}
-		
+
 		System.out.println("TIGER LL");
+		tiger.info();
 		tiger.print();
 		System.out.println("LION LL");
+		lion.info();
 		lion.print();
 		System.out.println("Fusion");
+		liger.info();
 		liger.print();
-	 */
+
 	
 		//Sparse Matrix Test 	
+		
+		/*
 		LLSparseM tiger= new LLSparseM(5,5);
 		tiger.setElement(1, 1, 4);
 		tiger.setElement(2, 2, 4);
@@ -89,15 +82,12 @@ public class MyInput
 		//lion.printAllNodesByColumn();
 		//tiger.printAllNodesByColumn();
 		LLSparseM liger=null;
-/* 
- * Progress Report:
- * Looking good! I am almost done!!
- */
 		
 	liger = (LLSparseM) tiger.substraction(lion);
 	System.out.println("Peanut Butter and Jelly Sandwich");
 	//liger.info();
 	//liger.printAllNodesByRow();
 	liger.printMatrix();
+	*/
 	}
 }

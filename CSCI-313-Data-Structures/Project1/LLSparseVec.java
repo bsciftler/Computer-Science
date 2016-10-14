@@ -3,23 +3,19 @@ import javax.swing.JOptionPane;
 public class LLSparseVec implements SparseVec 
 {
 private LLSparseVecNode head;
+private LLSparseVecNode tail;
 private int numOfElements=0;
 private int SIZE=0;
 
 	public LLSparseVec(int newSize)
 	{
-		SIZE=newSize;//Using all caps, as I am treating this as "final".
+		SIZE=newSize;//Using all caps, as I am treating this as "final".}
 	}
 
-	public int getLength() 
-	{
-		return SIZE;
-	}
-
-	public int numElements()
-	{
-		return numOfElements;
-	}
+	public int getLength() {return SIZE;}
+	public int numElements(){return numOfElements;}	
+	public LLSparseVecNode getHead(){return head;}
+	public LLSparseVecNode getTail(){return tail;}
 
 	public int getElement(int index)
 	{
@@ -35,6 +31,12 @@ private int SIZE=0;
 
 	public void clearElement(int newID)
 	{
+		if (outOfBounds(newID))
+		{
+			JOptionPane.showMessageDialog(null, "Invalid ID: OUT OF BOUNDS!!");
+			return;
+		}
+		
 		if (delete(newID))
 		{
 			JOptionPane.showMessageDialog(null, "Sparse Node with ID "+ newID+" has been deleted!");
@@ -43,11 +45,6 @@ private int SIZE=0;
 		else
 		{
 			JOptionPane.showMessageDialog(null, "Sparse Node with ID "+ newID+" does not exist!");
-		}
-		
-		if (outOfBounds(newID))
-		{
-			JOptionPane.showMessageDialog(null, "Invalid ID: OUT OF BOUNDS!!");
 		}
 		return;
 	}
@@ -83,6 +80,7 @@ private int SIZE=0;
 		if (numOfElements == 0)
 		{
 			head=new LLSparseVecNode (newID, newValue);
+			tail=head;
 			++numOfElements;
 			return;
 		}
@@ -102,7 +100,7 @@ private int SIZE=0;
 		int counter=0;
 		while (current!=null)
 		{
-			Index[counter]=current.getValue();
+			Index[counter]=current.getID();
 			current=current.getNext();
 			++counter;
 		}
@@ -116,7 +114,7 @@ private int SIZE=0;
 		int counter=0;
 		while (current!=null)
 		{
-			values[counter]=current.getID();
+			values[counter]=current.getValue();
 			current=current.getNext();
 			++counter;
 		}
@@ -133,7 +131,7 @@ private int SIZE=0;
 		LLSparseVec Answer=new LLSparseVec(this.getLength());
 		
 		LLSparseVecNode CurrentA=head;
-		LLSparseVecNode CurrentB=((LLSparseVec) B).getHead();
+		LLSparseVecNode CurrentB=B.getHead();
 		
 		while (CurrentA != null && CurrentB!= null)
 		{
@@ -192,7 +190,7 @@ private int SIZE=0;
 		}
 		LLSparseVec Answer=new LLSparseVec(this.getLength());
 		LLSparseVecNode CurrentA=head;
-		LLSparseVecNode CurrentB=((LLSparseVec) B).getHead();
+		LLSparseVecNode CurrentB=B.getHead();
 		
 		while (CurrentA != null && CurrentB!= null)
 		{
@@ -254,7 +252,7 @@ private int SIZE=0;
 		}
 		LLSparseVec Answer=new LLSparseVec(this.getLength());
 		LLSparseVecNode CurrentA=head;
-		LLSparseVecNode CurrentB=((LLSparseVec) B).getHead();
+		LLSparseVecNode CurrentB=B.getHead();
 		
 		while (CurrentA != null && CurrentB!= null)
 		{
@@ -287,20 +285,17 @@ private int SIZE=0;
 		return Answer;
 	}
 //=================================================EXTRA USED CLASSES==============================
-	public LLSparseVecNode getHead()
-	{
-		return head;
-	}
-	
 	private void append (LLSparseVecNode input)
 	{
-		LLSparseVecNode current=head;
-		while (current.getNext()!=null)
+		if (numOfElements==0)
 		{
-			current=current.getNext();
+			head=input;
+			tail=head;
+			++numOfElements;
 		}
-		current.setNext(input);
-		input.setPrevious(current);
+		input.setPrevious(tail);
+		tail.setNext(input);
+		tail=input;
 	}
 	
 	public void print()
@@ -349,6 +344,7 @@ private int SIZE=0;
 			}
 		}// while
 		current.setNext(new LLSparseVecNode(newID, newValue, null, current));//Case 3: Append at the end
+		tail=current.getNext();
 	}
 	
 	private LLSparseVecNode find(int newID)
@@ -366,7 +362,7 @@ private int SIZE=0;
 			}
 			else 
 			{
-				current = null;
+				return null;
 			}
 		}
 		return current;
@@ -396,7 +392,7 @@ private int SIZE=0;
 	
 	private boolean outOfBounds(int ele)
 	{
-		if (ele > SIZE || ele < 0)
+		if (ele >= SIZE || ele < 0)
 		{
 			return true;
 		}
@@ -404,5 +400,11 @@ private int SIZE=0;
 		{
 			return false;
 		}
+	}
+	public void info()
+	{
+		System.out.println("This Sparse Vector is of length " + SIZE + " and it has " + numOfElements + " non-zero elements.");
+		System.out.println("Head Node ID: " + head.getID() + " Head Node Value: " + head.getValue());
+		System.out.println("Tail Node ID: " + tail.getID() + " Tail Node Value: " + tail.getValue());
 	}
 }

@@ -179,7 +179,7 @@ public class LLSparseM implements SparseM
 		}
 		else
 		{
-			JOptionPane.showMessageDialog(null, "Invaalid Command at RowandColumnsInspector method");
+			JOptionPane.showMessageDialog(null, "Invalid Command at RowandColumnsInspector method");
 			return;
 		}
 	}
@@ -424,7 +424,7 @@ public class LLSparseM implements SparseM
 		}
 		LLSparseM Answer=new LLSparseM(this.ncols(),this.nrows());
 		SparseMRow ARow = this.getRowHead();
-		SparseMRow BRow = ((LLSparseM) otherM).getRowHead();
+		SparseMRow BRow = otherM.getRowHead();
 		//Traverse Both Matrixes
 		while (ARow!=null && BRow!=null)
 		{
@@ -536,7 +536,7 @@ public class LLSparseM implements SparseM
 		}
 		LLSparseM Answer=new LLSparseM(this.nrows(),this.ncols());
 		SparseMRow ARow = this.getRowHead();
-		SparseMRow BRow =((LLSparseM) otherM).getRowHead();
+		SparseMRow BRow =otherM.getRowHead();
 		//Traverse Both Matrixes
 		while (ARow!=null && BRow!=null)
 		{
@@ -643,7 +643,7 @@ public class LLSparseM implements SparseM
 		}
 		LLSparseM Answer=new LLSparseM(this.nrows(),this.ncols());
 		SparseMRow ARow = this.getRowHead();
-		SparseMRow	BRow =((LLSparseM) otherM).getRowHead();
+		SparseMRow	BRow =otherM.getRowHead();
 		while (ARow!=null && BRow!=null)
 		{
 			if (ARow.getRowID() < BRow.getRowID())
