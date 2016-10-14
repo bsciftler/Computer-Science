@@ -52,6 +52,12 @@ private int SIZE=0;
 
 	public void setElement(int newID, int newValue)
 	{
+		if (outOfBounds(newID))
+		{
+			JOptionPane.showMessageDialog(null, "Invalid ID: OUT OF BOUNDS!!");
+			return;
+		}
+		
 		if (newValue==0)
 		{
 			if (delete(newID))
@@ -398,9 +404,9 @@ private int SIZE=0;
 		return true;
 	}
 	
-	private boolean outOfBounds(int ele)
+	private boolean outOfBounds(int ID)
 	{
-		if (ele >= SIZE || ele < 0)
+		if (ID >= SIZE || ID < 0)
 		{
 			return true;
 		}

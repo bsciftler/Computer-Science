@@ -49,6 +49,9 @@ public class LLSparseM implements SparseM
 	private int numofRows=0;
 	private int numofColumns=0;
 	private int numofElements=0;
+	private SparseMRow rowTail;//I will use this for my APPEND ONLY
+	private SparseMColumn columnTail;//I will use this for my APPEND ONLY
+	private SparseMNode tailNode;//I will use this for my APPEND ONLY!!!
 	private SparseMRow rowHead;//FIRST ROW
 	private SparseMColumn columnHead;//FIRST COLUMN
 	
@@ -457,7 +460,6 @@ public class LLSparseM implements SparseM
 		return ColumnValues;
 	}
 //===========================================PART 2: Extra Credit==============================================================
-
 	public SparseM addition(SparseM otherM)
 	{
 		if (this.nrows()!=otherM.nrows() && this.ncols()!=otherM.ncols())
@@ -465,7 +467,7 @@ public class LLSparseM implements SparseM
 			JOptionPane.showMessageDialog(null, "INVALID ENTRY! MATRICIES NOT THE SAME SIZE!");
 			return null;
 		}
-		LLSparseM Answer=new LLSparseM(this.ncols(),this.nrows());
+		LLSparseM Answer= new LLSparseM(this.ncols(),this.nrows());
 		SparseMRow ARow = this.getRowHead();
 		SparseMRow BRow = ((LLSparseM) otherM).getRowHead();
 		//Traverse Both Matrixes
@@ -705,7 +707,11 @@ public class LLSparseM implements SparseM
 				{
 					if (NodeA.getColumnID()==NodeB.getColumnID())
 					{
-						Answer.setElement(NodeA.getRowID(), NodeA.getColumnID() , NodeA.getValue() * NodeB.getValue());
+						//The row ID is constant here!!!
+						//The goal is attach Nodes Left to Right as it is already sorted.
+						//However, my Append will return my "Tail" to keep O(n) NOT O(n^2)!!
+						SparseMNode APPEND=new SparseMNode(NodeA.getRowID(),NodeA.getColumnID(),NodeA.getValue()*NodeB.getValue());
+						Answer.append(APPEND);
 						NodeA=NodeA.getNextColumn();
 						NodeB=NodeB.getNextColumn();
 					}
@@ -746,13 +752,13 @@ public class LLSparseM implements SparseM
 		if (numofElements >= 1)
 		{
 			SparseMRow Row=rowHead;
-			int RowCOUNT=1;
+			int RowCOUNT=0;
 			while (Row !=null)
 			{
 				if (Row.getRowID()==RowCOUNT)
 				{
 					SparseMNode Column=Row.getNextElement();
-					int col=1;
+					int col=0;
 					while (Column != null)
 					{
 						if (Column.getColumnID()==col)
@@ -767,9 +773,9 @@ public class LLSparseM implements SparseM
 							++col;
 						}
 					}
-					if (col!=COLUMNS+1)//Left Over 0's after Last Node
+					if (col!=COLUMNS)//Left Over 0's after Last Node
 					{
-						for (int i=1;i<=COLUMNS-col+1;i++)
+						for (int i=1;i<=COLUMNS-col;i++)
 						{
 							System.out.print("0");
 						}
@@ -789,7 +795,7 @@ public class LLSparseM implements SparseM
 					System.out.println(" ");
 				}
 			}//End of While (Printing Rows).
-			for (int j=0;j<ROWS-RowCOUNT+1;j++)//To Print BLANK Rows.
+			for (int j=0;j<ROWS-RowCOUNT;j++)//To Print BLANK Rows.
 			{
 				for (int i=0;i<COLUMNS;i++)
 				{
@@ -802,8 +808,10 @@ public class LLSparseM implements SparseM
 	
 	private boolean outofBounds(int row, int column)
 	{
-		if (row > ROWS || row < 0 || column < 0 || column > COLUMNS)
+		if (row >= ROWS || row < 0 || column < 0 || column >= COLUMNS)
 		{
+//This is because I am counting from 0 to Row/Column - 1
+//Instead of 1 to Column/Row	
 			return true;
 		}
 		return false;
@@ -933,7 +941,7 @@ public class LLSparseM implements SparseM
 	
 	private void insert(int rowID, int columnID, int value)
 	{
-		SparseMNode NEWNODE=new SparseMNode(rowID,columnID,value,null,null);
+		SparseMNode NEWNODE=new SparseMNode(rowID,columnID,value);
 		if (rowID < rowHead.getRowID())
 		{
 			rowHead = new SparseMRow(rowID,rowHead,NEWNODE);//NEW ROWHEAD! (RowID, nextRow, nextColumn)
@@ -1023,11 +1031,22 @@ public class LLSparseM implements SparseM
 		return;
 	}
 	
-	private void appendRow()
+	private void append(SparseMNode APPEND)
 	{
 //I use this only if I know when I add rows, I am adding in ascending order.
+		if (numofElements==0)
+		{
+			rowHead=new SparseMRow(APPEND.getRowID(),null,APPEND);//ROW CONS: ROWID, NEXT Row, NEXT Column
+			columnHead=new SparseMColumn(APPEND.getColumnID(),APPEND,null);//COLUMN CONS: COLID, NextRow Next Column
+			rowHead=rowTail;
+			columnHead=columnTail;
+			return;
+		}
+		//Case 1: Make whole new Row
+		
+		//Case 2: Append at the end. Make sure you update NodeTail
 	}
-	private void appendColumn()
+	private void appendColumn(SparseMNode APPEND)
 	{
 //I use this only if I know when I add columns I am adding in ascending order.
 	}
