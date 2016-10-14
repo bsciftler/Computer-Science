@@ -301,7 +301,7 @@ public class LLSparseM implements SparseM
 				}
 				FOUND=FOUND.getNextColumn();
 			}
-			return FOUND;//it is obviously null now.
+			return FOUND;//it can return null if the Node was NOT found.
 		}
 	}
 
@@ -311,7 +311,7 @@ public class LLSparseM implements SparseM
 		int [] Rows=new int [numofRows];
 		if (current==null)
 		{
-			return Rows;
+			return null;
 		}
 		int counter=0;
 		while (current!=null)
@@ -326,10 +326,10 @@ public class LLSparseM implements SparseM
 	public int[] getColIndices()
 	{
 		SparseMColumn current= columnHead;
-		int [] ColIndex=new int[numofColumns];//or use COLUMN/ROW?
+		int [] ColIndex=new int[numofColumns];
 		if (current==null)
 		{
-			return ColIndex;
+			return null;
 		}
 		int counter=0;
 		while (current!=null)
@@ -341,77 +341,120 @@ public class LLSparseM implements SparseM
 		return ColIndex;
 	}
 
-	public int[] getOneRowColIndices(int ridx)
+	public int [] getOneRowColIndices(int ridx)
 	{
-		int [] RowIndex=new int[numofColumns];
-		int counter=0;
 		SparseMNode current= findRow(ridx).getNextElement();
+		int size=0;
 		if (current==null)
 		{
-			return RowIndex;
+			return null;
 		}
+		else
+		{
+			//Go through once to get the number of nodes
+			while (current!=null)
+			{
+				++size;
+				current=current.getNextColumn();
+			}
+		}
+		int [] RowColumnID=new int [size];
+		int counter=0;
+		current= findRow(ridx).getNextElement();
 		while (current!=null)
 		{
-			RowIndex[counter]=current.getColumnID();
+			RowColumnID[counter]=current.getColumnID();
 			current=current.getNextColumn();
 			++counter;
 		}
-		return RowIndex;
+		return RowColumnID;
 	}
 
 	public int[] getOneRowValues(int ridx)
 	{
-		SparseMNode current = findRow(ridx).getNextElement();
-		int [] RowVals=new int [numofRows];///USE COLUMN/ROW?
+		SparseMNode current= findRow(ridx).getNextElement();
+		int size=0;
 		if (current==null)
 		{
-			return RowVals;
+			return null;
 		}
-		
+		else
+		{
+			//Go through once to get the number of nodes
+			while (current!=null)
+			{
+				++size;
+				current=current.getNextColumn();
+			}
+		}
+		int [] RowValues=new int [size];
 		int counter=0;
+		current= findRow(ridx).getNextElement();
 		while (current!=null)
 		{
-			RowVals[counter]=current.getValue();
+			RowValues[counter]=current.getValue();
 			current=current.getNextColumn();
 			++counter;
 		}
-		return RowVals;
+		return RowValues;
 	}
 
 	public int[] getOneColRowIndices(int cidx)
 	{
-		SparseMNode current = findColumn(cidx).getNextElement();
-		int [] ColumnRowID=new int [numofColumns];//USE ROW/COLUMN
+		SparseMNode current= findColumn(cidx).getNextElement();
+		int size=0;
 		if (current==null)
 		{
-			return ColumnRowID;
+			return null;
 		}
-		int counter=0;
-		while (current!=null && counter!=numofColumns)
+		else
 		{
-			ColumnRowID[counter]=current.getRowID();
-			current=current.getNextRow();
+			//Go through once to get the number of nodes
+			while (current!=null)
+			{
+				++size;
+				current=current.getNextRow();
+			}
+		}
+		int [] ColumnRowIDs=new int [size];
+		int counter=0;
+		current= findColumn(cidx).getNextElement();
+		while (current!=null)
+		{
+			ColumnRowIDs[counter]=current.getRowID();
+			current=current.getNextColumn();
 			++counter;
 		}
-		return ColumnRowID;
+		return ColumnRowIDs;
 	}
 
 	public int[] getOneColValues(int cidx)
 	{
-		SparseMNode current = findColumn(cidx).getNextElement();
-		int [] ColumnRowVals=new int [numofColumns];///USE COLUMN/ROW?
+		SparseMNode current= findColumn(cidx).getNextElement();
+		int size=0;
 		if (current==null)
 		{
-			return ColumnRowVals;
+			return null;
 		}
-		int counter=0;
-		while (current!=null && counter!=numofColumns)
+		else
 		{
-			ColumnRowVals[counter]=current.getValue();
-			current=current.getNextRow();
+			//Go through once to get the number of nodes
+			while (current!=null)
+			{
+				++size;
+				current=current.getNextRow();
+			}
+		}
+		int [] ColumnValues=new int [size];
+		int counter=0;
+		current= findColumn(cidx).getNextElement();
+		while (current!=null)
+		{
+			ColumnValues[counter]=current.getValue();
+			current=current.getNextColumn();
 			++counter;
 		}
-		return ColumnRowVals;
+		return ColumnValues;
 	}
 //===========================================PART 2: Extra Credit==============================================================
 
@@ -424,7 +467,7 @@ public class LLSparseM implements SparseM
 		}
 		LLSparseM Answer=new LLSparseM(this.ncols(),this.nrows());
 		SparseMRow ARow = this.getRowHead();
-		SparseMRow BRow = otherM.getRowHead();
+		SparseMRow BRow = ((LLSparseM) otherM).getRowHead();
 		//Traverse Both Matrixes
 		while (ARow!=null && BRow!=null)
 		{
@@ -536,7 +579,7 @@ public class LLSparseM implements SparseM
 		}
 		LLSparseM Answer=new LLSparseM(this.nrows(),this.ncols());
 		SparseMRow ARow = this.getRowHead();
-		SparseMRow BRow =otherM.getRowHead();
+		SparseMRow BRow =((LLSparseM) otherM).getRowHead();
 		//Traverse Both Matrixes
 		while (ARow!=null && BRow!=null)
 		{
@@ -643,7 +686,7 @@ public class LLSparseM implements SparseM
 		}
 		LLSparseM Answer=new LLSparseM(this.nrows(),this.ncols());
 		SparseMRow ARow = this.getRowHead();
-		SparseMRow	BRow =otherM.getRowHead();
+		SparseMRow	BRow =((LLSparseM) otherM).getRowHead();
 		while (ARow!=null && BRow!=null)
 		{
 			if (ARow.getRowID() < BRow.getRowID())
@@ -982,11 +1025,11 @@ public class LLSparseM implements SparseM
 	
 	private void appendRow()
 	{
-		
+//I use this only if I know when I add rows, I am adding in ascending order.
 	}
 	private void appendColumn()
 	{
-		
+//I use this only if I know when I add columns I am adding in ascending order.
 	}
 	
 	public void info()

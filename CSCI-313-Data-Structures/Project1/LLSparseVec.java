@@ -131,7 +131,7 @@ private int SIZE=0;
 		LLSparseVec Answer=new LLSparseVec(this.getLength());
 		
 		LLSparseVecNode CurrentA=head;
-		LLSparseVecNode CurrentB=B.getHead();
+		LLSparseVecNode CurrentB=((LLSparseVec) B).getHead();
 		
 		while (CurrentA != null && CurrentB!= null)
 		{
@@ -190,7 +190,7 @@ private int SIZE=0;
 		}
 		LLSparseVec Answer=new LLSparseVec(this.getLength());
 		LLSparseVecNode CurrentA=head;
-		LLSparseVecNode CurrentB=B.getHead();
+		LLSparseVecNode CurrentB=((LLSparseVec) B).getHead();
 		
 		while (CurrentA != null && CurrentB!= null)
 		{
@@ -252,7 +252,7 @@ private int SIZE=0;
 		}
 		LLSparseVec Answer=new LLSparseVec(this.getLength());
 		LLSparseVecNode CurrentA=head;
-		LLSparseVecNode CurrentB=B.getHead();
+		LLSparseVecNode CurrentB=((LLSparseVec) B).getHead();
 		
 		while (CurrentA != null && CurrentB!= null)
 		{
@@ -297,6 +297,7 @@ private int SIZE=0;
 		input.setPrevious(tail);
 		tail.setNext(input);
 		tail=input;
+		++numOfElements;
 	}
 	
 	public void print()
@@ -310,8 +311,6 @@ private int SIZE=0;
 		//int counter=0;
 		while (current!=null)
 		{
-			//++counter;
-			//System.out.println("Node # " + counter );
 			System.out.print("Node ID# " + current.getID() + "  ");
 			System.out.print("Node Value " + current.getValue());
 			System.out.println(" ");
