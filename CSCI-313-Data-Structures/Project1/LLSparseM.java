@@ -980,6 +980,15 @@ public class LLSparseM implements SparseM
 		return;
 	}
 	
+	private void appendRow()
+	{
+		
+	}
+	private void appendColumn()
+	{
+		
+	}
+	
 	public void info()
 	{
 		System.out.println("This Sparse Matrix is a " + this.ncols() + " X " + this.nrows() + " Matrix");

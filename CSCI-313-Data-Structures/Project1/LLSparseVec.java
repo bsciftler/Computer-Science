@@ -292,6 +292,7 @@ private int SIZE=0;
 			head=input;
 			tail=head;
 			++numOfElements;
+			return;
 		}
 		input.setPrevious(tail);
 		tail.setNext(input);
