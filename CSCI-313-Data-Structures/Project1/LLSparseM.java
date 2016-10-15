@@ -1030,42 +1030,55 @@ public class LLSparseM implements SparseM
 		{
 			rowHead=new SparseMRow(APPENDNODE.getRowID(),null,APPENDNODE);//ROW CONS: ROWID, NEXT Row, NEXT Column
 			columnHead=new SparseMColumn(APPENDNODE.getColumnID(),APPENDNODE,null);//COLUMN CONS: COLID, NextRow Next Column
-			rowHead=rowTail;
-			columnHead=columnTail;
+			rowTail=rowHead;
+			columnTail=columnHead;
 			tailROWNode=APPENDNODE;
 			tailCOLUMNNode=APPENDNODE;
+			++numofElements;
+			++numofRows;
+			++numofColumns;
 			return;
 		}
-		//Case 1: Make whole new Row
-		SparseMRow ROW= findRow(APPENDNODE.getRowID());
-		if (ROW==null)
-		{
-			rowTail.setNextRow(new SparseMRow(APPENDNODE.getRowID(),null,APPENDNODE));
-			rowTail=rowTail.getNextRow();
-			tailROWNode=rowTail.getNextElement();
-			return;
-		}
-		else
-		{
-			//Case 2: Append at the end. Make sure you update NodeTail
-			tailROWNode.setNextColumn(APPENDNODE);
-			tailROWNode=APPENDNODE;
-		}
-		/*
+		
 		//Fix up Column Pointers as now Everything left to Right is set!
 		if (findColumn(APPENDNODE.getColumnID())==null)
 		{
 			columnTail.setNextColumn(new SparseMColumn(APPENDNODE.getColumnID(),APPENDNODE,null));
 			columnTail=columnTail.getNextColumn();
 			tailCOLUMNNode=columnTail.getNextElement();
+			++numofColumns;
+			++numofElements;
+			//Fix the Rows
+			AppendROW(APPENDNODE);
+			return;
 		}
 		//I know all Column nodes have an element. Now it is time to append.
 		if (findColumn(APPENDNODE.getColumnID()).getNextElement().getColumnID()==APPENDNODE.getColumnID())
 		{
 			tailCOLUMNNode.setNextRow(APPENDNODE);
 			tailCOLUMNNode=APPENDNODE;
+			++numofElements;
+			//Fix the Rows
+			AppendROW(APPENDNODE);
+			return;
 		}
-		*/
+	}
+	
+	private void AppendROW(SparseMNode APPENDNODE)
+	{
+		SparseMRow ROW=findRow(APPENDNODE.getRowID());
+		if (ROW==null)
+		{
+			rowTail.setNextRow(new SparseMRow(APPENDNODE.getRowID(),null,APPENDNODE));
+			rowTail=rowTail.getNextRow();
+			tailROWNode=rowTail.getNextElement();
+			++numofRows;
+			return;
+		}
+		//Case 2: Append at the end. Make sure you update NodeTail
+		tailROWNode.setNextColumn(APPENDNODE);
+		tailROWNode=APPENDNODE;
+		return;
 	}
 	public void info()
 	{
