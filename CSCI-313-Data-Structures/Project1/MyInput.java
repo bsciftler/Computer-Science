@@ -68,9 +68,9 @@ public class MyInput
 		lion.setElement(1, 2, 30);
 		lion.setElement(1, 3, 15);
 		lion.setElement(3, 2, 10);
-		//lion.setElement(3, 5, 50);
+		lion.setElement(3, 4, 50);
 		lion.setElement(4, 1, 55);
-		//lion.setElement(5, 1, 34);
+		lion.setElement(0, 1, 34);
 //int [] RowID=lion.getRowIndices();
 //int [] ColID=lion.getColIndices();
 //int [] OneRowColID=lion.getOneRowColIndices(2);
@@ -79,16 +79,16 @@ public class MyInput
 //int [] OneColVal=lion.getOneColValues(1);
 		System.out.println("Peanut Butter");
 		//tiger.info();
-		//tiger.printAllNodesByRow();
+		tiger.printAllNodesByRow();
 		tiger.printMatrix();
 		System.out.println("Jelly");
-		//lion.info();
-		//lion.printAllNodesByRow();
+		lion.info();
+		lion.printAllNodesByRow();
 		lion.printMatrix();
-		//lion.printAllNodesByColumn();
+		lion.printAllNodesByColumn();
 		//tiger.printAllNodesByColumn();
 		
-	LLSparseM liger = (LLSparseM) tiger.multiplication(lion);
+	LLSparseM liger = (LLSparseM) tiger.addition(lion);
 	System.out.println("Peanut Butter and Jelly Sandwich");
 	//liger.info();
 	liger.printAllNodesByRow();

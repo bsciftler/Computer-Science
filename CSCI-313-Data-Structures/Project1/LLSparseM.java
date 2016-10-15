@@ -567,7 +567,7 @@ public class LLSparseM implements SparseM
 			SparseMNode NodeB=BRow.getNextElement();
 			while (NodeB!=null)
 			{
-				Answer.append(new SparseMNode(NodeB.getRowID(),NodeB.getColumnID(), -1*NodeB.getValue()));
+				Answer.append(new SparseMNode(NodeB.getRowID(),NodeB.getColumnID(), NodeB.getValue()));
 				NodeB=NodeB.getNextColumn();
 			}
 			BRow=BRow.getNextRow();
@@ -763,7 +763,7 @@ public class LLSparseM implements SparseM
 					}
 					if (col!=COLUMNS)//Left Over 0's after Last Node
 					{
-						for (int i=COLUMNS-col;i<0;i++)
+						for (int i=0;i< COLUMNS-col;i++)
 						{
 							System.out.print("0");
 						}
@@ -933,7 +933,7 @@ public class LLSparseM implements SparseM
 		if (rowID < rowHead.getRowID())
 		{
 			rowHead = new SparseMRow(rowID,rowHead,NEWNODE);//NEW ROWHEAD! (RowID, nextRow, nextColumn)
-			rowHead=rowTail;
+			rowTail=rowHead;
 			++numofRows;
 			columnInsert(rowID,columnID,NEWNODE);//Fix the Columns LinkedList.
 			return;
@@ -984,7 +984,7 @@ public class LLSparseM implements SparseM
 		if (columnID < columnHead.getColumnID())
 		{
 			columnHead = new SparseMColumn(columnID,NEWNODE,columnHead);//NEW COLUMNHEAD! (CIDX, nextRow, nextColumn)
-			columnTail=columnHead;
+			columnTail=columnHead;//This is just a dummy node.
 			++numofColumns;
 			return;
 		}
@@ -1080,6 +1080,7 @@ public class LLSparseM implements SparseM
 		tailROWNode=APPENDNODE;
 		return;
 	}
+	
 	public void info()
 	{
 		System.out.println("This Sparse Matrix is a " + ROWS + " X " + COLUMNS + " Matrix");
