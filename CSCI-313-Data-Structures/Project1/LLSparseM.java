@@ -51,7 +51,8 @@ public class LLSparseM implements SparseM
 	private int numofElements=0;
 	private SparseMRow rowTail;//I will use this for my APPEND ONLY
 	private SparseMColumn columnTail;//I will use this for my APPEND ONLY
-	private SparseMNode tailNode;//I will use this for my APPEND ONLY!!!
+	private SparseMNode tailROWNode;//I will use this for my APPEND ONLY!!!
+	private SparseMNode tailCOLUMNNode;
 	private SparseMRow rowHead;//FIRST ROW
 	private SparseMColumn columnHead;//FIRST COLUMN
 	
@@ -712,6 +713,7 @@ public class LLSparseM implements SparseM
 						//However, my Append will return my "Tail" to keep O(n) NOT O(n^2)!!
 						SparseMNode APPEND=new SparseMNode(NodeA.getRowID(),NodeA.getColumnID(),NodeA.getValue()*NodeB.getValue());
 						Answer.append(APPEND);
+						Answer.appendColumn(APPEND);
 						NodeA=NodeA.getNextColumn();
 						NodeB=NodeB.getNextColumn();
 					}
@@ -1040,15 +1042,32 @@ public class LLSparseM implements SparseM
 			columnHead=new SparseMColumn(APPEND.getColumnID(),APPEND,null);//COLUMN CONS: COLID, NextRow Next Column
 			rowHead=rowTail;
 			columnHead=columnTail;
+			tailROWNode=APPEND;
 			return;
 		}
 		//Case 1: Make whole new Row
-		
+		SparseMNode ROW= findRow(APPEND.getRowID()).getNextElement();
+		if (ROW==null)
+		{
+			rowTail.setNextRow(new SparseMRow(APPEND.getRowID(),null,APPEND));
+			rowTail=rowTail.getNextRow();
+			tailROWNode=rowTail.getNextElement();
+		}
 		//Case 2: Append at the end. Make sure you update NodeTail
+		tailROWNode.setNextColumn(APPEND);
+		tailROWNode=APPEND;
 	}
 	private void appendColumn(SparseMNode APPEND)
-	{
-//I use this only if I know when I add columns I am adding in ascending order.
+	{//I use this only if I know when I add columns I am adding in ascending order.
+		SparseMNode COL= findColumn(APPEND.getColumnID()).getNextElement();
+		if (COL==null)
+		{
+			columnTail.setNextColumn(new SparseMColumn(APPEND.getColumnID(),APPEND,null));
+			columnTail=columnTail.getNextColumn();
+			tailCOLUMNNode=columnTail.getNextElement();
+		}
+		tailCOLUMNNode.setNextRow(APPEND);
+		tailCOLUMNNode=APPEND;
 	}
 	
 	public void info()
