@@ -5,6 +5,8 @@ public class MyInput
 		return (int)Math.ceil(Math.random()*5);
 	}
 	
+	
+	
 	public static void main (String [] args)
 	{
 	/*
@@ -71,41 +73,32 @@ public class MyInput
 		lion.setElement(3, 4, 50);
 		lion.setElement(4, 1, 55);
 		lion.setElement(0, 1, 34);
-//int [] RowID=lion.getRowIndices();
-//int [] ColID=lion.getColIndices();
-//int [] OneRowColID=lion.getOneRowColIndices(2);
-//int [] OneRowVal=lion.getOneRowValues(3);
-//int [] OneColRowID=lion.getOneColRowIndices(1);
-//int [] OneColVal=lion.getOneColValues(1);
-		System.out.println("Peanut Butter");
-		//tiger.info();
-		tiger.printAllNodesByRow();
-		tiger.printMatrix();
-		System.out.println("Jelly");
-		lion.info();
-		lion.printAllNodesByRow();
-		lion.printMatrix();
+		/* 
+		 * 	int[] ridx_list = lion.getRowIndices();
+		System.out.println("NUM_ROWS "+ridx_list.length);
+		for(int ridx : ridx_list)
+		{
+			System.out.println("ROW "+ridx);
+			int[] one_row_cidx_list = lion.getOneRowColIndices(ridx);
+			int[] one_row_vals_list = lion.getOneRowValues(ridx);
+			for(int i = 0; i < one_row_cidx_list.length; ++i)
+				System.out.println("RIDX "+ridx+" CIDX " + one_row_cidx_list[i] + " VAL " + one_row_vals_list[i]);
+		}
+		System.out.println("Row test: CHECK!");
+		 */
+		// print the matrix in rows
+	
+		//Column Test YOU FAILED HERE BIG TIME ANDREW!!!
 		lion.printAllNodesByColumn();
-		//tiger.printAllNodesByColumn();
-		
-	LLSparseM liger = (LLSparseM) tiger.addition(lion);
-	System.out.println("Peanut Butter and Jelly Sandwich");
-	//liger.info();
-	liger.printAllNodesByRow();
-	//liger.printMatrix();
-	/*
-	 * APPEND
-	 * 	LLSparseM DX= new LLSparseM(5,5);
-		DX.append(new SparseMNode(0, 1, 51));
-		DX.append(new SparseMNode(0, 2, 152));
-		DX.append(new SparseMNode(0, 3, 25));
-		DX.append(new SparseMNode(0, 6, 552));
-		DX.append(new SparseMNode(1, 0, 552));
-		DX.append(new SparseMNode(1, 1, 552));
-		DX.append(new SparseMNode(1, 3, 552));
-		DX.printAllNodesByRow();
-		DX.printAllNodesByColumn();
-	 */
-
+		int[] cidx_list = lion.getColIndices();
+		System.out.println("NUM_COLS "+cidx_list.length);
+		for(int cidx : cidx_list)
+		{
+			System.out.println("COL "+cidx);
+			int[] one_col_ridx_list = lion.getOneColRowIndices(cidx);
+			int[] one_col_vals_list = lion.getOneColValues(cidx);
+			for(int i = 0; i < one_col_ridx_list.length; ++i)
+				System.out.println("RIDX "+one_col_ridx_list[i]+" CIDX " + cidx + " VAL " + one_col_vals_list[i]);
+		}
 	}
 }

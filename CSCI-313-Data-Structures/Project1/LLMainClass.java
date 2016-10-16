@@ -168,7 +168,7 @@ public class LLMainClass
 				SparseM M = ParseMatrix(fname);	// read M from the first file
 				
 				if(M == null)
-				{	
+				{
 					// if invalid input file, print NULL and exit
 					System.out.println("NULL: Illegal Matrix Input, Fname " + fname);
 					return;
@@ -190,7 +190,8 @@ public class LLMainClass
 						M = M.substraction(tmpM); 		// subtract tmpM from M
 					else if(operator.equals("M"))
 						M = M.multiplication(tmpM); 	// multiply tmpM to M
-					else{
+					else
+					{
 						System.out.println("NULL: Illegal operator: " + operator );
 						return;
 					}
@@ -208,7 +209,7 @@ public class LLMainClass
 				nc = M.ncols();			// number of columns
 				ne = M.numElements();	// number of elements
 				System.out.println("NROWS " + nr + " NCOLS " + nc + " NELEMS " + ne);
-				
+		
 				// print the matrix in rows
 				int[] ridx_list = M.getRowIndices();
 				System.out.println("NUM_ROWS "+ridx_list.length);
@@ -220,6 +221,7 @@ public class LLMainClass
 					for(int i = 0; i < one_row_cidx_list.length; ++i)
 						System.out.println("RIDX "+ridx+" CIDX " + one_row_cidx_list[i] + " VAL " + one_row_vals_list[i]);
 				}
+				System.out.println("Row test: CHECK!");
 	
 				// print the matrix in cols
 				int[] cidx_list = M.getColIndices();
@@ -241,10 +243,20 @@ public class LLMainClass
 				return;
 			}
 	    } 
-		catch (Exception e)
+		catch (NullPointerException NFE)
 		{
-	    	System.out.println("NULL: Something is wrong");
+	    	System.out.println("NULL: NULL POINTER EXCEPTION FOUND!!!");
 	        return;
 	    }
+		catch (ArrayIndexOutOfBoundsException IOB)
+		{
+			System.out.println("NULL: ARRAY INDEX OUT OF BOUNDS DETECTED!!!");
+	        return;
+		}
+		catch (Exception e)
+		{
+			System.out.println("NULL: UNKNOWN ERROR FOUND!!!");
+	        return;
+		}
 	}
 }
