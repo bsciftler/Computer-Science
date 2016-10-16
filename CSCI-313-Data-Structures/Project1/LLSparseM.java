@@ -438,7 +438,7 @@ public class LLSparseM implements SparseM
 		while (current!=null)
 		{
 			ColumnRowIDs[counter]=current.getRowID();
-			current=current.getNextColumn();
+			current=current.getNextRow();
 			++counter;
 		}
 		return ColumnRowIDs;
@@ -467,7 +467,7 @@ public class LLSparseM implements SparseM
 		while (current!=null)
 		{
 			ColumnValues[counter]=current.getValue();
-			current=current.getNextColumn();
+			current=current.getNextRow();
 			++counter;
 		}
 		return ColumnValues;
