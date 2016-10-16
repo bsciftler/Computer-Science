@@ -16,6 +16,11 @@ public class SparseMNode
 		nextColumn=NC;
 	}
 	
+	public SparseMNode (int row, int column, int value)
+	{
+		this(row,column,value,null,null);
+	}
+	
 	//Get Methods
 	public int getValue() {return value;}
 	public int getColumnID () {return columnID;}
