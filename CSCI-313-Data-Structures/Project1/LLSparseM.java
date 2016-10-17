@@ -1040,8 +1040,38 @@ public class LLSparseM implements SparseM
 			return;
 		}
 		
-		//Fix up Column Pointers as now Everything left to Right is set!
-		if (findColumn(APPENDNODE.getColumnID())==null)
+//Be Extra Careful with Columns as it isn't as neatly inserted as the rows!!!
+		if (APPENDNODE.getColumnID() < columnTail.getColumnID() && findColumn(APPENDNODE.getColumnID())==null)
+		{
+			//Insert between head and Tail. DO NOT CHANGE COLUMN TAIL. Maybe Head might have to change...
+			if (APPENDNODE.getColumnID() < columnHead.getColumnID())
+			{
+				columnHead = new SparseMColumn(APPENDNODE.getRowID(),APPENDNODE,columnHead);//NEW COLUMNHEAD! (CIDX, nextRow, nextColumn)
+				++numofColumns;
+				++numofElements;
+				AppendROW(APPENDNODE);
+				return;
+			}
+			SparseMColumn current=columnHead;
+			SparseMColumn previous=columnHead;
+			while (current!=null)
+			{
+				if (APPENDNODE.getColumnID() < current.getColumnID())
+				{
+					previous.setNextColumn(new SparseMColumn(APPENDNODE.getColumnID(),APPENDNODE,current));
+					++numofColumns;
+					++numofElements;
+					AppendROW(APPENDNODE);
+					return;
+				}
+				else
+				{
+					previous=current;
+					current=current.getNextColumn();
+				}
+			}
+		}
+		else if (APPENDNODE.getColumnID() > columnTail.getColumnID() && findColumn(APPENDNODE.getColumnID())==null)
 		{
 			columnTail.setNextColumn(new SparseMColumn(APPENDNODE.getColumnID(),APPENDNODE,null));
 			columnTail=columnTail.getNextColumn();
@@ -1052,7 +1082,6 @@ public class LLSparseM implements SparseM
 			AppendROW(APPENDNODE);
 			return;
 		}
-		//I know all Column nodes have an element. Now it is time to append.
 		if (findColumn(APPENDNODE.getColumnID()).getNextElement().getColumnID()==APPENDNODE.getColumnID())
 		{
 			tailCOLUMNNode.setNextRow(APPENDNODE);
@@ -1062,6 +1091,7 @@ public class LLSparseM implements SparseM
 			AppendROW(APPENDNODE);
 			return;
 		}
+	
 	}
 	
 	private void AppendROW(SparseMNode APPENDNODE)
