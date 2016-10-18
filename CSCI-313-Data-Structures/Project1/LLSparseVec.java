@@ -315,7 +315,6 @@ private int SIZE=0;
 			return;
 		}
 		LLSparseVecNode current=head;
-		//int counter=0;
 		while (current!=null)
 		{
 			System.out.print("Node ID# " + current.getID() + "  ");
@@ -384,8 +383,8 @@ private int SIZE=0;
 		}
 		if (found == tail)
 		{		
-			found.getPrevious().setNext(null);
 			tail=found.getPrevious();
+			tail.setNext(null);
 			return true;
 		}
 	

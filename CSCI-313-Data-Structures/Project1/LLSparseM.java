@@ -1040,34 +1040,17 @@ public class LLSparseM implements SparseM
 		SparseMColumn AppendCOL=findColumn(APPENDNODE.getColumnID());
 		if (AppendCOL!=null && LastAppendNODE.getColumnID()==APPENDNODE.getColumnID())
 		{
-	//If I can save time...Great!!
+			//If I can save time...Great!!
 			LastAppendNODE.setNextRow(APPENDNODE);
 			++numofElements;
 			AppendROW(APPENDNODE);
 			return;
 		}
-		if (AppendCOL!=null)//I know I have to travel down the column to append the Node.
+		if (AppendCOL!=null)
 		{
-			SparseMNode previous=AppendCOL.getNextElement();
-			SparseMNode current=AppendCOL.getNextElement();
-			while (current!=null)
-			{
-				if (APPENDNODE.getRowID() > current.getRowID())
-				{	
-					previous=current;
-					current=current.getNextColumn();
-				}
-				else
-				{
-					APPENDNODE.setNextRow(current);
-					previous.setNextRow(APPENDNODE);
-					++numofElements;
-					AppendROW(APPENDNODE);
-					return;
-				}
-			}
-			//If current is null...
-			previous.setNextRow(APPENDNODE);
+			//I know I have to travel down the column to append the Node.
+			//Unfortunately there are no shortcuts here so I just recycle a method O(n).
+			existingColumnNodefix(APPENDNODE.getRowID(),APPENDNODE,AppendCOL);
 			++numofElements;
 			AppendROW(APPENDNODE);
 			return;
