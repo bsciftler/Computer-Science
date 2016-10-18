@@ -51,8 +51,7 @@ public class LLSparseM implements SparseM
 	private int numofElements=0;
 	private SparseMRow rowTail;//I will use this for my APPEND ONLY!!!
 	private SparseMColumn columnTail;//I will use this for my APPEND ONLY!!!
-	private SparseMNode tailROWNode;//I will use this for my APPEND ONLY!!!
-	private SparseMNode tailCOLUMNNode;//I will use this for my APPEND ONLY!!
+	private SparseMNode LastAppendNODE;//I am using this for Append!!!
 	private SparseMRow rowHead;//FIRST ROW
 	private SparseMColumn columnHead;//FIRST COLUMN
 	
@@ -1032,31 +1031,82 @@ public class LLSparseM implements SparseM
 			columnHead=new SparseMColumn(APPENDNODE.getColumnID(),APPENDNODE,null);//COLUMN CONS: COLID, NextRow Next Column
 			rowTail=rowHead;
 			columnTail=columnHead;
-			tailROWNode=APPENDNODE;
-			tailCOLUMNNode=APPENDNODE;
+			LastAppendNODE=APPENDNODE;
 			++numofElements;
 			++numofRows;
 			++numofColumns;
 			return;
 		}
+		SparseMColumn AppendCOL=findColumn(APPENDNODE.getColumnID());
+		if (AppendCOL!=null && LastAppendNODE.getColumnID()==APPENDNODE.getColumnID())
+		{
+	//If I can save time...Great!!
+			LastAppendNODE.setNextRow(APPENDNODE);
+			++numofElements;
+			AppendROW(APPENDNODE);
+			return;
+		}
+		if (AppendCOL!=null)//I know I have to travel down the column to append the Node.
+		{
+			SparseMNode previous=AppendCOL.getNextElement();
+			SparseMNode current=AppendCOL.getNextElement();
+			while (current!=null)
+			{
+				if (APPENDNODE.getRowID() > current.getRowID())
+				{	
+					previous=current;
+					current=current.getNextColumn();
+				}
+				else
+				{
+					APPENDNODE.setNextRow(current);
+					previous.setNextRow(APPENDNODE);
+					++numofElements;
+					AppendROW(APPENDNODE);
+					return;
+				}
+			}
+			//If current is null...
+			previous.setNextRow(APPENDNODE);
+			++numofElements;
+			AppendROW(APPENDNODE);
+			return;
+		}
 		
 //Be Extra Careful with Columns as it isn't as neatly inserted as the rows!!!
-		if (APPENDNODE.getColumnID() < columnTail.getColumnID() && findColumn(APPENDNODE.getColumnID())==null)
+		if (APPENDNODE.getColumnID() < columnHead.getColumnID())
 		{
-			//Insert between head and Tail. DO NOT CHANGE COLUMN TAIL. Maybe Head might have to change...
-			if (APPENDNODE.getColumnID() < columnHead.getColumnID())
-			{
-				columnHead = new SparseMColumn(APPENDNODE.getRowID(),APPENDNODE,columnHead);//NEW COLUMNHEAD! (CIDX, nextRow, nextColumn)
-				++numofColumns;
-				++numofElements;
-				AppendROW(APPENDNODE);
-				return;
-			}
+//I have indirectly tested if it is null already.			
+			columnHead = new SparseMColumn(APPENDNODE.getColumnID(),APPENDNODE,columnHead);//NEW COLUMNHEAD! (CIDX, nextRow, nextColumn)
+			++numofColumns;
+			++numofElements;
+			AppendROW(APPENDNODE);
+			return;
+		}
+		else if (APPENDNODE.getColumnID() > columnTail.getColumnID())
+		{
+//I have indirectly tested if it is null already.
+			columnTail.setNextColumn(new SparseMColumn(APPENDNODE.getColumnID(),APPENDNODE,null));
+			columnTail=columnTail.getNextColumn();
+			++numofColumns;
+			++numofElements;
+			AppendROW(APPENDNODE);
+			return;
+		}
+		
+		else if (AppendCOL==null && APPENDNODE.getColumnID() < columnTail.getColumnID() && APPENDNODE.getColumnID() > columnHead.getColumnID())
+		{
+			//Insert the column and element between head and Tail. DO NOT CHANGE COLUMN TAIL/HEAD.
 			SparseMColumn current=columnHead;
 			SparseMColumn previous=columnHead;
 			while (current!=null)
 			{
-				if (APPENDNODE.getColumnID() < current.getColumnID())
+				if (APPENDNODE.getColumnID() > current.getColumnID())
+				{	
+					previous=current;
+					current=current.getNextColumn();
+				}
+				else
 				{
 					previous.setNextColumn(new SparseMColumn(APPENDNODE.getColumnID(),APPENDNODE,current));
 					++numofColumns;
@@ -1064,34 +1114,8 @@ public class LLSparseM implements SparseM
 					AppendROW(APPENDNODE);
 					return;
 				}
-				else
-				{
-					previous=current;
-					current=current.getNextColumn();
-				}
 			}
 		}
-		else if (APPENDNODE.getColumnID() > columnTail.getColumnID() && findColumn(APPENDNODE.getColumnID())==null)
-		{
-			columnTail.setNextColumn(new SparseMColumn(APPENDNODE.getColumnID(),APPENDNODE,null));
-			columnTail=columnTail.getNextColumn();
-			tailCOLUMNNode=columnTail.getNextElement();
-			++numofColumns;
-			++numofElements;
-			//Fix the Rows
-			AppendROW(APPENDNODE);
-			return;
-		}
-		if (findColumn(APPENDNODE.getColumnID()).getNextElement().getColumnID()==APPENDNODE.getColumnID())
-		{
-			tailCOLUMNNode.setNextRow(APPENDNODE);
-			tailCOLUMNNode=APPENDNODE;
-			++numofElements;
-			//Fix the Rows
-			AppendROW(APPENDNODE);
-			return;
-		}
-	
 	}
 	
 	private void AppendROW(SparseMNode APPENDNODE)
@@ -1101,19 +1125,24 @@ public class LLSparseM implements SparseM
 		{
 			rowTail.setNextRow(new SparseMRow(APPENDNODE.getRowID(),null,APPENDNODE));
 			rowTail=rowTail.getNextRow();
-			tailROWNode=rowTail.getNextElement();
+			LastAppendNODE=rowTail.getNextElement();
 			++numofRows;
 			return;
 		}
 		//Case 2: Append at the end. Make sure you update NodeTail
-		tailROWNode.setNextColumn(APPENDNODE);
-		tailROWNode=APPENDNODE;
+		LastAppendNODE.setNextColumn(APPENDNODE);
+		LastAppendNODE=APPENDNODE;
 		return;
 	}
 	
 	public void info()
 	{
 		System.out.println("This Sparse Matrix is a " + ROWS + " X " + COLUMNS + " Matrix");
+		if (numofElements==0)
+		{
+			System.out.println("This Sparse Matrix is EMPTY!!!");
+			return;
+		}
 		System.out.println("Row Head RowID: "+ rowHead.getRowID());//ROW HEAD, ROW ID
 		System.out.println("Column Head Column ID: "+ columnHead.getColumnID());//COLUMN HEAD, COLUMN ID
 		System.out.println("Row Tail RowID: "+ rowTail.getRowID());//ROW TAIL, ROW ID
