@@ -615,6 +615,12 @@ public class LLSparseM implements SparseM
 				{
 					if (NodeA.getColumnID()==NodeB.getColumnID())
 					{
+						if (NodeA.getValue()-NodeB.getValue()==0)
+						{
+							NodeA=NodeA.getNextColumn();
+							NodeB=NodeB.getNextColumn();
+							continue;
+						}
 						Answer.append(new SparseMNode(NodeA.getRowID(), NodeA.getColumnID() , NodeA.getValue() - NodeB.getValue()));
 						NodeA=NodeA.getNextColumn();
 						NodeB=NodeB.getNextColumn();
@@ -630,16 +636,17 @@ public class LLSparseM implements SparseM
 						NodeB=NodeB.getNextColumn();
 					}
 				}
-				//Take care of any stranded columns.	
-				while (NodeB!=null)
-				{
-					Answer.append(new SparseMNode(NodeB.getRowID(), NodeB.getColumnID(), -1*NodeB.getValue()));
-					NodeB=NodeB.getNextColumn();
-				}
+				//Take care of any stranded columns.
 				while (NodeA!=null)
 				{
 					Answer.append(new SparseMNode(NodeA.getRowID(), NodeA.getColumnID(), NodeA.getValue()));
 					NodeA=NodeA.getNextColumn();
+				}
+				
+				while (NodeB!=null)
+				{
+					Answer.append(new SparseMNode(NodeB.getRowID(), NodeB.getColumnID(), -1*NodeB.getValue()));
+					NodeB=NodeB.getNextColumn();
 				}
 				ARow=ARow.getNextRow();
 				BRow=BRow.getNextRow();

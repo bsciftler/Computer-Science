@@ -2,43 +2,35 @@ public class MyInput
 {
 	public static int getRandom()
 	{
-		return (int)Math.ceil(Math.random()*5);
+		return (int)Math.ceil(Math.random()*2);
 	}
 	
 	
 	
 	public static void main (String [] args)
 	{
-	/*
+		/*
 		LLSparseVec tiger=new LLSparseVec(10);
 		LLSparseVec lion = new LLSparseVec(10);
-		LLSparseVec liger=null;
-		try 
-		{
-			tiger.setElement(19, 20);
-			tiger.setElement(12, 13 );
-			tiger.setElement(7, 20);
-			tiger.setElement(13, 35);
-			tiger.setElement(17, 50);
-			//tiger.setElement(getRandom(), getRandom());
+	
+			tiger.setElement(getRandom(), getRandom());
+			tiger.setElement(getRandom(), getRandom());
+			tiger.setElement(getRandom(), getRandom());
+			tiger.setElement(getRandom(), getRandom());
+			tiger.setElement(getRandom(), getRandom());
+			tiger.setElement(getRandom(), getRandom());
 			
 			
-			lion.setElement(100, 62);
-			//lion.setElement(19, 20);
-			//lion.setElement(53,30);
-			//lion.setElement(getRandom(), getRandom());
 			lion.setElement(getRandom(), getRandom());
 			lion.setElement(getRandom(), getRandom());
-			//lion.setElement(getRandom(), getRandom());
-			//lion.setElement(getRandom(), getRandom());
-			//lion.setElement(getRandom(), getRandom());
+			lion.setElement(getRandom(), getRandom());
+			lion.setElement(getRandom(), getRandom());
+			lion.setElement(getRandom(), getRandom());
+			lion.setElement(getRandom(), getRandom());
+			lion.setElement(getRandom(), getRandom());
 			
-			liger=tiger.multiplication(lion);
-		}
-		catch (VectorException e)
-		{
-			e.printStackTrace();
-		}
+			LLSparseVec liger=tiger.multiplication(lion);
+		
 		int [] Val=lion.getAllValues();
 		int [] IDX=lion.getAllIndices();
 		int VecSize=lion.getLength();
@@ -56,49 +48,31 @@ public class MyInput
 		lion.print();
 		System.out.println("Fusion");
 		liger.print();
-	 */
-	
-		LLSparseM tiger= new LLSparseM(5,5);
-		tiger.setElement(1, 1, 4);
-		tiger.setElement(2, 2, 4);
-		tiger.setElement(3, 3, 15);
-		tiger.setElement(1, 4, 14);
-		tiger.setElement(3, 2, 42);
-		
-		LLSparseM lion= new LLSparseM(5,5);
-		lion.setElement(1, 1, 4);//Row,Column,Value
-		lion.setElement(1, 2, 30);
-		lion.setElement(1, 3, 15);
-		lion.setElement(3, 2, 10);
-		lion.setElement(3, 4, 50);
-		lion.setElement(4, 1, 55);
-		lion.setElement(0, 1, 34);
-		/* 
-		 * 	int[] ridx_list = lion.getRowIndices();
-		System.out.println("NUM_ROWS "+ridx_list.length);
-		for(int ridx : ridx_list)
-		{
-			System.out.println("ROW "+ridx);
-			int[] one_row_cidx_list = lion.getOneRowColIndices(ridx);
-			int[] one_row_vals_list = lion.getOneRowValues(ridx);
-			for(int i = 0; i < one_row_cidx_list.length; ++i)
-				System.out.println("RIDX "+ridx+" CIDX " + one_row_cidx_list[i] + " VAL " + one_row_vals_list[i]);
-		}
-		System.out.println("Row test: CHECK!");
-		 */
-		// print the matrix in rows
-	
-		//Column Test YOU FAILED HERE BIG TIME ANDREW!!!
-		lion.printAllNodesByColumn();
-		int[] cidx_list = lion.getColIndices();
-		System.out.println("NUM_COLS "+cidx_list.length);
-		for(int cidx : cidx_list)
-		{
-			System.out.println("COL "+cidx);
-			int[] one_col_ridx_list = lion.getOneColRowIndices(cidx);
-			int[] one_col_vals_list = lion.getOneColValues(cidx);
-			for(int i = 0; i < one_col_ridx_list.length; ++i)
-				System.out.println("RIDX "+one_col_ridx_list[i]+" CIDX " + cidx + " VAL " + one_col_vals_list[i]);
-		}
+		*/
+		LLSparseM Bread=new LLSparseM(3,3);
+		LLSparseM Butter=new LLSparseM(3,3);
+		Bread.setElement(getRandom(), getRandom(), getRandom());
+		Bread.setElement(getRandom(), getRandom(), getRandom());
+		Bread.setElement(getRandom(), getRandom(), getRandom());
+		Bread.setElement(getRandom(), getRandom(), getRandom());
+		Bread.setElement(getRandom(), getRandom(), getRandom());
+		Bread.setElement(getRandom(), getRandom(), getRandom());
+		Bread.setElement(0, 0, 5);
+		Bread.setElement(getRandom(), getRandom(), getRandom());
+		System.out.println("BREAD");
+		Bread.printAllNodesByRow();
+		Butter.setElement(getRandom(), getRandom(), getRandom());
+		Butter.setElement(getRandom(), getRandom(), getRandom());
+		Butter.setElement(getRandom(), getRandom(), getRandom());
+		Butter.setElement(getRandom(), getRandom(), getRandom());
+		Butter.setElement(0, 0, 5);
+		Butter.setElement(getRandom(), getRandom(), getRandom());
+		Butter.setElement(getRandom(), getRandom(), getRandom());
+		Butter.setElement(getRandom(), getRandom(), getRandom());
+		System.out.println("BUTTER");
+		Butter.printAllNodesByRow();
+		LLSparseM Yum=(LLSparseM) Bread.addition(Butter);
+		System.out.println("Combined");
+		Yum.printAllNodesByRow();
 	}
 }
