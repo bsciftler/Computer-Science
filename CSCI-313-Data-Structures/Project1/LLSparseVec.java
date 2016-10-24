@@ -1,7 +1,6 @@
 import javax.swing.JOptionPane;
 
 public class LLSparseVec implements SparseVec
-//ASK CHEN WHAT COUNTS AS OUT OF BOUNDS!!!
 {
 private LLSparseVecNode head;
 private LLSparseVecNode tail;
@@ -150,20 +149,20 @@ private int SIZE=0;
 					CurrentB=CurrentB.getNext();
 					continue;
 				}
-				Answer.setElement(CurrentA.getID(), CurrentA.getValue()+ CurrentB.getValue());
+				Answer.append(new LLSparseVecNode (CurrentA.getID(), CurrentA.getValue()+ CurrentB.getValue()));
 				CurrentA=CurrentA.getNext();
 				CurrentB=CurrentB.getNext();
 				continue;
 			}
 			if (CurrentA.getID() < CurrentB.getID())
 			{
-				Answer.setElement(CurrentA.getID(), CurrentA.getValue());
+				Answer.append(new LLSparseVecNode(CurrentA.getID(), CurrentA.getValue()));
 				CurrentA=CurrentA.getNext();
 				continue;
 			}
 			if (CurrentA.getID() > CurrentB.getID())
 			{
-				Answer.setElement(CurrentB.getID(), CurrentB.getValue());
+				Answer.append(new LLSparseVecNode(CurrentB.getID(), CurrentB.getValue()));
 				CurrentB=CurrentB.getNext();
 				continue;
 			}
@@ -209,20 +208,20 @@ private int SIZE=0;
 					CurrentB=CurrentB.getNext();
 					continue;
 				}
-				Answer.setElement(CurrentA.getID(), CurrentA.getValue()-CurrentB.getValue());
+				Answer.append(new LLSparseVecNode(CurrentA.getID(), CurrentA.getValue()-CurrentB.getValue()));
 				CurrentA=CurrentA.getNext();
 				CurrentB=CurrentB.getNext();
 				continue;
 			}
 			if (CurrentA.getID() < CurrentB.getID())
 			{
-				Answer.setElement(CurrentA.getID(), CurrentA.getValue());
+				Answer.append(new LLSparseVecNode(CurrentA.getID(), CurrentA.getValue()));
 				CurrentA=CurrentA.getNext();
 				continue;
 			}
 			if (CurrentA.getID() > CurrentB.getID())
 			{
-				Answer.setElement(CurrentB.getID(), 0 - CurrentB.getValue());
+				Answer.append(new LLSparseVecNode(CurrentB.getID(), -1*CurrentB.getValue()));
 				CurrentB=CurrentB.getNext();
 				continue;
 			}
@@ -271,7 +270,7 @@ private int SIZE=0;
 					CurrentB=CurrentB.getNext();
 					continue;
 				}
-				Answer.setElement(CurrentA.getID(), CurrentA.getValue()* CurrentB.getValue());
+				Answer.append(new LLSparseVecNode(CurrentA.getID(), CurrentA.getValue()* CurrentB.getValue()));
 				CurrentA=CurrentA.getNext();
 				CurrentB=CurrentB.getNext();
 				continue;
