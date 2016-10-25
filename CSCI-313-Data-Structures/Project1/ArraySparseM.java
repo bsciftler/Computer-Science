@@ -78,7 +78,8 @@ public class ArraySparseM implements SparseM
 	}
 
 	// get indices of non-empty rows, sorted
-	public int[] getRowIndices(){			
+	public int[] getRowIndices()
+	{			
 		boolean[] isnonzero = new boolean[nrows];
 		int counter = 0;
 		for(int r = 0; r < nrows; ++r)
@@ -217,7 +218,8 @@ public class ArraySparseM implements SparseM
 	}
 	
 	// get values of a given Col
-	public int[] getOneColValues(int cidx){
+	public int[] getOneColValues(int cidx)
+	{
 		boolean[] isnonzero = new boolean[nrows];
 		int counter = 0;
 		for(int r = 0; r < nrows; ++r)
@@ -244,7 +246,8 @@ public class ArraySparseM implements SparseM
 	}
 	
 	// adding otherM into the current matrix, return the result as a new sparseM
-	public SparseM addition(SparseM otherM) {
+	public SparseM addition(SparseM otherM)
+	{
 		
 		// if the number of rows and cols are inconsistent, do nothing and return
 		if((otherM.nrows() != nrows) || (otherM.ncols() != ncols))
@@ -263,7 +266,7 @@ public class ArraySparseM implements SparseM
 	}
 
 	// thisM - otherM, return the result as a new sparseM
-	public SparseM substraction(SparseM otherM)
+	public SparseM subtraction(SparseM otherM)
 	{
 		// if the number of rows and cols are inconsistent, do nothing and return
 		if((otherM.nrows() != nrows) || (otherM.ncols() != ncols))

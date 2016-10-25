@@ -1,5 +1,6 @@
 // implementing SparseVec using array
-public class ArraySparseVec implements SparseVec {
+public class ArraySparseVec implements SparseVec
+{
 	private	int len; 		// length of the vector
 	private int nelements = 0; 	// number of nonzero elements, initialized to be zero
 	private int [] elements;	// array storing the vector
@@ -113,7 +114,7 @@ public class ArraySparseVec implements SparseVec {
 	}
 
 	// thisM - otherM, return the result as a new sparseM
-	public SparseVec substraction(SparseVec otherV)
+	public SparseVec subtraction(SparseVec otherV)
 	{
 		
 		// if the length is inconsistent, do nothing and return

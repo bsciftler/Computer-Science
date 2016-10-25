@@ -24,7 +24,7 @@ public interface SparseM
 	// methods for problem 4
 	SparseM addition(SparseM otherM); 		// this matrix + otherM
 												// return a new matrix storing the result
-	SparseM substraction(SparseM otherM);	// this matrix - otherM
+	SparseM subtraction(SparseM otherM);	// this matrix - otherM
 												// return a new matrix storing the result
 	SparseM multiplication(SparseM otherM);	// this matrix .* with otherM
 												// return a new matrix storing the result

@@ -48,7 +48,8 @@ public class LLMainClass
 	    } 
 	    catch (Exception e)
 	    {
-	        return null;
+	    	System.out.println("NULL: ERROR AT PARSE MATRIX!");
+	    	return null;
 	    }
 	}
 	
@@ -90,10 +91,11 @@ public class LLMainClass
 		    }
 		    sc.close();
 		    return V;
-	    } 
+	    }
 	    catch (Exception e)
 	    {
-	        return null;
+	    	System.out.println("NULL: ERROR AT PARSE VECTOR!");
+	    	return null;
 	    }
 	}
 	
@@ -117,9 +119,9 @@ public class LLMainClass
 				SparseVec V = ParseVector(fname);	// read V from the first file
 				
 				if(V == null)
-				{	
+				{
 					// if invalid input file, print NULL and exit
-					System.out.println("NULL: Illegal Input File "+fname);
+					System.out.println("NULL: Illegal Input File " + fname);
 					return;
 				}
 				
@@ -136,7 +138,7 @@ public class LLMainClass
 					if(operator.equals("A"))
 						V = V.addition(tmpV); 			// add tmpV to V
 					else if(operator.equals("S"))
-						V = V.substraction(tmpV); 		// subtract tmpV from V
+						V = V.subtraction(tmpV); 		// subtract tmpV from V
 					else if(operator.equals("M"))
 						V = V.multiplication(tmpV); 	// multiply tmpV to V
 					else
@@ -187,7 +189,7 @@ public class LLMainClass
 					if(operator.equals("A"))
 						M = M.addition(tmpM); 			// add tmpM to M
 					else if(operator.equals("S"))
-						M = M.substraction(tmpM); 		// subtract tmpM from M
+						M = M.subtraction(tmpM); 		// subtract tmpM from M
 					else if(operator.equals("M"))
 						M = M.multiplication(tmpM); 	// multiply tmpM to M
 					else

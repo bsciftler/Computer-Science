@@ -1,3 +1,4 @@
+
 import javax.swing.JOptionPane;
 
 public class LLSparseVec implements SparseVec
@@ -187,7 +188,7 @@ private int SIZE=0;
 		return Answer;
 	}
 
-	public LLSparseVec substraction(SparseVec B)
+	public LLSparseVec subtraction(SparseVec B)
 	{
 		if (this.getLength()!=B.getLength())
 		{
@@ -416,6 +417,10 @@ private int SIZE=0;
 	public void info()
 	{
 		System.out.println("This Sparse Vector is of length " + SIZE + " and it has " + numOfElements + " non-zero elements.");
+		if (numOfElements==0)
+		{
+			return;
+		}
 		System.out.println("Head Node ID: " + head.getID() + " Head Node Value: " + head.getValue());
 		System.out.println("Tail Node ID: " + tail.getID() + " Tail Node Value: " + tail.getValue());
 	}

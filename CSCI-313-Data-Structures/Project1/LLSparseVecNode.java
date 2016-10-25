@@ -20,7 +20,7 @@ public class LLSparseVecNode
 	
 	public LLSparseVecNode (int newID, int newValue)
 	{
-		this(newID,newValue,null);
+		this(newID,newValue,null,null);
 	}
 	
 	//Get Methods

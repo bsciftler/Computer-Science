@@ -14,7 +14,7 @@ public interface SparseVec
 	// methods for problem 2
 	SparseVec addition(SparseVec otherV);		// this vector + otherV
 												// return a new vector storing the result
-	SparseVec substraction(SparseVec otherV);	// this vector - otherV
+	SparseVec subtraction(SparseVec otherV);	// this vector - otherV
 												// return a new vector storing the result
 	SparseVec multiplication(SparseVec otherV);	// this matrix .* otherV
 												// return a new vector storing the result

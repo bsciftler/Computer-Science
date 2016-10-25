@@ -36,7 +36,8 @@ public class ArrayMainClass
 		    		int val = sc.nextInt();  // value
 		    		M.setElement(ridx, cidx, val);
 		    	}
-		    	else if(tmps.equals("CLEAR")){
+		    	else if(tmps.equals("CLEAR"))
+		    	{
 		    		// clear an element
 		    		int ridx = sc.nextInt(); // row index
 		    		int cidx = sc.nextInt(); // col index
@@ -48,7 +49,8 @@ public class ArrayMainClass
 	    } 
 	    catch (Exception e)
 	    {
-	        return null;
+	    	System.out.println("NULL: ERROR AT PARSE MATRIX!");
+	    	return null;
 	    }
 	}
 	
@@ -94,7 +96,8 @@ public class ArrayMainClass
 	    }
 	    catch (Exception e) 
 	    {
-	        return null;
+	    	System.out.println("NULL: ERROR AT PARSE VECTOR!");
+	    	return null;
 	    }
 	}
 	
@@ -136,7 +139,7 @@ public class ArrayMainClass
 					if(operator.equals("A"))
 						V = V.addition(tmpV); 			// add tmpV to V
 					else if(operator.equals("S"))
-						V = V.substraction(tmpV); 		// substract tmpV from V
+						V = V.subtraction(tmpV); 		// subtract tmpV from V
 					else if(operator.equals("M"))
 						V = V.multiplication(tmpV); 	// multiply tmpV to V
 					else
@@ -186,7 +189,7 @@ public class ArrayMainClass
 					if(operator.equals("A"))
 						M = M.addition(tmpM); 			// add tmpM to M
 					else if(operator.equals("S"))
-						M = M.substraction(tmpM); 		// substract tmpM from M
+						M = M.subtraction(tmpM); 		// substract tmpM from M
 					else if(operator.equals("M"))
 						M = M.multiplication(tmpM); 	// multiply tmpM to M
 					else

@@ -574,7 +574,7 @@ public class LLSparseM implements SparseM
 	
 		return Answer;
 	}
-	public SparseM substraction(SparseM otherM)
+	public SparseM subtraction(SparseM otherM)
 	{
 		if (this.nrows()!=otherM.nrows() && this.ncols()!=otherM.ncols())
 		{
