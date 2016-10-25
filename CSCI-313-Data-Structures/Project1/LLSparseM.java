@@ -61,13 +61,13 @@ public class LLSparseM implements SparseM
 		COLUMNS=newColumns;
 	}
 
-	public int nrows(){return ROWS;}
+	public int nrows() {return ROWS;}
 	public int ncols() {return COLUMNS;}
 	public int numElements() {return numofElements;}
-	public int getnumofRows(){return numofRows;}
-	public int getnumofColumns(){return numofColumns;}
-	public SparseMRow getRowHead(){return rowHead;}
-	public SparseMColumn getColumnHead(){return columnHead;}
+	public int getnumofRows() {return numofRows;}
+	public int getnumofColumns() {return numofColumns;}
+	public SparseMRow getRowHead() {return rowHead;}
+	public SparseMColumn getColumnHead() {return columnHead;}
 
 	public int getElement(int ridx, int cidx)
 	{
@@ -148,10 +148,11 @@ public class LLSparseM implements SparseM
 						current=current.getNextRow();
 					}
 				}
-				if (rowTail.getRowID()==cidx && rowTail.getNextElement()==null)
+				if (rowTail.getRowID()==ridx && rowTail.getNextElement()==null)
 				{
 					rowTail=previous;
 					rowTail.setNextRow(null);
+					--numofRows;
 				}
 			}
 			return;
@@ -186,6 +187,7 @@ public class LLSparseM implements SparseM
 				{
 					columnTail=previous;
 					columnTail.setNextColumn(null);
+					--numofColumns;
 				}
 				return;
 			}
@@ -338,7 +340,7 @@ public class LLSparseM implements SparseM
 		return Rows;
 	}
 
-	public int[] getColIndices()
+	public int [] getColIndices()
 	{
 		SparseMColumn current= columnHead;
 		int [] ColIndex=new int[numofColumns];
@@ -385,7 +387,7 @@ public class LLSparseM implements SparseM
 		return RowColumnID;
 	}
 
-	public int[] getOneRowValues(int ridx)
+	public int [] getOneRowValues(int ridx)
 	{
 		SparseMNode current= findRow(ridx).getNextElement();
 		int size=0;
@@ -414,7 +416,7 @@ public class LLSparseM implements SparseM
 		return RowValues;
 	}
 
-	public int[] getOneColRowIndices(int cidx)
+	public int [] getOneColRowIndices(int cidx)
 	{
 		SparseMNode current= findColumn(cidx).getNextElement();
 		int size=0;
@@ -443,7 +445,7 @@ public class LLSparseM implements SparseM
 		return ColumnRowIDs;
 	}
 
-	public int[] getOneColValues(int cidx)
+	public int [] getOneColValues(int cidx)
 	{
 		SparseMNode current= findColumn(cidx).getNextElement();
 		int size=0;
@@ -1086,25 +1088,7 @@ public class LLSparseM implements SparseM
 		
 		else if (AppendCOL==null && APPENDNODE.getColumnID() < columnTail.getColumnID() && APPENDNODE.getColumnID() > columnHead.getColumnID())
 		{
-			//Insert the column and element between head and Tail. DO NOT CHANGE COLUMN TAIL/HEAD.
-			SparseMColumn current=columnHead;
-			SparseMColumn previous=columnHead;
-			while (current!=null)
-			{
-				if (APPENDNODE.getColumnID() > current.getColumnID())
-				{	
-					previous=current;
-					current=current.getNextColumn();
-				}
-				else
-				{
-					previous.setNextColumn(new SparseMColumn(APPENDNODE.getColumnID(),APPENDNODE,current));
-					++numofColumns;
-					++numofElements;
-					AppendROW(APPENDNODE);
-					return;
-				}
-			}
+			columnInsert(APPENDNODE.getRowID(),APPENDNODE.getColumnID(),APPENDNODE);
 		}
 	}
 	
