@@ -36,7 +36,6 @@ public class HW2MainClass
 			else if(option.equals("INPUT_P2"))
 			{
 				int num_files = (n == 3) ? Integer.parseInt(args[2]) : 10;
-
 				for(int i = 1; i <= num_files; ++i)
 				{
 					String fname_new = fname + "-" + Integer.toString(i) + ".txt";
@@ -113,8 +112,6 @@ public class HW2MainClass
 	        return;
 	    }	
 		
-							
-		System.out.println("HW 2");
 /*
 		int [] tmparray = {1, 2, 3, 4};
 		LinkedList< int[] > ret = Problem1(tmparray);
@@ -144,7 +141,7 @@ public class HW2MainClass
         for (ArrayList<Integer> one_output : output_list)
         {
         	printV(one_output);
-        }		        
+        }        
 	}
 */
 		}
