@@ -1,41 +1,5 @@
 public class MatrixMath
-{
-	private int determinant;
-	private int rows;
-	private int columns;
-	private int [][] MatrixA;
-	
-	public MatrixMath(int [][] Matrix)
-	{
-		MatrixA=Matrix;
-		rows=Matrix.length;
-		columns=Matrix[0].length;
-	}
-	
-	
-	public int [][] Multiply(int [][] MatrixB) throws MatrixException
-	{
-		if (columns!=MatrixB.length)
-		{	
-			throw new MatrixException("Number of Columns in Matrix A NOT EQUAL to Number of Rows in Matrix B");
-		}
-		
-		int Answer [][]= new int [rows][MatrixB[0].length];//Matrix A Rows and Matrix B Columns
-
-		for (int i=0;i<MatrixA.length;i++) //Matrix A Row shift
-		{
-			for (int k=0;k<MatrixB[0].length;k++) //Matrix B Column shift
-				
-			{
-				for (int j=0;j<MatrixA[0].length;j++)
-				{
-					Answer[i][k]+=MatrixA[i][j]*MatrixB[j][k];
-				}
-			}
-		}
-		return Answer;
-	}
-	
+{	
 	public static int [][] Multiply(int [][] MatrixA, int [][] MatrixB) throws MatrixException
 	{
 		if (MatrixA[0].length!=MatrixB.length)
@@ -85,7 +49,8 @@ public class MatrixMath
 			throw new MatrixException("This is NOT a square matrix!");
 		}
 		
-		int Determinant=0; int [][] Modified = null;
+		int Determinant=1; 
+		int [][] Modified = null;
 		if (Matrix.length==2 && Matrix[0].length==2)
 		{
 			Determinant=(Matrix[0][0]*Matrix[1][1])-(Matrix[0][1]*Matrix[1][0]);
@@ -101,6 +66,7 @@ public class MatrixMath
 		}
 		return Determinant;
 	}
+	
 	public static int Eigenvalue (int [][] Matrix)//IN PROGRESS
 	{
 		int Eigenvalue=0; int [][] Diagonal=null;
@@ -153,28 +119,39 @@ public class MatrixMath
 	
 	private static int [][] Diagonal(int [][] Matrix)//IN PROGRESS
 	{
-		int [][] transform = null;
 		int rows=Matrix.length;
 		int column=Matrix[0].length;
-		while (!triangular(Matrix))
+		//USE LU DECOMPOSITION!!!
+		int [][] U = null;
+		while (!isUTM(U))
 		{
+			//Step 1: Create Identity Matrix.
+			int [][] RowOperation = new int [rows][column];
+			for (int i=0;i<rows;i++)
+			{
+				RowOperation[i][i]=1;
+			}
+			//Figure out what Row Operation I need to do.
 			
+			//Write it to my ID Matrix
+			
+			//Append it to my LinkedList that will contain all elementary matrices.
 		}
-		return transform;
+		//Matrix A = L*U
+		//L = Inverse of all Matrices in Linked List.
+		
+		//I will return both LTM and UTM for purposes of both Determinant and Eigenvalues.
+		return U;
 	}
 	
-	public static boolean triangular(int [][] Matrix)//Still Testing it!
+	public static boolean isUTM(int [][] Matrix)
 	{
-		int row=Matrix.length;
-		int column=Matrix[0].length;
-		//IGNORE 0,0, 1,1 2,2... ROW,COLUMN
-		for (int i=column;i==0;i--)
+		for (int i=0;i<Matrix.length;i++)
 		{
-			for (int j=0;j<column-i;j++)
+			for (int j=0;j<Matrix[0].length;j++)
 			{
-				if (Matrix[i][j]!=0 || Matrix[j][i]!=0)
+				if (Matrix[i][j]!=0)
 				{
-//This is both UTM and LTM matrix check respectively.
 					return false;
 				}
 			}
