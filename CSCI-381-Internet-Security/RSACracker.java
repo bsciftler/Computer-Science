@@ -64,7 +64,8 @@ public class RSACracker
 		else if (x==y)
 		{
 			solution.add(1);
-			solution.add(-1);
+			solution.add(0);
+			solution.add(x);
 			return solution;
 		}
 		else
@@ -78,10 +79,21 @@ public class RSACracker
 		
 		while (true)
 		{
+			System.out.println("Current Matrix");
+			printMatrix(exGCDMatrix);
 			if (exGCDMatrix[1][2]==0)
 			{
 				solution.add(exGCDMatrix[0][0]);
 				solution.add(exGCDMatrix[0][1]);
+				solution.add(exGCDMatrix[0][2]);
+				if (x > y)
+				{
+	System.out.println(x + " * " + exGCDMatrix[0][0] + " + " + y + " * " + exGCDMatrix[0][1] + " = " +exGCDMatrix[0][2]);				
+				}
+				else if (x < y)
+				{
+	System.out.println(x + " * " + exGCDMatrix[0][1] + " + " + y + " * " + exGCDMatrix[0][0] + " = " +exGCDMatrix[0][2]);
+				}
 				return solution;
 			}
 			//Step 1: Store value of Row 2 in Temporary row.
@@ -89,14 +101,27 @@ public class RSACracker
 			Row2temp[1]=exGCDMatrix[1][1];
 			Row2temp[2]=exGCDMatrix[1][2];
 			//Step 2: compute value of new Row 2.
+			//Row 1 - (q* Row2)
 			quotient = exGCDMatrix[0][2]/exGCDMatrix[1][2];
 			exGCDMatrix[1][0]=exGCDMatrix[0][0]-(quotient*exGCDMatrix[1][0]);
 			exGCDMatrix[1][1]=exGCDMatrix[0][1]-(quotient*exGCDMatrix[1][1]);
 			exGCDMatrix[1][2]=exGCDMatrix[0][2]-(quotient*exGCDMatrix[1][2]);
 			//Step 3: Move old Row 2 to Row 1.
-			Row2temp[0]=exGCDMatrix[0][0];
-			Row2temp[1]=exGCDMatrix[0][1];
-			Row2temp[2]=exGCDMatrix[0][2];
+			exGCDMatrix[0][0]=Row2temp[0];
+			exGCDMatrix[0][1]=Row2temp[1];
+			exGCDMatrix[0][2]=Row2temp[2];
+		}
+	}
+	
+	private void printMatrix(int [][] Matrix)
+	{
+		for (int i=0;i<Matrix.length;i++)
+		{
+			for (int j=0;j<Matrix[0].length;j++)
+			{
+				System.out.print(Matrix[i][j] + " ");
+			}
+			System.out.println(" ");
 		}
 	}
 	
@@ -105,6 +130,13 @@ public class RSACracker
 		//Initialize Fermat Factorization
 		ArrayList <Integer> factors = new ArrayList<Integer>();		
 		//Create initial starting value
+		while (N%2==0)
+		{
+			System.err.println("This number is even! Fermat Factorization will have at least one 2!");
+			N=N/2;
+			factors.add(2);
+		}
+		
 		double dummy=Math.sqrt(N);
 		int x=(int) Math.ceil(dummy);
 		
