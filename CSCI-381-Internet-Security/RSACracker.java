@@ -1,17 +1,93 @@
 import java.util.ArrayList;
+import java.math.*;
 
 public class RSACracker
 {
 	int decoder=-1;
 	int encoder=0;
 	int bigPrime=0;
+	int phi=0;
 	ArrayList<Integer> smallPrimes;
 	
-	public RSACracker(int N, int e)
+	public RSACracker()
+	{
+		
+	}
+	
+	public RSACracker(int e, int N)
 	{
 		encoder=e;
 		bigPrime=N;
 		smallPrimes=FermatFactorization(bigPrime);
+	}
+	
+	public void setEncoder(int e){encoder=e;}
+	public void setProductOfPrimes(int N)
+	{
+		bigPrime=N;
+		smallPrimes.clear();
+		smallPrimes=FermatFactorization(bigPrime);
+	}
+	
+	public void getInfo()
+	{
+		System.out.println("Encoder: " + encoder);
+		System.out.println("Product of Primes: " + bigPrime);
+		System.out.println("Prime Factors of N:");
+		for (int i=0;i<smallPrimes.size();i++)
+		{
+			System.out.println("Prime " + i + ": " + smallPrimes.get(i));
+		}
+		if (decoder == -1)
+		{
+			this.getDecoder();
+			System.out.println("Decoder: " + decoder);
+			System.out.println("Encoder*Decoder = " + (decoder*encoder));
+			return;
+		}
+		System.out.println("Decoder: " + decoder);
+		System.out.println("Encoder*Decoder = " + (decoder*encoder));
+	}
+	
+	private int powerMod(int base, int exponent, int mod)
+	{
+		int answer=1;
+		for (int i=0;i<exponent;i++)
+		{
+			answer*=base;
+			answer=answer%mod;
+		}
+		return answer;
+	}
+	
+	public int encrypt(int message)
+	{
+		int answer = powerMod(message,encoder,bigPrime);
+		return answer;
+	}
+	
+	public int decrypt(int cipherText)
+	{
+		if (decoder==-1)
+		{
+			this.getDecoder();
+			int answer = powerMod(cipherText,decoder,bigPrime);
+			return answer;
+		}
+		else
+		{
+			int answer = powerMod(cipherText,decoder,bigPrime);
+			return answer;
+		}
+	}
+	
+	public void EulerPhi (int message)
+	{
+		if (decoder==-1)
+		{
+			this.getDecoder();
+		}
+		System.out.println("Given: " + message + " I get: " + powerMod(message,phi,bigPrime));
 	}
 	
 	public int getDecoder()
@@ -19,6 +95,7 @@ public class RSACracker
 		if (decoder==-1)
 		{
 			decoder=RSACrackDecoder(smallPrimes.get(0),smallPrimes.get(1),encoder);
+			phi=decoder*encoder;
 			return decoder;
 		}
 		else
@@ -38,13 +115,18 @@ public class RSACracker
 		//Note for exGCD to work
 		//The larger coordinate HAS to be on exGCDMatrix[0][2];
 		//So which element my return depends on whether encoder or LCM is bigger
-		//In my case, I need the decoder...
+		//In my case, I need the decoder..
+		int solution;
 		if (e > LCM)
 		{
-			return linearCombo.get(0);
+			solution= linearCombo.get(0);
 		}
-		return linearCombo.get(1);
-		
+		solution= linearCombo.get(1);
+		while (solution < 0)
+		{
+			solution+=LCM;
+		}
+		return solution;
 	}
 	
 	public ArrayList<Integer> extendedGCD(int x, int y)
