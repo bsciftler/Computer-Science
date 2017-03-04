@@ -1,5 +1,5 @@
+import java.math.BigInteger;
 import java.util.ArrayList;
-import java.math.*;
 
 public class RSACracker
 {
@@ -49,11 +49,23 @@ public class RSACracker
 		System.out.println("Encoder*Decoder = " + (decoder*encoder));
 	}
 	
+	private int powerModBIG (int base, int exponent, int mod)
+	{
+		BigInteger answer = new BigInteger(Integer.toString(base));
+		answer=answer.modPow( new BigInteger(Integer.toString(exponent)),new BigInteger(Integer.toString(mod)));
+		String solution=answer.toString();
+		return Integer.parseInt(solution); 
+	}
+	
 	private int powerMod(int base, int exponent, int mod)
 	{
-		int answer=1;
-		for (int i=0;i<exponent;i++)
+		int answer=base;
+		for (int i=0;i<exponent-1;i++)
 		{
+			while (answer < 0)
+			{
+				answer+=mod;
+			}
 			answer*=base;
 			answer=answer%mod;
 		}
@@ -62,7 +74,7 @@ public class RSACracker
 	
 	public int encrypt(int message)
 	{
-		int answer = powerMod(message,encoder,bigPrime);
+		int answer = powerModBIG(message,encoder,bigPrime);
 		return answer;
 	}
 	
@@ -71,12 +83,12 @@ public class RSACracker
 		if (decoder==-1)
 		{
 			this.getDecoder();
-			int answer = powerMod(cipherText,decoder,bigPrime);
+			int answer = powerModBIG(cipherText,decoder,bigPrime);
 			return answer;
 		}
 		else
 		{
-			int answer = powerMod(cipherText,decoder,bigPrime);
+			int answer = powerModBIG(cipherText,decoder,bigPrime);
 			return answer;
 		}
 	}
@@ -87,7 +99,7 @@ public class RSACracker
 		{
 			this.getDecoder();
 		}
-		System.out.println("Given: " + message + " I get: " + powerMod(message,phi,bigPrime));
+		System.out.println("Given: " + message + " I get: " + powerModBIG(message,phi,bigPrime));
 	}
 	
 	public int getDecoder()
@@ -161,7 +173,7 @@ public class RSACracker
 		
 		while (true)
 		{
-			System.out.println("Current Matrix");
+			//System.out.println("Current Matrix");
 			printMatrix(exGCDMatrix);
 			if (exGCDMatrix[1][2]==0)
 			{
@@ -170,11 +182,11 @@ public class RSACracker
 				solution.add(exGCDMatrix[0][2]);
 				if (x > y)
 				{
-	System.out.println(x + " * " + exGCDMatrix[0][0] + " + " + y + " * " + exGCDMatrix[0][1] + " = " +exGCDMatrix[0][2]);				
+	//System.out.println(x + " * " + exGCDMatrix[0][0] + " + " + y + " * " + exGCDMatrix[0][1] + " = " +exGCDMatrix[0][2]);				
 				}
 				else if (x < y)
 				{
-	System.out.println(x + " * " + exGCDMatrix[0][1] + " + " + y + " * " + exGCDMatrix[0][0] + " = " +exGCDMatrix[0][2]);
+	//System.out.println(x + " * " + exGCDMatrix[0][1] + " + " + y + " * " + exGCDMatrix[0][0] + " = " +exGCDMatrix[0][2]);
 				}
 				return solution;
 			}
@@ -235,8 +247,8 @@ public class RSACracker
 		{
 			testValue =(x*x) - N;
 			sqrtofa = (int) Math.sqrt(testValue);
-			System.out.println(x);
-			System.out.println("TestValue: " + testValue + " SQRT: " + sqrtofa);
+			//System.out.println(x);
+			//System.out.println("TestValue: " + testValue + " SQRT: " + sqrtofa);
 			
 			if (sqrtofa*sqrtofa == testValue)
 			{
@@ -291,5 +303,21 @@ public class RSACracker
 			return gcd(b,a%b);
 		}
 		return a;
+	}
+	
+	public static void main (String [] args)
+	{
+		//Info came from Exam 3 from Number Theory...
+		RSACracker BonSy = new RSACracker(661,257821);
+		BonSy.getInfo();
+		
+		//What if message is NOT relatively prime to N??
+		int message=5857;
+		//BonSy.EulerPhi(message);
+		int e = BonSy.encrypt(5872);
+		int f = 159553;
+		System.out.println(e);
+		System.out.println("Decrypt: " + BonSy.decrypt(e));
+		System.out.println(BonSy.gcd(message, BonSy.bigPrime));
 	}
 }
