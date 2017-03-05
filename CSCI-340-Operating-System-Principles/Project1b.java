@@ -211,14 +211,14 @@ public class Project1b extends Thread
 		{	
 			System.out.print("quan3591> "); //Shell Prompt
 			String input=inputReader.nextLine();	
-			input = input.trim(); //Clear out all space bars before command.
-			String [] multipleCommands = input.split(";");
+			String [] multipleCommands = input.split(";");//Split all the commands.
 		
 			//Create String [] for each multiple command...
 			ArrayList<String []> wholeCommand = new ArrayList<String []>();
 		
 			for (int i=0;i<multipleCommands.length;i++)
 			{
+				multipleCommands[i]=multipleCommands[i].trim(); //Clear out all space bars before command.
 				wholeCommand.add(multipleCommands[i].split(" "));
 			}
 		
@@ -227,7 +227,7 @@ public class Project1b extends Thread
 			{	
 				Thread execute = new Thread(new Project1b(wholeCommand.get(i), inputReader), Integer.toString(i));
 				execute.run();
-				System.out.println("Thread # "+execute.getName() + " is running!");
+				System.out.println("Thread # "+ execute.getName() + " just finished running!");
 			}
 		}
 		
