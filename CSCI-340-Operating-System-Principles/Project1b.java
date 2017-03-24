@@ -16,6 +16,37 @@ public class Project1b extends Thread
 		commands=input;
 		inputReader=reader;
 	}
+	
+	public Project1b(ArrayList<String[]> wholeCommand, Scanner READER)
+	{
+		ArrayList<Thread> Threader = new ArrayList<Thread>();
+		int numberofThread=wholeCommand.size();
+		//Build an Array of Threads...
+		for (int i=0;i<numberofThread;i++)
+		{
+			try
+			{
+				Threader.add(new Thread(new Project1b(wholeCommand.get(i),READER)));
+			} 
+			catch (IOException IOE)
+			{
+				System.err.println("ERROR HAPPENED IN BUILDING ARRAY OF THREADS!");
+			}
+		}
+		//Start all the Threads! I have Threads 0 up to numberofThread -1 Threads to start!
+		for (int i=0;i<numberofThread;i++)
+		{
+			Threader.get(i).start();
+			try
+			{
+				Threader.get(i).join();
+			} 
+			catch (InterruptedException IE)
+			{
+				System.err.println("ERROR SPOTTED AT THREAD JOINING");
+			}
+		}
+	}
 	/*
 	 * 	This will be the method that has the function for echo
 	 *  Possible Errors that can happen and will be caught
@@ -54,13 +85,13 @@ public class Project1b extends Thread
 					++echoTracker; //Keep going
 				}
 				//If second quote is not found, let the user know..
-				System.out.println("quan3591> INVALID ECHO COMMAND! SECOND " + " QUOTE IS MISSING!");
+				System.out.println("INVALID ECHO COMMAND!!! SECOND QUOTE IS MISSING!!!!");
 				return;
 			}
 			++echoTracker;
 		}
 		//If I am here, I didn't find first ' " ' meaning that someone put echo wrong!
-		System.out.println("quan3591> INVALID ECHO COMMAND! FIRST QUOTE IS MISSING!");
+		System.out.println("INVALID ECHO COMMAND!!! FIRST QUOTE IS MISSING!!!!");
 	}
 	
 	public void run()
@@ -79,6 +110,9 @@ public class Project1b extends Thread
 		else if (commands[0].equals("echo"))
 		{
 			String echoInput =Arrays.toString(commands);
+			echoInput = echoInput.replace(",", "");  //remove the commas
+			echoInput = echoInput.replace("[", "");  //remove the right bracket
+			echoInput = echoInput.replace("]", "");  //remove the left bracket
 			echo(echoInput);
 		}
 			
@@ -199,35 +233,56 @@ public class Project1b extends Thread
 				}
 				catch (Exception e)
 				{
-					System.err.println("ELSE: Anything less than immortality is a complete waste of time!");
+					System.err.println("CATASTROPHIC ERROR CAUGHT WHEN CREATING PROCESS...");
 				}
 			}
 	}
 
-	public static void main(String [] args)throws IOException, InterruptedException
+	public static void main(String [] args)throws IOException
 	{	
 		Scanner inputReader = new Scanner(System.in);//Scan input
 		while (true)
-		{	
+		{
 			System.out.print("quan3591> "); //Shell Prompt
 			String input=inputReader.nextLine();	
-			String [] multipleCommands = input.split(";");//Split all the commands.
+			input = input.trim(); //Clear out all space bars before command.
+			String [] multipleCommands = input.split(";");
 		
 			//Create String [] for each multiple command...
 			ArrayList<String []> wholeCommand = new ArrayList<String []>();
-		
+
 			for (int i=0;i<multipleCommands.length;i++)
 			{
-				multipleCommands[i]=multipleCommands[i].trim(); //Clear out all space bars before command.
+				multipleCommands[i]=multipleCommands[i].trim();//Clear out all space for all other commands.
 				wholeCommand.add(multipleCommands[i].split(" "));
 			}
-		
-		//Initialize Threads and run them!
-			for (int i=0;i<wholeCommand.size();i++)
-			{	
-				Thread execute = new Thread(new Project1b(wholeCommand.get(i), inputReader), Integer.toString(i));
-				execute.run();
-				System.out.println("Thread # "+ execute.getName() + " just finished running!");
+			ArrayList<Thread> Threader = new ArrayList<Thread>();
+			int numberofThread=wholeCommand.size();
+			//Build an Array of Threads...
+			for (int i=0;i<numberofThread;i++)
+			{
+				try
+				{
+					Threader.add(new Thread(new Project1b(wholeCommand.get(i),inputReader)));
+				} 
+				catch (IOException IOE)
+				{
+					System.err.println("ERROR HAPPENED IN BUILDING ARRAY OF THREADS!");
+				}
+			}
+			//Start all the Threads! I have Threads 0 up to numberofThread -1 Threads to start!
+			for (int i=0;i<numberofThread;i++)
+			{
+				Threader.get(i).start();
+				//Ensure that all threads are completed before I print the prompt again...
+				try
+				{
+					Threader.get(i).join(); 
+				} 
+				catch (InterruptedException IE)
+				{
+					System.err.println("ERROR SPOTTED AT THREAD JOINING");
+				}
 			}
 		}
 		
