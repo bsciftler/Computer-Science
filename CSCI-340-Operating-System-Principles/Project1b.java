@@ -19,6 +19,7 @@ public class Project1b extends Thread
 	
 	public Project1b(ArrayList<String[]> wholeCommand, Scanner READER)
 	{
+		inputReader=READER;
 		ArrayList<Thread> Threader = new ArrayList<Thread>();
 		int numberofThread=wholeCommand.size();
 		//Build an Array of Threads...
@@ -39,8 +40,8 @@ public class Project1b extends Thread
 			Threader.get(i).start();
 			try
 			{
-				Threader.get(i).join();
-			} 
+				this.join();
+			}
 			catch (InterruptedException IE)
 			{
 				System.err.println("ERROR SPOTTED AT THREAD JOINING");
@@ -109,7 +110,7 @@ public class Project1b extends Thread
 		 */
 		else if (commands[0].equals("echo"))
 		{
-			String echoInput =Arrays.toString(commands);
+			String echoInput = Arrays.toString(commands);
 			echoInput = echoInput.replace(",", "");  //remove the commas
 			echoInput = echoInput.replace("[", "");  //remove the right bracket
 			echoInput = echoInput.replace("]", "");  //remove the left bracket
