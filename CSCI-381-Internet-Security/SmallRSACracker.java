@@ -3,18 +3,14 @@ import java.util.ArrayList;
 
 public class SmallRSACracker
 {
-	int decoder=0;
-	int encoder=0;
-	int bigPrime=0;
-	int phi=0;
-	ArrayList<Integer> smallPrimes;
+	long decoder=0;
+	long encoder=0;
+	long bigPrime=0;
+	long phi=0;
+	long LCM=0;
+	ArrayList<Long> smallPrimes;
 	
-	public SmallRSACracker()
-	{
-		
-	}
-	
-	public SmallRSACracker(int e, int N)
+	public SmallRSACracker(long e, long N)
 	{
 		encoder=e;
 		bigPrime=N;
@@ -23,6 +19,7 @@ public class SmallRSACracker
 	
 	public void getInfo()
 	{
+		System.out.println("=====================================INFO=============================================");
 		System.out.println("Encoder: " + encoder);
 		System.out.println("Product of Primes: " + bigPrime);
 		System.out.println("Prime Factors of N:");
@@ -30,23 +27,30 @@ public class SmallRSACracker
 		{
 			System.out.println("Prime " + i + ": " + smallPrimes.get(i));
 		}
+		System.out.println("LCM of both (p-1) and (q-1) " + LCM);
 		if (decoder == 0)
 		{
 			this.getDecoder();
-			System.out.println("Decoder: " + decoder);
-			System.out.println("Encoder*Decoder = " + (decoder*encoder));
-			return;
 		}
 		System.out.println("Decoder: " + decoder);
-		System.out.println("Encoder*Decoder = " + (decoder*encoder));
+		System.out.println("Encoder*Decoder = " + phi);
+		System.out.println("=====================================END OF INFO=============================================");
 	}
 	
-	private int powerMod (int base, int exponent, int mod)
+	private int powerMod (int base, long exponent, long mod)
 	{
-		BigInteger answer = new BigInteger(Integer.toString(base));
-		answer=answer.modPow( new BigInteger(Integer.toString(exponent)),new BigInteger(Integer.toString(mod)));
-		String solution=answer.toString();
-		return Integer.parseInt(solution); 
+		BigInteger midAnswer = BigInteger.valueOf((long)base);
+		midAnswer=midAnswer.modPow(BigInteger.valueOf(exponent),BigInteger.valueOf(mod));
+		int answer=0;
+		try 
+		{
+			answer=midAnswer.intValueExact();
+		}
+		catch (ArithmeticException AE)
+		{
+			System.out.println("OVERFLOW AT POWERMOD: " + midAnswer);
+		}
+		return answer; 
 	}
 	
 	public int encrypt(int message)
@@ -76,15 +80,31 @@ public class SmallRSACracker
 		{
 			this.getDecoder();
 		}
-		System.out.println("Given: " + message + " I get: " + powerMod(message,phi,bigPrime));
+		int EulerPhi=powerMod(message,phi,bigPrime);
+		System.out.println("Given: " + message + " I get: " + EulerPhi);
+		if (EulerPhi!=message)
+		{
+			System.out.println("ERROR AT TESTING RSA!!!");
+		}
 	}
 	
-	public int getDecoder()
+	public long getDecoder()
 	{
 		if (decoder==0)
 		{
 			decoder=RSACrackDecoder(smallPrimes.get(0),smallPrimes.get(1),encoder);
-			phi=decoder*encoder;
+			try
+			{
+				phi=encoder*decoder;
+			}
+			catch(ArithmeticException AE)
+			{
+				System.err.println("OVERFLOW AT CALCULATING PHI(P,Q");
+			}
+			while (phi < 0)
+			{
+				phi+=LCM;
+			}
 			return decoder;
 		}
 		else
@@ -93,19 +113,20 @@ public class SmallRSACracker
 		}
 	}
 	
-	public int RSACrackDecoder(int p, int q, int e)
+	public long RSACrackDecoder(long p, long q, long e)
 	{
-		int LCM = LCM (p-1,q-1);
+		long lcm = computeLCM (p-1,q-1);
+		LCM=lcm;
 		//Formula to crack decoder:
 		//decrypt * encrypt CONGRUENT to 1(Mod LCM(p-1,q-1))
 		//Linear Combination:
 		// e*x + LCM*y = 1
-		ArrayList <Integer> linearCombo = extendedGCD(e, LCM);
+		ArrayList <Long> linearCombo = extendedGCD(e, LCM);
 		//Note for exGCD to work
 		//The larger coordinate HAS to be on exGCDMatrix[0][2];
 		//So which element my return depends on whether encoder or LCM is bigger
 		//In my case, I need the decoder..
-		int solution;
+		long solution;
 		if (e > LCM)
 		{
 			solution= linearCombo.get(0);
@@ -118,10 +139,10 @@ public class SmallRSACracker
 		return solution;
 	}
 	
-	public ArrayList<Integer> extendedGCD(int x, int y)
+	public ArrayList<Long> extendedGCD(long x, long y)
 	{
-		ArrayList<Integer> solution = new ArrayList<Integer>();
-		int [][] exGCDMatrix = new int [2][3];
+		ArrayList<Long> solution = new ArrayList<Long>();
+		long [][] exGCDMatrix = new long [2][3];
 		exGCDMatrix [0][0]=1;
 		exGCDMatrix [0][1]=0;
 		exGCDMatrix [1][0]=0;
@@ -134,9 +155,9 @@ public class SmallRSACracker
 		}
 		else if (x==y)
 		{
-			solution.add(1);
-			solution.add(0);
-			solution.add(x);
+			solution.add((long) 1);
+			solution.add((long)0);
+			solution.add((long)x);
 			return solution;
 		}
 		else
@@ -145,46 +166,53 @@ public class SmallRSACracker
 			exGCDMatrix [1][2]=x;
 		}
 		
-		int quotient;		
-		int [] Row2temp = new int [3];
+		long quotient;		
+		long [] Row2temp = new long [3];
 		
 		while (true)
 		{
-			//System.out.println("Current Matrix");
-			printMatrix(exGCDMatrix);
-			if (exGCDMatrix[1][2]==0)
+			try
 			{
-				solution.add(exGCDMatrix[0][0]);
-				solution.add(exGCDMatrix[0][1]);
-				solution.add(exGCDMatrix[0][2]);
-				if (x > y)
+				System.out.println("Current Matrix");
+				printMatrix(exGCDMatrix);
+				if (exGCDMatrix[1][2]==0)
 				{
-	//System.out.println(x + " * " + exGCDMatrix[0][0] + " + " + y + " * " + exGCDMatrix[0][1] + " = " +exGCDMatrix[0][2]);				
+					solution.add(exGCDMatrix[0][0]);
+					solution.add(exGCDMatrix[0][1]);
+					solution.add(exGCDMatrix[0][2]);
+					if (x > y)
+					{
+		//System.out.println(x + " * " + exGCDMatrix[0][0] + " + " + y + " * " + exGCDMatrix[0][1] + " = " +exGCDMatrix[0][2]);				
+					}
+					else if (x < y)
+					{
+		//System.out.println(x + " * " + exGCDMatrix[0][1] + " + " + y + " * " + exGCDMatrix[0][0] + " = " +exGCDMatrix[0][2]);
+					}
+					return solution;
 				}
-				else if (x < y)
-				{
-	//System.out.println(x + " * " + exGCDMatrix[0][1] + " + " + y + " * " + exGCDMatrix[0][0] + " = " +exGCDMatrix[0][2]);
-				}
-				return solution;
+				//Step 1: Store value of Row 2 in Temporary row.
+				Row2temp[0]=exGCDMatrix[1][0];
+				Row2temp[1]=exGCDMatrix[1][1];
+				Row2temp[2]=exGCDMatrix[1][2];
+				//Step 2: compute value of new Row 2.
+				//Row 1 - (q* Row2)
+				quotient = exGCDMatrix[0][2]/exGCDMatrix[1][2];
+				exGCDMatrix[1][0]=exGCDMatrix[0][0]-(Math.multiplyExact(quotient,exGCDMatrix[1][0]));
+				exGCDMatrix[1][1]=exGCDMatrix[0][1]-(Math.multiplyExact(quotient,exGCDMatrix[1][1]));
+				exGCDMatrix[1][2]=exGCDMatrix[0][2]-(Math.multiplyExact(quotient,exGCDMatrix[1][2]));
+				//Step 3: Move old Row 2 to Row 1.
+				exGCDMatrix[0][0]=Row2temp[0];
+				exGCDMatrix[0][1]=Row2temp[1];
+				exGCDMatrix[0][2]=Row2temp[2];
 			}
-			//Step 1: Store value of Row 2 in Temporary row.
-			Row2temp[0]=exGCDMatrix[1][0];
-			Row2temp[1]=exGCDMatrix[1][1];
-			Row2temp[2]=exGCDMatrix[1][2];
-			//Step 2: compute value of new Row 2.
-			//Row 1 - (q* Row2)
-			quotient = exGCDMatrix[0][2]/exGCDMatrix[1][2];
-			exGCDMatrix[1][0]=exGCDMatrix[0][0]-(quotient*exGCDMatrix[1][0]);
-			exGCDMatrix[1][1]=exGCDMatrix[0][1]-(quotient*exGCDMatrix[1][1]);
-			exGCDMatrix[1][2]=exGCDMatrix[0][2]-(quotient*exGCDMatrix[1][2]);
-			//Step 3: Move old Row 2 to Row 1.
-			exGCDMatrix[0][0]=Row2temp[0];
-			exGCDMatrix[0][1]=Row2temp[1];
-			exGCDMatrix[0][2]=Row2temp[2];
+			catch (ArithmeticException AE)
+			{
+				System.err.println("OVERFLOW DETECTED AT EXTENDEGCD METHOD");
+			}
 		}
 	}
 	
-	private void printMatrix(int [][] Matrix)
+	public void printMatrix(long [][] Matrix)
 	{
 		for (int i=0;i<Matrix.length;i++)
 		{
@@ -196,24 +224,24 @@ public class SmallRSACracker
 		}
 	}
 	
-	public ArrayList<Integer> FermatFactorization (int N)
+	public ArrayList<Long> FermatFactorization (long N)
 	{
 		//Initialize Fermat Factorization
-		ArrayList <Integer> factors = new ArrayList<Integer>();		
+		ArrayList <Long> factors = new ArrayList<Long>();		
 		//Create initial starting value
 		while (N%2==0)
 		{
 			System.err.println("This number is even! Fermat Factorization will have at least one 2!");
 			N=N/2;
-			factors.add(2);
+			factors.add((long)2);
 		}
 		
 		double dummy=Math.sqrt(N);
-		int x=(int) Math.ceil(dummy);
+		long x=(long) Math.ceil(dummy);
 		
 		
-		int testValue;
-		int sqrtofa=0;
+		long testValue;
+		long sqrtofa=0;
 		/*
 		 *  Structure of Fermat Factorization:
 		 *  testValue^2 = (x^2) - N
@@ -223,7 +251,7 @@ public class SmallRSACracker
 		while (true)
 		{
 			testValue =(x*x) - N;
-			sqrtofa = (int) Math.sqrt(testValue);
+			sqrtofa = (long) Math.sqrt(testValue);
 			//System.out.println(x);
 			//System.out.println("TestValue: " + testValue + " SQRT: " + sqrtofa);
 			
@@ -243,12 +271,12 @@ public class SmallRSACracker
 		return factors;
 	}
 	
-	public ArrayList<Integer> Factorization (int N)
+	public ArrayList<Long> Factorization (int N)
 	{
-		ArrayList<Integer> primes = new ArrayList<Integer>();
+		ArrayList<Long> primes = new ArrayList<Long>();
 		while (N%2==0)
 		{
-			primes.add(2);
+			primes.add((long)2);
 			N=N/2;
 		}
 		int factor = 3;
@@ -256,7 +284,7 @@ public class SmallRSACracker
 		{
 			if (N%factor==0)
 			{
-				primes.add(factor);
+				primes.add((long)factor);
 				N=N/factor;
 			}
 			else
@@ -267,13 +295,22 @@ public class SmallRSACracker
 		return primes;
 	}
 	
-	public int LCM (int a, int b)
+	public long computeLCM (long a, long b)
 	{
-		int GCD = gcd(a,b);
-		return ((a*b)/GCD);
+		long GCD = gcd(a,b);
+		long p = 0;
+		try 
+		{
+			p=Math.multiplyExact(a, b);
+		}
+		catch (ArithmeticException AE)
+		{
+			System.err.println("OVERFLOW SPOTTED AT COMPUTING LCM OF (p-1) and (q-1)");
+		}
+		return p/GCD;
 	}
 	
-	public int gcd (int a, int b)
+	public long gcd (long a, long b)
 	{
 		if (b!=0)
 		{
@@ -285,16 +322,26 @@ public class SmallRSACracker
 	public static void main (String [] args)
 	{
 		//Info came from Exam 3 from Number Theory...
-		RSACracker BonSy = new RSACracker(661,257821);
-		BonSy.getInfo();
+		long encoder=3;
+		long p = 2351771;
+		long q = 15485849;
+		long ProductofPrimes=0;
+		try
+		{
+			ProductofPrimes=Math.multiplyExact(p, q);
+		}
+		catch(ArithmeticException AE)
+		{
+			System.err.println("OVERFLOW DETECTED AT CREAING N: EXITING");
+		}
 		
-		//What if message is NOT relatively prime to N??
-		int message=5857;
-		//BonSy.EulerPhi(message);
-		int e = BonSy.encrypt(5872);
-		int f = 159553;
-		System.out.println(e);
-		System.out.println("Decrypt: " + BonSy.decrypt(e));
-		System.out.println(BonSy.gcd(message, BonSy.bigPrime));
+		SmallRSACracker BonSy = new SmallRSACracker(encoder,ProductofPrimes);
+		BonSy.getInfo();
+	
+		
+		//Message
+		int message=46509;
+		BonSy.TestRSA(message);
+		//System.out.println("Encrypt: " + BonSy.encrypt(message));
 	}
 }
