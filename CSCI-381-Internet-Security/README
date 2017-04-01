@@ -1,1 +1,6 @@
 This folder contains all the code for CS 381 taking in Spring 2017 taught by Dr. Bon Sy.
+
+Brief Description:
+SmallRSACracker is designed to find the decoder in an RSA encryption system.  However, this only works with long. It will
+work perfectly under most conditions but it is limited by the 64 bit constraint of long.
+BigRSACracker is the upgrade to SmallRSA cracker as it will use BigInteger. It is still a work in Progress.
