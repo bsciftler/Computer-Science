@@ -6,53 +6,88 @@ public class DES
  * 	Goal:
  * 1- Create a 56-Bit key Generator
  * 2- Make 28-bit Keys
- * 3- Both Message and Ciphertext will be 48 bits long
+ * 3- Both Message and Cipher text will be 48 bits long
  * 4- Use 5 rounds of DES
  */
 	
-	
 	private String KeyGenerator;
-	private int rounds;
 	private int halfSize;
+	private int rounds;
 	private ArrayList<String> Keys;
 	
-	public DES (String message, int R, int KeyGenSize)
+	public DES(String Key,int ROUNDS)
 	{
-		KeyGenerator=BinaryStringGenerator(KeyGenSize);
-		halfSize=KeyGenSize;
-		rounds=R;
-		KeyGeneration(rounds);
+		KeyGenerator=Key;
+		rounds=ROUNDS;
+		halfSize=Key.length()/2;
+		Keys = KeyGeneration();
 	}
-	
-	private void KeyGeneration ()
+
+	public ArrayList<String> KeyGeneration ()
 	{
+		ArrayList<String> keyMaster = new ArrayList<String>();
 		String [] halfKeys = new String[2];
-		int counter=0;
-		while (counter < rounds)
+		int counter=1;
+		String memory = KeyGenerator; //If for some reason I need to restore original Key Generator...
+		int tempRound=0;
+		String keyBuilder="";
+		while (counter <= rounds)
 		{
 			//SubString, [x,y)
-			//halfKeys[0] is my left partition
-			//halfKeys[1] is my right partiton
-			halfKeys[0]=KeyGenerator.substring(0,halfSize);
-			halfKeys[1]=KeyGenerator.substring(halfSize,(halfSize*2+1));
 			
-			//Keys.add(e);
+			//Step 1: Partition the Key Generator into two halves.
+			//halfKeys[0] is my left partition
+			//halfKeys[1] is my right partition
+			halfKeys[0]=KeyGenerator.substring(0,halfSize);//[0,3]
+			halfKeys[1]=KeyGenerator.substring(halfSize,(halfSize*2));//[4,7]
+			System.out.println("KL: "+ halfKeys[0] + " KR: " + halfKeys[1]);
+			
+			//Step 2: Shift the Half Keys according to DES...
+			//Left Key: Get rightmost bit of KL and move to to the Left
+			halfKeys[0]=shiftLeft(halfKeys[0]);
+			//Right Key: Get the Left most bit of KR and move it to the Right.
+			halfKeys[1]=shiftRight(halfKeys[1]);
+			System.out.println("KL: "+ halfKeys[0] + " KR: " + halfKeys[1]);
+			//Step 3:Create 28-bit Key...
+			//Step 3A: Build the new key from which I keep using my rounds for...
+			KeyGenerator=halfKeys[0]+halfKeys[1];
+			//Step 3B: From the Generated Key, Get first 16-Bits and Last 16-Bits.
+			tempRound= halfSize/2*3;
+			System.out.println("TEMP: " + tempRound + " halfSize: " + (halfSize*2-1) + " Key Generated: " + KeyGenerator);
+			keyBuilder+=KeyGenerator.substring(0,halfSize/2);
+			keyBuilder+=KeyGenerator.substring(tempRound,halfSize*2-1);
+			keyBuilder+=KeyGenerator.charAt(halfSize*2-1);
+			//System.out.println("Key Built: " + keyBuilder);
+			keyMaster.add(keyBuilder);
+			System.out.println("Key Number " + counter + " " + keyMaster.get(counter-1));
 			++counter;
+			keyBuilder="";//Reset
 		}
-		
+		KeyGenerator=memory; //Restore Original Key Generator.
+		return keyMaster;
 	}
 	
-	//Start Video at 13 minutes
-	//https://www.youtube.com/watch?v=UgFoqxKY7cY
+	public static String shiftLeft(String s)
+	{
+	    return s.charAt(s.length()-1)+s.substring(0, s.length()-1);
+	}
+	
+	public static String shiftRight(String s)
+	{
+	    return s.substring(1, s.length()) + s.charAt(0);
+	}
 	
 	public String encrypt(String message)
 	{
+		int messageSize=message.length();
 		String cipher="";
-		int counter=0;
+		int counter=1;
 		String [] halfMessage = new String[2];
-		while (counter < rounds)
+		while (counter <= rounds)
 		{
 			//Split the message into left and right part
+			halfMessage[0]=message.substring(0,messageSize/2);
+			halfMessage[1]=message.substring(messageSize/2,messageSize)+message.charAt(messageSize-1);
 			
 			//F(x,y) where x=Message, Y=Key 1, 2, ... 
 			
@@ -66,10 +101,10 @@ public class DES
 		return cipher;
 	}
 	
-	public String decrypt(String cipherText)
-	{	
-		return message;
-	}
+	//public String decrypt(String cipherText)
+	//{	
+		//return message;
+	//}
 	
 	public String XOR (String a, String b)
 	{
@@ -143,9 +178,9 @@ public class DES
 	
 	public static void main (String [] args)
 	{
-		String input=BinaryStringGenerator(48);
-		DES Hackingcompetition = new DES (input, 5, 56);
-		//I was instructed that input be a 48-bit message of 0's and 1's.
+		DES Hacks = new DES("11011010",4);
+		String E= Hacks.encrypt("10011011");
+		System.out.println("MESSAGE CIPER " + E);
 	}
 	
 	public static String BinaryStringGenerator(int length)
