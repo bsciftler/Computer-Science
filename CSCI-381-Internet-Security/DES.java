@@ -5,7 +5,7 @@ public class DES
 /*
  * 	Goal:
  * 1- Create a 56-Bit key Generator
- * 2- Make 28-bit Keys
+ * 2- Make 24-bit Keys
  * 3- Both Message and Cipher text will be 48 bits long
  * 4- Use 5 rounds of DES
  */
@@ -20,7 +20,54 @@ public class DES
 		KeyGenerator=Key;
 		rounds=ROUNDS;
 		halfSize=Key.length()/2;
-		Keys = KeyGeneration();
+		Keys = KeyGeneration2();
+	}
+	
+	public ArrayList<String> KeyGeneration2 ()
+	{
+		ArrayList<String> keyMaster = new ArrayList<String>();
+		String [] halfKeys = new String[2];
+		int counter=1;
+		String memory = KeyGenerator; //If for some reason I need to restore original Key Generator...
+		int tempRound=0;
+		String keyBuilder="";
+		while (counter <= rounds)
+		{
+			//SubString, [x,y)
+			
+			//Step 1: Partition the Key Generator into two halves.
+			//halfKeys[0] is my left partition
+			//halfKeys[1] is my right partition
+			
+			halfKeys[0]=KeyGenerator.substring(0,halfSize);//[0,3]
+			halfKeys[1]=KeyGenerator.substring(halfSize,(halfSize*2));//[4,7]
+			//System.out.println("KL: "+ halfKeys[0] + " KR: " + halfKeys[1]);
+			
+			//Step 2: Shift the Half Keys according to DES...
+			//Left Key: Get rightmost bit of KL and move to to the Left
+			halfKeys[0]=shiftLeft(halfKeys[0]);
+			//Right Key: Get the Left most bit of KR and move it to the Right.
+			halfKeys[1]=shiftRight(halfKeys[1]);
+			//System.out.println("KL: "+ halfKeys[0] + " KR: " + halfKeys[1]);
+			
+			//Step 3:Create 28-bit Key...
+			//Step 3A: Build the new key from which I keep using my rounds for...
+			KeyGenerator=halfKeys[0]+halfKeys[1];
+			
+			//Step 3B: From the Generated Key, Get first 16-Bits and Last 16-Bits.
+			tempRound= halfSize/2*3;
+			//System.out.println("TEMP: " + tempRound + " halfSize: " + (halfSize*2-1) + " Key Generated: " + KeyGenerator);
+			keyBuilder+=KeyGenerator.substring(0,halfSize/2-2);
+			keyBuilder+=KeyGenerator.substring(tempRound+2,halfSize*2-1);
+			keyBuilder+=KeyGenerator.charAt(halfSize*2-1);
+			//System.out.println("Key Built: " + keyBuilder);
+			keyMaster.add(keyBuilder);
+			System.out.println("Key Number " + counter + " " + keyMaster.get(counter-1) + " Key size is " + keyBuilder.length());
+			++counter;
+			keyBuilder="";//Reset
+		}
+		KeyGenerator=memory; //Restore Original Key Generator.
+		return keyMaster;
 	}
 
 	public ArrayList<String> KeyGeneration ()
@@ -216,16 +263,18 @@ public class DES
 
 	public static void main (String [] args)
 	{
-		String Keyman = BinaryStringGenerator(56);
+		String Key = BinaryStringGenerator(56);
 		//System.out.println(Keyman +  " " + Keyman.length());
-		DES Hacks = new DES(Keyman,5);
-		String M = BinaryStringGenerator(56);
-		String E= Hacks.encrypt(M);
+		DES Hacking = new DES(Key,5);
+		String M = BinaryStringGenerator(48);
+		System.out.println("Key: " + Key);
+		System.out.println("Message: " + M);
+		String E= Hacking.encrypt(M);
 		System.out.println("MESSAGE CIPHER " + E);
-		String Test=Hacks.decrypt(E);
+		String Test=Hacking.decrypt(E);
 		if (Test.equals(M))
 		{
-			System.out.println("I drink and I know things");
+			System.out.println("Success!");
 		}
 	}
 	
