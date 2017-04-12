@@ -17,35 +17,29 @@ public class Project1b extends Thread
 		inputReader=reader;
 	}
 	
-	public Project1b(ArrayList<String[]> wholeCommand, Scanner READER)
+	public Project1b(ArrayList<String[]> wholeCommand, Scanner READER) throws InterruptedException
 	{
 		inputReader=READER;
 		ArrayList<Thread> Threader = new ArrayList<Thread>();
 		int numberofThread=wholeCommand.size();
-		//Build an Array of Threads...
+		//Build an Array of Threads, Run them and join them!
 		for (int i=0;i<numberofThread;i++)
 		{
 			try
 			{
 				Threader.add(new Thread(new Project1b(wholeCommand.get(i),READER)));
-			} 
-			catch (IOException IOE)
-			{
-				System.err.println("ERROR HAPPENED IN BUILDING ARRAY OF THREADS!");
-			}
-		}
-		//Start all the Threads! I have Threads 0 up to numberofThread -1 Threads to start!
-		for (int i=0;i<numberofThread;i++)
-		{
-			Threader.get(i).start();
-			try
-			{
-				this.join();
+				Threader.get(i).start();
+				Threader.get(i).join();
 			}
 			catch (InterruptedException IE)
 			{
 				System.err.println("ERROR SPOTTED AT THREAD JOINING");
 			}
+			catch (IOException IOE)
+			{
+				System.err.println("ERROR HAPPENED IN BUILDING ARRAY OF THREADS!");
+			}
+			
 		}
 	}
 	/*
@@ -239,7 +233,7 @@ public class Project1b extends Thread
 			}
 	}
 
-	public static void main(String [] args)throws IOException
+	public static void main(String [] args)throws IOException, InterruptedException
 	{	
 		Scanner inputReader = new Scanner(System.in);//Scan input
 		while (true)
@@ -257,34 +251,8 @@ public class Project1b extends Thread
 				multipleCommands[i]=multipleCommands[i].trim();//Clear out all space for all other commands.
 				wholeCommand.add(multipleCommands[i].split(" "));
 			}
-			ArrayList<Thread> Threader = new ArrayList<Thread>();
-			int numberofThread=wholeCommand.size();
-			//Build an Array of Threads...
-			for (int i=0;i<numberofThread;i++)
-			{
-				try
-				{
-					Threader.add(new Thread(new Project1b(wholeCommand.get(i),inputReader)));
-				} 
-				catch (IOException IOE)
-				{
-					System.err.println("ERROR HAPPENED IN BUILDING ARRAY OF THREADS!");
-				}
-			}
-			//Start all the Threads! I have Threads 0 up to numberofThread -1 Threads to start!
-			for (int i=0;i<numberofThread;i++)
-			{
-				Threader.get(i).start();
-				//Ensure that all threads are completed before I print the prompt again...
-				try
-				{
-					Threader.get(i).join(); 
-				} 
-				catch (InterruptedException IE)
-				{
-					System.err.println("ERROR SPOTTED AT THREAD JOINING");
-				}
-			}
+			Project1b shell = new Project1b(wholeCommand, inputReader);
+			shell.join();
 		}
 		
 	}//END OF MAIN
