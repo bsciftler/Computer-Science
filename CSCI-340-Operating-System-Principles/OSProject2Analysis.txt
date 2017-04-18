@@ -1,0 +1,38 @@
+Group Member 1: Pratik Malli
+CUNYID:
+Group Member 2: Andrew Quijano
+CUNYID: N/A
+
+Analysis:
+
+This problem is similar to the Reader/Writer problem example 
+shown in class.
+The goal of this project is to have both customers and bartenders threads.
+But with heavy drinking, it takes stages to get drunk.
+To keep things simple, there will be three stages.
+- Feeling nice
+- Feeling lit
+- Feeling trashed
+As all the customers had just got accepted to pretigious universties, they think they 
+deserve to get so drunk that they need to have an Uber bring them home.
+
+For all customers to get that drunk, the bartenders will set priorities on who gets drinks first.
+
+1- Arrival time of customers
+2- Are the customers attractive/plesant to the bartenders?
+This will either increase or decrease priority of the customer needing to get their dirnk
+This progam will use the default priority of 5.
+A bartender maybe ambivalent to the customer.
+3- Do the customers tip the bartender?
+Some of the customers will tip the bartender.  This will increase the priority depending on 
+how generous the tip is to the bartender.
+
+Algorithmn:
+1- Customers come in the bar.
+2- Bartenders decide if they are "hit" or "FineAF"
+3- Customers get their first drinks, (STARVATION POTENTIALLY POSSIBLE, SEMAPHORE TO PREVENT THIS!)
+4- Customers are allowed to tip.
+5- Priority changes, customers are given more alcohol
+6- Repeat steps 3-6.
+7- By now, all customers should be drunk, kill them off (or get them home...)
+
