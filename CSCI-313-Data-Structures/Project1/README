@@ -6,3 +6,8 @@ ArrayMain
 ArraySparseVec
 ArraySparseM
 The point of the classes was to give the class an idea of what he wanted to see when creating the LLSparseM and LLSparseVec class.
+
+
+Currently I plan on upgrading the Sparse Matrix by adding
+1- Support for Rational Numbers
+2- Calculating Determinant through LU Decomposition
