@@ -1,157 +1,135 @@
+import java.io.*;
+import java.io.IOException;
 import java.util.Arrays;
-import java.util.Comparator;
+import java.util.Scanner;
 
-public class Statistics <K>
+public class Statistics
 {
+	//variables
+	private Rational min;
+	private Rational Q1;
+	private Rational median;
+	private Rational Q3;
+	private Rational max;
+	private Rational IQR;
+	
+	//Universal variables
 	private int SIZE;
-	private int sum;
-	private int sampleVariance;
-	private int sampleMean;
-	
-	//Toukey Five Number Summary
-	private int min;
-	private int Q1;
-	private double median;
-	private int Q3;
-	private int max;
-	
-	//Modified Box and Whisker
-	private int IQR;
-	private int modMin;
-	private int modMax;
-	
-	//PlaceHolder of Input
-	private int [] info;
-	
-	public Statistics (int [] input)
+	private int SPLIT;
+	private Rational [] input;
+	private boolean computed=false;
+
+	public Statistics (Rational [] newInput)
 	{
+		input=newInput;
+		min=input[0];
+		max=input[input.length-1];
 		SIZE=input.length;
-		info=input;
-		computeINTEGERINPUT();
+		SPLIT=SIZE/2;
 	}
 	
-	public void StatisticalInformation()
+	public void ToukeyFiveNumberSummary()
 	{
-		System.out.println("Min: " + min);
-		System.out.println("Modified Min: " + modMin);
-		System.out.println("Q1: " + Q1);
-		System.out.println("Median: " + median);
-		System.out.println("Q3: " + Q3);
-		System.out.println("modified Max: " + modMax);
-		System.out.println("Max: " + max);
-		System.out.println("Sample Mean: " + sampleMean);
-		System.out.println("Sample Variance: " + sampleVariance);
+		if (computed==false)
+		{
+			median= median(input);
+			Q1= findQ1(input);
+			Q3= findQ3(input);
+			IQR=Q3;
+			IQR.subtract(Q1);
+			IQR.multiply(new Rational(3,2));
+			computed=true;
+		}
+		
+		System.out.println("Minimum: "); min.print();
+		System.out.println("Q1: "); Q1.print();
+		System.out.println("Median: "); median.print();
+		System.out.println("Q3: "); Q3.print();;
+		System.out.println("Maximum: "); max.print();
+		Rational temp1 = max;
+		temp1.add(IQR);
+		System.out.println("Modified Maximum: "); temp1.print() ;
+		Rational temp2 = min;
+		temp1.subtract(IQR);
+		System.out.println("Modified Minimum: "); temp2.print();
 	}
 	
-	private void computeINTEGERINPUT()
+	private Rational findQ1(Rational [] input)
 	{
-		sum=summation();
-		sampleVariance=sum/(SIZE-1);
-		sampleMean=sum/SIZE;
-		sort();
-		min=info[0];
-		Q1=findQ1();
-		median=findMedian();
-		Q3=findQ3();
-		max=info[info.length-1];
-		IQR=Q3-Q1;
-		modMin=(int) (min-(1.5*IQR));
-		modMax=(int) (max+(1.5*IQR));
-	}
-	
-	public void sort()
-	{
-		if (SIZE <=70)
-		{//I can use Insert Sort more effectively
-			
+		if (SPLIT%2==0)
+		{
+			Rational a=input[(SPLIT/2)-1];
+			a.add(input[((SPLIT)/2)]);
+			a.multiply(new Rational(1,2));
+			return a;
 		}
 		else
-		{//I will use Merge Sort
-			//mergeSort(info, new Comparator <K>());
-		}
-	}
-	/*
-	 * public <K> void mergeSort(int [], Comparator<K> comparator)
-	{
-		int n=s2.length;
-		if (n < 2)
 		{
-			return;
+			return input[(((SPLIT+1)/2) - 1)];
 		}
-		//divide
-		int mid=n/2;
-		K[]S1=Arrays.copyOfRange(s2,0,mid);
-		K[]S2=Arrays.copyOfRange(s2, mid, n);
-		//conquer with recursion
-		mergeSort(S1,comparator);
-		mergeSort(S2,comparator);
-		
-		//merge results
-		merge(S1,S2,s2,comparator);
 	}
-	
-	public static <K> void merge (K[] s1, K[] s2, int[] s, Comparator<K> comparator)
+
+	public Rational median(Rational [] input)
 	{
-		int i=0; int j=0;
-		while (i+j<s.length)
-		{
-			if (j==s2.length || (i<s1.length && comparator.compare(s1[j],s2[j])< 0))
-			{
-				s[i+j]=s1[i++];
-			}
-			else
-			{
-				s[i+j]=s2[j++];
-			}
-		}
-	}
-	 */
-	
-	public int summation ()
-	{
-		int answer=0;
-		for (int i=0;i<SIZE;i++)
-		{
-			answer+=info[i];
-		}
-		return answer;
-	}
-	
-	public double findMedian()
-	{	
 		if (SIZE%2==0)
 		{
-			return (double)(info[(SIZE/2)-1] + info[(SIZE/2)])*.5;
+			Rational a= input[(SIZE/2)-1];
+			a.add(input[(SIZE/2)]);
+			a.multiply(new Rational(1,2));
+			return a;
 		}
 		else
 		{	
-			return info[(((SIZE+1)/2) - 1)];
+			return input[(((SIZE+1)/2) - 1)];
 		}
 	}
 	
-	public int findQ1()
+	public Rational findQ3(Rational [] input)
 	{
-		int SPLIT=SIZE/2; //This is the new "length"
 		if (SPLIT%2==0)
 		{
-			return (int) ((info[(SPLIT/2)-1] + info[((SPLIT)/2)])*.5);
+			Rational a= input[((SIZE+SPLIT)/2)-1];
+			a.add(input[((SIZE+SPLIT)/2)]);
+			a.multiply(new Rational(1,2));
+			return a;
 		}
 		else
 		{
-			return info[(((SPLIT+1)/2) - 1)];
+			return input[(((SPLIT+SIZE)/2) - 1)];
 		}
 	}
 	
-	public int findQ3()
+//===============ABSORB INPUT FROM TEXT FILE========================
+	public static void main(String[] args) throws IOException
 	{
-		int SPLIT=SIZE/2; //This is the new "0"
-		if (SPLIT%2==0)
+		int [] input = readArray("Math242HW1.txt");
+		Arrays.sort(input);
+		Rational [] Rinput = intToRationalArray(input);
+		Statistics Math242HW=new Statistics(Rinput);
+		Math242HW.ToukeyFiveNumberSummary();
+	}
+	
+	public static int [] readArray(String filename) throws FileNotFoundException
+	{
+		Scanner Read= new Scanner(new File(filename));
+		String reader=Read.nextLine();//Read only 1 Line.
+		String [] Stringinput = reader.split(" ");
+		int [] input = new int [Stringinput.length];
+		for (int i=0;i<input.length;i++)
 		{
-			return (int) ((int) (info[((SIZE+SPLIT)/2)-1] + info[((SIZE+SPLIT)/2)])*.5);
+			input[i]=Integer.parseInt(Stringinput[i]);
 		}
-		else
+		Read.close();
+		return input;
+	}
+	
+	public static Rational [] intToRationalArray(int [] input)
+	{
+		Rational [] answer = new Rational [input.length];
+		for (int i=0;i<input.length;i++)
 		{
-			return info[(((SPLIT+SIZE)/2) - 1)];
+			answer[i]=new Rational(input[i]);
 		}
+		return answer;
 	}
 }
