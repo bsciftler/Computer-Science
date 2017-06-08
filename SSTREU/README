@@ -1,1 +1,14 @@
 
+This contains all the code I am working on in the SST-REU Program.
+Current Tasks
+- Finish basic Android prototype to work with mySQL
+- Figure out how to make MySQL work with large numbers (See Code given by Samet)
+- Make a table from  which android data will be inserted...
+- Complete DGK Code (With strictly set variables)
+- Correct Pseudocode to follow papers/Find simpler versions on how to solve the enc(x)>enc(y) problem
+
+Updates
+-
+
+Questions
+-
