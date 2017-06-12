@@ -1,5 +1,6 @@
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
 public class DGKOperations
@@ -47,7 +48,7 @@ public class DGKOperations
 	    while(true)
 	    {
 	        // Generate some of the required prime number
-	    	BigInteger zU  = NTL::NextPrime(NTL::power(ZZ(2),l) + ZZ(2),10);        
+	    	BigInteger zU  = NextPrime(BigInteger.valueOf(l+2));        
 	    	u = zU.longValue();
 	        vp = new BigInteger(t, certainty, rnd);//(512,40,random)
 	        vq = new BigInteger(t, certainty, rnd);//(512,40,random)
@@ -99,7 +100,6 @@ public class DGKOperations
 	        }
 	        if (h.modPow(vp,n).equals(BigInteger.ONE))
 	        {
-
 	            continue;
 	        }
 	        
@@ -192,7 +192,7 @@ public class DGKOperations
 	        {
 	            continue; // Temporary fix
 	        }
-	        if ((POSMOD(g,p).modPow(u,p) == BigInteger.ONE)
+	        if ((POSMOD(g,p).modPow(u,p) == BigInteger.ONE))
 	        {
 	            continue;// Temporary fix
 	        }
@@ -200,7 +200,7 @@ public class DGKOperations
 	        {
 	            continue;// Temporary fix
 	        }
-	        if ((POSMOD(g,q).modPow(u,q) == BigInteger.ONE)
+	        if ((POSMOD(g,q).modPow(u,q) == BigInteger.ONE))
 	        {
 	            continue;// Temporary fix
 	        }
@@ -214,24 +214,31 @@ public class DGKOperations
 	            lut[decipher] = i;
 	        }
 	    */
+	    HashMap<BigInteger, Long> lut = new HashMap(u);
+	    
 	    BigInteger gvp = POSMOD(g,p).modPow(vp,p);
 	    for (int i=0; i<u; ++i)
 	    {
 	        BigInteger decipher = gvp.modPow(POSMOD(BigIntger.valueof((long) i),p),p);
-	        lut[decipher] = i;
+	        //lut[decipher] = i;
+	        lut.put(decipher,i);
 	    }
 
+	    HashMap<Long, BigInteger> hLUT = new HashMap(2*t);
 	    for (int i=0; i<2*t; ++i)
 	    {
 	        BigInteger e = new BigInteger("2").modPow(BigInteger.valueOf((long)(i)),n);
 	        BigInteger out = h.modPow(e,n);
-	        hLUT[i] = out;
+	        //hLUT[i] = out;
+	        hLUT.put(i,out);
 	    }
-
+	    
+	    HashMap<Long, BigInteger> gLUT = new HashMap(u);
 	    for (int i=0; i<u; ++i)
 	    {
 	        BigInteger out = g.modPow(BigInteger.valueOf((long)i),n);
-	        gLUT[i] = out;
+	        //gLUT[i] = out;
+	        gLUT.put(i,out);
 	    }
 	    
 	    pubkey =  new DGKPublicKey(n,g,h, u, gLUT,hLUT,l,t,k);
@@ -241,7 +248,6 @@ public class DGKOperations
 	public static BigInteger encrypt(DGKPublicKey pubKey, long plaintext)
 	{
 	    int t = pubKey.t;
-
 	    BigInteger n = pubKey.n;
 	    BigInteger h = pubKey.h;
 	    BigInteger u = pubKey.bigU;
@@ -255,7 +261,7 @@ public class DGKOperations
 	    }
 	    r = NTL::RandomBnd(t*2);
 	    SetBit(r,t*2-1);
-	    BigInteger firstpart = pubKey.getGLUT(plaintext);
+	    BigInteger firstpart = pubKey.getGLUT().get(plaintext);
 	    BigInteger secondpart = BigInteger.ZERO;
 	    if (h.equals(BigInteger.ZERO))
 	    {
@@ -266,11 +272,11 @@ public class DGKOperations
 	    {
 	        if(bit(r,i) == 1)
 	        {
-	            secondpart = secondpart * pubKey.getHLUT()[i];
+	            secondpart = secondpart.multiply(pubKey.getHLUT().get(i));
 	        }
 	    }
 
-	    // ZZ secondpart = NTL::PowerMod(h,r,n) ;
+	    //secondpart = h.modPow(r,n);
 
 	    ciphertext = POSMOD(firstpart.multiply(secondpart), n);
 	    return ciphertext;
@@ -283,20 +289,20 @@ public class DGKOperations
 	    BigInteger n = pubKey.n;
 	    long u = pubKey.u;
 	
-	    if (ciphertext.signum()==-1 || n <= ciphertext )
+	    if (ciphertext.signum()==-1 || (isGreaterthan(ciphertext,n)))
 	    {
 	    	throw new IllegalArgumentException("Decryption Invalid Parameter : the ciphertext is not in Zn");
 	    }
 
-	    BigInteger decipher = POSMOD(ciphertext,p.modPow(vp,p);
-	    long plain = privKey.GetLUT(decipher);
+	    BigInteger decipher = POSMOD(ciphertext,p.modPow(vp,p));
+	    long plain = privKey.GetLUT().get(decipher).longValue();
 	    return plain;
 	}
 	
 	public static BigInteger DGKAdd(DGKPublicKey pubKey, BigInteger a, BigInteger b)
 	{
 	    BigInteger n= DGKPublicKey.n;
-	    if (a.signum()==-1 || n <= a || b.signum()==-1 || n <= b )
+	    if (a.signum()==-1 || (isLessthanorEqualto(n,a))|| b.signum()==-1 || isLessthanorEqualto(n,b))
 	    {
 	        throw new IllegalArgumentException("DGKAdd Invalid Parameter : at least one of the ciphertext is not in Zn");
 	    }
@@ -310,7 +316,7 @@ public class DGKOperations
 	{
 	    BigInteger n = DGKPublicKey.n;
 	    long u = DGKPublicKey.u;
-	    if (cipher.signum()==-1 || n <= cipher )
+	    if (cipher.signum()==-1 || (isLessthanorEqualto(n,cipher)) )
 	    {
 	    	 throw new IllegalArgumentException("DGKMultiply Invalid Parameter :  the ciphertext is not in Zn");
 	    }
@@ -323,9 +329,8 @@ public class DGKOperations
 	}
 	
  
-	public static ArrayList<Long> generateLUT(DGKPublicKey pubKey, DGKPrivateKey privKey)
+	public static HashMap generateLUT(DGKPublicKey pubKey, DGKPrivateKey privKey)
 	{
-    	ArrayList<Long> LUT = new ArrayList<Long>();
     	BigInteger n = pubKey.n;
     	BigInteger g = pubKey.g;
     	BigInteger h = pubKey.h;
@@ -333,10 +338,12 @@ public class DGKOperations
     	BigInteger p = privKey.GetP();
     	BigInteger vp = privKey.GetVP() ;
     	BigInteger gvp = POSMOD(g,p).modPow(vp,p);
+    	HashMap LUT = new HashMap(u.intValue());
     	for (int i=0; i<u.intValue(); ++i)
     	{
-        	BigInteger decipher = PowerMod(gvp,POSMOD(ZZ(i),p),p);
-        	LUT[decipher] = i;
+        	BigInteger decipher = gvp.modPow(POSMOD(BigInteger.valueOf((long)i),p),p);
+        	//LUT[decipher] = i;
+        	LUT.put(i, decipher);
     	}
     	return LUT;
 	}
@@ -472,7 +479,6 @@ public class DGKOperations
 	    else
 	    {
 	        doubleBucketGap = DGKMultiply(pubKey, d, u -1);
-
 	    }
 	    overflow = DGKAdd(pubKey,overflow,doubleBucketGap);
 	    BigInteger result = DGKAdd(pubKey,
@@ -482,10 +488,11 @@ public class DGKOperations
 	                       , overflow);
 	    long lastpush = 0;
 
-	    lastpush = decrypt(pubKey,privKey,d) *(
-	                   (1 -decrypt(pubKey,privKey,betaInfAlpha))*(1 - (alpha < POSMOD(N,powL)))* (beta >= (powL - POSMOD(N,powL)))
-	                   +(decrypt(pubKey,privKey,betaInfAlpha))*(0 - (alpha < POSMOD(N,powL)))* (1-(beta >= (powL - POSMOD(N,powL))))
-	               );
+	    lastpush = decrypt(pubKey,privKey,d) *
+	    (
+	    	(1 -decrypt(pubKey,privKey,betaInfAlpha))*(1 - (alpha < POSMOD(N,powL)))* (beta >= (powL - POSMOD(N,powL)))
+	    	+(decrypt(pubKey,privKey,betaInfAlpha))*(0 - (alpha < POSMOD(N,powL)))* (1-(beta >= (powL - POSMOD(N,powL))))
+	    );
 
 	    ZZ effectOfAlphaBetaOverflow = std::get<0>((CipherMultiplication(pubKey,privKey,betaInfAlpha,encBetaMayOverflow )));
 	    effectOfAlphaBetaOverflow = DGKMultiply(pubKey,effectOfAlphaBetaOverflow, POSMOD(2 * (alpha < POSMOD(N,powL)) - 1,N));
@@ -510,4 +517,50 @@ public class DGKOperations
 		int l=10, t=160, k=1024;
 		DGKOperations FIU = new DGKOperations(l,t,k);
 	}
+	
+	
+	//Test if x > y
+	public static boolean isGreaterthan(BigInteger x, BigInteger y)
+	{
+		BigInteger classify = x.subtract(y);
+		if (classify.signum()==-1) // x - y > 0: True
+		{
+			return true;
+		}
+		else if (classify.signum()==0)
+		{
+			return false; //x = y, False
+		}
+		else
+		{
+			return false; // x - y < 0, x > y: False, impliex y > x
+		}
+	}
+	public static boolean isLessthanorEqualto (BigInteger x, BigInteger y)
+	{
+		if (isGreaterthan(x,y)==true)
+		{
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
+	
+	public static BigInteger NextPrime (BigInteger x)
+	{
+		//Find next Prime number after x
+		//Example if x =18, return 19 (closest prime)
+		
+		BigInteger factor = new BigInteger("2");
+		while ()
+		{
+			if ()
+			{
+				return factor;
+			}
+		}
+	}
+	
 }//END OF CLASS
