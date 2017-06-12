@@ -2,15 +2,20 @@ import java.math.BigInteger;
 
 public class DGKPrivateKey
 {
-	BigInteger p;
-	BigInteger q;
-	BigInteger vp;
-	BigInteger vq;
-	int k1;
+	private BigInteger p;
+	private BigInteger q;
+	private BigInteger vp;
+	private BigInteger vq;
+	private long u;
 	
-    public DGKPrivateKey(int n)
+    public DGKPrivateKey (BigInteger P, BigInteger Q, BigInteger VP, 
+    		BigInteger VQ, BigInteger LUT, long U)
     {
-        // k1 is the security parameter. It is the number of bits in n.
-    	k1 = n;
+        p=P;
+        q=Q;
+        vp=VP;
+        vq=VQ;
+        
+        u=U;
     }
 }
