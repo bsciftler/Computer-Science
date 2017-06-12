@@ -3,10 +3,24 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
+//Conversion from NLT to BigInteger was done using this site
+//http://www.shoup.net/ntl/doc/ZZ.txt
+/*
+ * 	Most likely errors I made
+ * 	- Random Number Generation:
+ * I am not sure the difference between randombnd and random_zz
+ * Also I dont understand how random number generation works with big integers.
+ * (See bottom)
+ * 	- I have ommitted some methods
+ * 	- Potentially did Hashmapping wrong
+ * 	- The IsSuperiorMethod is difficult to understand, so i probably made mistakes there
+ * 
+ * 	See the very bottom of the code to find the NLT methods translated to Java
+ */
 public class DGKOperations
 {
-	private DGKPublicKey pubkey;
-	private DGKPrivateKey privkey;
+	private static DGKPublicKey pubkey;
+	private static DGKPrivateKey privkey;
 	private static Random rnd = new Random();
 	private static int certainty = 40;
 	//Probability of getting prime is 1-(1/2)^40
@@ -48,6 +62,12 @@ public class DGKOperations
 	    while(true)
 	    {
 	        // Generate some of the required prime number
+	    	/*
+	    	 * 	Here Line 54 it is a bit in C++ Code
+	    	 * 	But I remember in DGK's original Paper they said
+	    	 * 	something about finding the next prime from l+2.
+	    	 * 	So I will go with that...
+	    	 */
 	    	BigInteger zU  = NextPrime(BigInteger.valueOf(l+2));        
 	    	u = zU.longValue();
 	        vp = new BigInteger(t, certainty, rnd);//(512,40,random)
@@ -55,44 +75,52 @@ public class DGKOperations
 	        vpvq = vp.multiply(vq);
 	        tmp = BigInteger.valueOf(u).multiply(vp);
 
-	        //OR BITCOUNT?
 	        int needed_bits = k/2 - (tmp.bitLength());
 
-
 	        // Generate rp until p is prime such that uvp divde p-1
-	        do
-	        {
-	            rp = NTL::RandomBits_ZZ(needed_bits);
-	            NTL::SetBit(rp,needed_bits -1);
-	            p = rp.multiply(mp).add(BigInteger.ONE);
-	        }
-	        while(!ProbPrime(p,10));  // Thus we ensure that p is a prime, with p-1 dividable by prime numbers vp and u
+	       
+	        rp = new BigInteger(needed_bits, certainty, rnd);//(512,40,random)
+	        rp.setBit(needed_bits -1);
+	            /*
+	             * long SetBit(ZZ& x, long p);
+// returns original value of p-th bit of |a|, and replaces p-th bit of
+// a by 1 if it was zero; low order bit is bit 0; error if p < 0;
+// the sign of x is maintained
+	             */
+	            
+	        p = rp.multiply(tmp).add(BigInteger.ONE);
+	        
+	        //while(!ProbPrime(p,10));  
+	        // Thus we ensure that p is a prime, with p-1 dividable by prime numbers vp and u
 
-	        tmp = u * vq;
+	        tmp = BigInteger.valueOf(u).multiply(vq);
 	        needed_bits = k/2 - (tmp.bitLength());
 
 	// Same method for q than for p
-
-	        do
-	        {
-	            rq = NTL::RandomBits_ZZ(needed_bits);
-	            NTL::SetBit(rq,needed_bits -1);
-	            q = rq.multiply(tmp).add(BigInteger.ONE);
-	        }
-	        while(!ProbPrime(q,10));  // Thus we ensure that q is a prime, with p-1 dividable by prime numbers vq and u
-	        if(POSMOD(rq,u)!= 0 && POSMOD(rp,u)!= 0 )
+	        rq = new BigInteger(needed_bits, certainty, rnd);//(512,40,random)
+	        rq.setBit(needed_bits -1);
+	        q = rq.multiply(tmp).add(BigInteger.ONE);
+	        
+	        //while(!ProbPrime(q,10));  
+	        // Thus we ensure that q is a prime, with p-1 dividable by prime numbers vq and u
+	        if(!POSMOD(rq,BigInteger.valueOf(u)).equals(BigInteger.ZERO) && !POSMOD(rp,BigInteger.valueOf(u)).equals(BigInteger.ZERO))
 	        {
 	            break;
 	        }
 	    }
 	    n = p.multiply(q);
-	    tmp = rp.multiply(rq).multiply(u);
+	    tmp = rp.multiply(rq).multiply(BigInteger.valueOf(u));
 	    
 
 	    while(true)
 	    {
-	        r = NTL::RandomBnd(n);
-	        h = r.modPow(temp,n);
+	        do
+	        {
+	            r = new BigInteger(n.bitLength(), rnd);
+	        } 
+	        while (!BigInteger.valueOf(r.bitLength()).equals(n));//Ensure it is n-bit Large number
+	        
+	        h = r.modPow(tmp,n);
 	        
 	        if (h == BigInteger.ONE)
 	        {
@@ -103,22 +131,22 @@ public class DGKOperations
 	            continue;
 	        }
 	        
-	        if (h.modpow(vq,n).equals(BigInteger.ONE))
+	        if (h.modPow(vq,n).equals(BigInteger.ONE))
 	        {
 	            continue;
 	        }
 	        
-	        if (h.modPow(u, n).equals(BigInteger.ONE))
+	        if (h.modPow(BigInteger.valueOf(u), n).equals(BigInteger.ONE))
 	        {
 	            continue;
 	        }
 	        
-	        if (h.modPow(u.muliply(vq), n).equals(BigInteger.ONE))
+	        if (h.modPow(BigInteger.valueOf(u).multiply(vq), n).equals(BigInteger.ONE))
 	        {
 	            continue;
 	        }
 	        
-	        if (h.modPow(u.multiply(vp), n).equals(BigInteger.ONE))
+	        if (h.modPow(BigInteger.valueOf(u).multiply(vp), n).equals(BigInteger.ONE))
 	        {
 	            continue;
 	        }
@@ -133,10 +161,15 @@ public class DGKOperations
 
 	    while(true)
 	    {
-	        r = NTL::RandomBnd(n);
+	    	do
+	    	{
+	    		r = new BigInteger(n.bitLength(), rnd);
+	    	} 
+	    	while (!BigInteger.valueOf(r.bitLength()).equals(n));
+		        
 	        g = r.modPow(rprq,n);
 
-	        if (g == ZZ(1))
+	        if (g == BigInteger.ONE)
 	        {
 	            continue;
 	        }
@@ -146,20 +179,19 @@ public class DGKOperations
 	            continue;
 	        } // Then h can still be of order u,vp, vq , or a combination of them different that uvpvq
 
-	        if (g.modPow(u,n) == BigInteger.ONE)
+	        if (g.modPow(BigInteger.valueOf(u),n) == BigInteger.ONE)
 	        {
 	            continue;
 	        }
-	        if (g.modPow(u.mulitply(u),n) == BigInteger.ONE)
-	        {
-
-	            continue;
-	        }
-	        if (g.modPow(u*u*vp,n) == BigInteger.ONE)
+	        if (g.modPow(BigInteger.valueOf(u).multiply(BigInteger.valueOf(u)),n) == BigInteger.ONE)
 	        {
 	            continue;
 	        }
-	        if (g.modPow(u*u*vq,n) == BigInteger.ONE)
+	        if (g.modPow(BigInteger.valueOf(u).multiply(BigInteger.valueOf(u)).multiply(vp),n) == BigInteger.ONE)
+	        {
+	            continue;
+	        }
+	        if (g.modPow(BigInteger.valueOf(u).multiply(BigInteger.valueOf(u)).multiply(vq),n) == BigInteger.ONE)
 	        {
 	            continue;
 	        }
@@ -174,12 +206,12 @@ public class DGKOperations
 	            continue;
 	        }
 
-	        if (g.ModPow(u*vq,n) == BigInteger.ONE)
+	        if (g.modPow(BigInteger.valueOf(u).multiply(vq),n) == BigInteger.ONE)
 	        {
 	            continue;
 	        }
 
-	        if (g.modPow(u*vp,n) == BigInteger.ONE)
+	        if (g.modPow(BigInteger.valueOf(u).multiply(vp),n) == BigInteger.ONE)
 	        {
 	            continue;
 	        }
@@ -192,7 +224,7 @@ public class DGKOperations
 	        {
 	            continue; // Temporary fix
 	        }
-	        if ((POSMOD(g,p).modPow(u,p) == BigInteger.ONE))
+	        if ((POSMOD(g,p).modPow(BigInteger.valueOf(u),p) == BigInteger.ONE))
 	        {
 	            continue;// Temporary fix
 	        }
@@ -200,7 +232,7 @@ public class DGKOperations
 	        {
 	            continue;// Temporary fix
 	        }
-	        if ((POSMOD(g,q).modPow(u,q) == BigInteger.ONE))
+	        if ((POSMOD(g,q).modPow(BigInteger.valueOf(u),q) == BigInteger.ONE))
 	        {
 	            continue;// Temporary fix
 	        }
@@ -214,31 +246,31 @@ public class DGKOperations
 	            lut[decipher] = i;
 	        }
 	    */
-	    HashMap<BigInteger, Long> lut = new HashMap(u);
+	    HashMap<BigInteger, Long> lut = new HashMap <BigInteger, Long>((int)u);
 	    
 	    BigInteger gvp = POSMOD(g,p).modPow(vp,p);
 	    for (int i=0; i<u; ++i)
 	    {
-	        BigInteger decipher = gvp.modPow(POSMOD(BigIntger.valueof((long) i),p),p);
+	        BigInteger decipher = gvp.modPow(POSMOD(BigInteger.valueOf((long) i),p),p);
 	        //lut[decipher] = i;
-	        lut.put(decipher,i);
+	        lut.put(decipher,(long)i);
 	    }
 
-	    HashMap<Long, BigInteger> hLUT = new HashMap(2*t);
+	    HashMap<Long, BigInteger> hLUT = new HashMap<Long, BigInteger>(2*t);
 	    for (int i=0; i<2*t; ++i)
 	    {
 	        BigInteger e = new BigInteger("2").modPow(BigInteger.valueOf((long)(i)),n);
 	        BigInteger out = h.modPow(e,n);
 	        //hLUT[i] = out;
-	        hLUT.put(i,out);
+	        hLUT.put((long)i,out);
 	    }
 	    
-	    HashMap<Long, BigInteger> gLUT = new HashMap(u);
+	    HashMap<Long, BigInteger> gLUT = new HashMap<Long, BigInteger>((int)u);
 	    for (int i=0; i<u; ++i)
 	    {
 	        BigInteger out = g.modPow(BigInteger.valueOf((long)i),n);
 	        //gLUT[i] = out;
-	        gLUT.put(i,out);
+	        gLUT.put((long)i,out);
 	    }
 	    
 	    pubkey =  new DGKPublicKey(n,g,h, u, gLUT,hLUT,l,t,k);
@@ -259,8 +291,13 @@ public class DGKOperations
 	    {
 	        throw new IllegalArgumentException("Encryption Invalid Parameter : the plaintext is not in Zu");
 	    }
-	    r = NTL::RandomBnd(t*2);
-	    SetBit(r,t*2-1);
+		do
+    	{
+    		r = new BigInteger(2*t, rnd);
+    	} 
+    	while (!BigInteger.valueOf(r.bitLength()).equals(2*t));
+	        
+	    r.setBit(t*2-1);
 	    BigInteger firstpart = pubKey.getGLUT().get(plaintext);
 	    BigInteger secondpart = BigInteger.ZERO;
 	    if (h.equals(BigInteger.ZERO))
@@ -268,8 +305,16 @@ public class DGKOperations
 	        secondpart = BigInteger.ZERO;
 	    }
 	    secondpart = BigInteger.ONE;
-	    for(int i = 0; i < r.bitCount(); ++i)
+	    for(int i = 0; i < r.bitLength(); ++i)
 	    {
+	    	/*
+	    	 * 
+
+long bit(const ZZ& a, long k);
+long bit(long a, long k); 
+// returns bit k of |a|, position 0 being the low-order bit.
+// If  k < 0 or k >= NumBits(a), returns 0.
+	    	 */
 	        if(bit(r,i) == 1)
 	        {
 	            secondpart = secondpart.multiply(pubKey.getHLUT().get(i));
@@ -329,7 +374,7 @@ public class DGKOperations
 	}
 	
  
-	public static HashMap generateLUT(DGKPublicKey pubKey, DGKPrivateKey privKey)
+	public static HashMap<Long, BigInteger> generateLUT(DGKPublicKey pubKey, DGKPrivateKey privKey)
 	{
     	BigInteger n = pubKey.n;
     	BigInteger g = pubKey.g;
@@ -338,26 +383,26 @@ public class DGKOperations
     	BigInteger p = privKey.GetP();
     	BigInteger vp = privKey.GetVP() ;
     	BigInteger gvp = POSMOD(g,p).modPow(vp,p);
-    	HashMap LUT = new HashMap(u.intValue());
+    	HashMap <Long, BigInteger>LUT = new HashMap <Long,BigInteger>(u.intValue());
     	for (int i=0; i<u.intValue(); ++i)
     	{
         	BigInteger decipher = gvp.modPow(POSMOD(BigInteger.valueOf((long)i),p),p);
         	//LUT[decipher] = i;
-        	LUT.put(i, decipher);
+        	LUT.put((long)i, decipher);
     	}
     	return LUT;
 	}
 	
-	public static BigInteger isGreaterthan(DGKPublicKey pubKey,DGKPrivateKey privKey, BigInteger x, BigInteger y)
+	public static BigInteger isSuperiorTo(DGKPublicKey pubKey,DGKPrivateKey privKey, BigInteger x, BigInteger y)
 	{
 	    // A & B
 	    int l = pubKey.l - 2 ; // see constraints in the veugen paper
 	    int N = (int) pubKey.u;
 	    int u = (int) pubKey.u;
-	    int powL = pow(2,l);
+	    int powL = 2;
 
 	    // A
-	    long r = NTL::RandomBnd(N);//
+	    long r = RandomBnd(N).longValue();//
 
 	    //r = 5; //TODO remove this heresy
 	    BigInteger encR = encrypt(pubKey,r);
@@ -372,7 +417,11 @@ public class DGKOperations
 	    long plainZ = decrypt(pubKey,privKey,z);
 
 	    long beta = POSMOD(BigInteger.valueOf(plainZ),BigInteger.valueOf((long)powL)).longValue();
-	    BigInteger encBetaMayOverflow = encrypt(pubKey,(beta >= (powL - POSMOD(BigInteger.valueOf(N),BigInteger.valueOf(powL)).intValue())));
+	    BigInteger encBetaMayOverflow = 
+	    	encrypt
+	    	(pubKey,
+	    		(overflow(beta,(powL - POSMOD(N,powL))))
+	    	);
 	    BigInteger d ;
 	    if ( plainZ < (N-1)/2)
 	    {
@@ -425,10 +474,10 @@ public class DGKOperations
 	            // xorBitsSum = DGKAdd(pubKey,xorBitsSum,DGKAdd(pubKey,encrypt(pubKey,1),DGKMultiply(pubKey,encAlphaXORBetaTab[i],u-1)) );
 	        }
 
-	        W[i] = DGKMultiply(pubKey, W[i],pow(2,i));
+	        W[i] = DGKMultiply(pubKey, W[i],(long)Math.pow(2,i));
 	        xorBitsSum = DGKAdd(pubKey,xorBitsSum,DGKMultiply(pubKey,W[i],2 ));
 	    }
-	    long da = RandomBnd(2);
+	    long da = RandomBnd(2).longValue();
 	    long s = 1 -2*da;
 	    BigInteger wProduct = encrypt(pubKey,0);
 	    for(int i = 0 ; i < l ; i++)
@@ -438,8 +487,8 @@ public class DGKOperations
 	                           wProduct,
 	                           DGKAdd(pubKey, DGKAdd(pubKey,DGKMultiply(pubKey,encBetaTab[l-1-i],u-1),encrypt(pubKey, POSMOD(s + bit(alphaZZ, l-1-i), N) )), DGKMultiply(pubKey,d,alphaexp)));
 
-	        BigInteger rBlind = NTL::RandomBits_ZZ(pubKey.getT() * 2);
-	        NTL::SetBit(rBlind,pubKey.getT() * 2 -1);
+	        BigInteger rBlind = RandomBits_ZZ(pubKey.t * 2);
+	        rBlind.setBit(pubKey.t * 2 -1);
 	        //TODO BLIND
 	        wProduct = DGKAdd(pubKey,wProduct,DGKMultiply(pubKey, W[l-1-i],3));
 
@@ -460,7 +509,7 @@ public class DGKOperations
 	    BigInteger divZ = encrypt(pubKey,plainZ/powL);
 
 	    //A
-	    BigIntber betaInfAlpha;
+	    BigInteger betaInfAlpha;
 	    if (da == 1)
 	    {
 	        betaInfAlpha = db;
@@ -481,29 +530,141 @@ public class DGKOperations
 	        doubleBucketGap = DGKMultiply(pubKey, d, u -1);
 	    }
 	    overflow = DGKAdd(pubKey,overflow,doubleBucketGap);
-	    BigInteger result = DGKAdd(pubKey,
-	                       DGKAdd(pubKey,
-	                              divZ,
-	                              DGKMultiply(pubKey,DGKAdd(pubKey, encrypt(pubKey,r/powL),betaInfAlpha), u-1))
-	                       , overflow);
+	    BigInteger result =
+	    		DGKAdd(pubKey,
+	    		DGKAdd(pubKey,divZ,
+	    		DGKMultiply(pubKey,DGKAdd(pubKey, encrypt(pubKey,r/powL),betaInfAlpha), u-1))
+	             , overflow);
 	    long lastpush = 0;
 
 	    lastpush = decrypt(pubKey,privKey,d) *
 	    (
-	    	(1 -decrypt(pubKey,privKey,betaInfAlpha))*(1 - (alpha < POSMOD(N,powL)))* (beta >= (powL - POSMOD(N,powL)))
-	    	+(decrypt(pubKey,privKey,betaInfAlpha))*(0 - (alpha < POSMOD(N,powL)))* (1-(beta >= (powL - POSMOD(N,powL))))
-	    );
+	    	(1 -decrypt(pubKey,privKey,betaInfAlpha))*(1 - (overflowTwo(alpha,POSMOD(N,powL))))* (overflow(beta,(powL - POSMOD(N,powL))))
+	    	+(decrypt(pubKey,privKey,betaInfAlpha))*(0 - (overflowTwo(alpha,POSMOD(N,powL)))* (1-(overflow(beta,(powL - POSMOD(N,powL))))
+	    )));
 
-	    ZZ effectOfAlphaBetaOverflow = std::get<0>((CipherMultiplication(pubKey,privKey,betaInfAlpha,encBetaMayOverflow )));
-	    effectOfAlphaBetaOverflow = DGKMultiply(pubKey,effectOfAlphaBetaOverflow, POSMOD(2 * (alpha < POSMOD(N,powL)) - 1,N));
-	    effectOfAlphaBetaOverflow = DGKAdd(pubKey,effectOfAlphaBetaOverflow,DGKMultiply(pubKey,DGKAdd(pubKey, encBetaMayOverflow, betaInfAlpha),POSMOD(N-(alpha < POSMOD(N,powL)),N)));
+	    BigInteger effectOfAlphaBetaOverflow = CipherMultiplication(pubKey,privKey,betaInfAlpha,encBetaMayOverflow).get(0);
+	    effectOfAlphaBetaOverflow = DGKMultiply(pubKey,effectOfAlphaBetaOverflow, POSMOD(2 * (overflowTwo(alpha,POSMOD(N,powL))) - 1,N));
+	    effectOfAlphaBetaOverflow = DGKAdd(pubKey,effectOfAlphaBetaOverflow,DGKMultiply(pubKey,DGKAdd(pubKey, encBetaMayOverflow, betaInfAlpha),POSMOD(N-overflowTwo(alpha,POSMOD(N,powL)),N)));
 	    effectOfAlphaBetaOverflow = DGKAdd(pubKey, effectOfAlphaBetaOverflow,encBetaMayOverflow );
-	    effectOfAlphaBetaOverflow = std::get<0>(CipherMultiplication(pubKey,privKey,effectOfAlphaBetaOverflow,d));
-	    // encBetaMayOverflow
+	    effectOfAlphaBetaOverflow = CipherMultiplication(pubKey,privKey,effectOfAlphaBetaOverflow,d).get(0);	    // encBetaMayOverflow
 	    result = DGKAdd(pubKey,result,DGKMultiply(pubKey,effectOfAlphaBetaOverflow,u-1));
 
 	    return result;
 	}
+	
+	public static ArrayList<BigInteger> CipherMultiplication(DGKPublicKey pubKey,DGKPrivateKey privKey, BigInteger x, BigInteger y)
+	{
+	    long u = pubKey.u;
+	    // Generate all the blinding/challenge values
+	    long ca = RandomBnd(u).longValue();
+	    long cm = (RandomBnd(u-1).add(BigInteger.ONE)).longValue();
+	    long bx = RandomBnd(u).longValue();
+	    long by = RandomBnd(u).longValue();
+	    long p = (RandomBnd(u-1).add(BigInteger.ONE)).longValue();
+
+	    long secrets[]= {ca, cm, bx, by,p};
+	    BigInteger caEncrypted = encrypt(pubKey, ca);
+	    BigInteger bxEncrypted = encrypt(pubKey, bx);
+	    BigInteger byEncrypted = encrypt(pubKey, by);
+	    BigInteger pEncrypted  = encrypt(pubKey, p);
+
+	    BigInteger xBlinded  = DGKAdd(pubKey, x, bxEncrypted);
+	    BigInteger yBlinded  = DGKAdd(pubKey, y, byEncrypted);
+	    BigInteger challenge = DGKAdd(pubKey, xBlinded, caEncrypted);
+	    challenge = challenge.multiply(DGKMultiply(pubKey, challenge,cm));
+
+	    // Send blinded operands and challenge to the key owner
+	    // Below Owner part
+	    BigInteger product = 
+	    	encrypt
+	    	(
+	    		pubKey,
+	    		POSMOD
+	    		(
+	    			decrypt(pubKey,privKey,xBlinded)*(decrypt(pubKey,privKey,yBlinded))
+	    			,u
+	    		)
+	    	);
+
+	    BigInteger response = encrypt
+	    (
+	    	pubKey,
+	    	POSMOD
+	    	(
+	    		decrypt(pubKey,privKey,challenge)*
+	    		decrypt(pubKey,privKey,yBlinded)
+	    	,u)
+	    );
+	    // The owner send product + response flow
+
+	    //Unblind the challenge
+	    BigInteger associated = 
+	    	DGKMultiply
+	    	(pubKey,
+	    		DGKAdd
+	    		(pubKey, response,
+	    				DGKMultiply
+	    				(pubKey,
+	    					DGKAdd
+	    						(pubKey,
+	    							DGKMultiply(pubKey, product,
+	    								POSMOD(cm,u)),
+	    								DGKMultiply(pubKey, yBlinded,POSMOD(ca*cm,u))
+	    						),u-1
+	    				)
+	    		), p
+	    	);
+
+	    // Un-blind the Result
+	    BigInteger result = DGKAdd
+	    (pubKey,product,
+	    	DGKMultiply
+	    		(pubKey,
+	    			DGKAdd
+	    			(pubKey,
+	    				DGKAdd
+	    				(pubKey,
+	    						DGKMultiply(pubKey, x, by),
+	    						DGKMultiply(pubKey, y, bx)),
+	    						encrypt(pubKey, POSMOD(bx*by,u)
+	    				)
+	    			),
+	    u-1		)
+	    );
+	    
+	    ArrayList<BigInteger> answer= new ArrayList<BigInteger>();
+	    answer.add(result);
+	    answer.add(associated);
+	    return answer;
+	};
+
+	
+	/*
+	 *  MAIN METHOD TO TEST 
+	 */
+	public static void main (String args [])
+	{
+		int l=16, t=160, k=1024;
+		DGKOperations FIU = new DGKOperations(l,t,k);
+		/*
+		 * 	Test 1:
+		 * 	Successfully encrypt and decrypt all numbers from -100 to 100
+		 */
+		
+		/*
+		 * 	Test 2: Successfully add 2 to all numbers and get the correct answer
+		 */
+		
+		/*
+		 * 	Test 3: Successfully multiply 3 to all numbers and get the correct answer
+		 */
+		
+		/*
+		 * 	Test 4: Actually compare it!
+		 */
+	}
+	
 /*
  * 	COMPUTATIONAL METHODS USED	
  */
@@ -512,12 +673,10 @@ public class DGKOperations
 		return ((x.mod(n).add(n)).mod(n));
 	}
 	
-	public static void main (String args [])
+	public static long POSMOD(long x, long n)
 	{
-		int l=10, t=160, k=1024;
-		DGKOperations FIU = new DGKOperations(l,t,k);
+		return ((x%n)+n)%n;
 	}
-	
 	
 	//Test if x > y
 	public static boolean isGreaterthan(BigInteger x, BigInteger y)
@@ -533,7 +692,7 @@ public class DGKOperations
 		}
 		else
 		{
-			return false; // x - y < 0, x > y: False, impliex y > x
+			return false; // x - y < 0, x > y: False, implies y > x
 		}
 	}
 	public static boolean isLessthanorEqualto (BigInteger x, BigInteger y)
@@ -554,13 +713,131 @@ public class DGKOperations
 		//Example if x =18, return 19 (closest prime)
 		
 		BigInteger factor = new BigInteger("2");
-		while ()
+		while (true)
 		{
-			if ()
+			if (isPrime(x))
 			{
 				return factor;
 			}
+			factor= factor.add(new BigInteger("2"));
 		}
 	}
 	
+	public static boolean isPrime(BigInteger x)
+	{
+		BigInteger factor = new BigInteger("3");
+		while (!factor.equals(x))
+		{
+			if (factor.mod(x).equals(BigInteger.ZERO))
+			{
+				return false;
+			}
+			factor=factor.add(new BigInteger("2"));
+		}
+		return true;
+	}
+	//long bit(const ZZ& a, long k);
+	//long bit(long a, long k); 
+	// returns bit k of |a|, position 0 being the low-order bit.
+	// If  k < 0 or k >= NumBits(a), returns 0.
+	public static long bit(BigInteger a, long k)
+	{
+		if (isGreaterthan(a,BigInteger.valueOf(k))|| (a.subtract(BigInteger.valueOf(k)).equals(BigInteger.ZERO)) )
+		{
+			return 0;
+		}
+		if (k <0)
+		{
+			return 0;
+		}
+		String bit= a.toString(2);//get it in Binary
+		return bit.charAt((int)k);
+	}
+	
+	public static long bit(long a, long k)
+	{
+		if (a >= k)
+		{
+			return 0;
+		}
+		if (k < 0)
+		{
+			return 0;
+		}
+		BigInteger Bit = BigInteger.valueOf(k);
+		String bit= Bit.toString(2);//get it in Binary
+		return bit.charAt((int)k);
+	}
+	/*
+void RandomBnd(ZZ& x, const ZZ& n);
+ZZ RandomBnd(const ZZ& n);
+void RandomBnd(long& x, long n);
+long RandomBnd(long n);
+x = pseudo-random number in the range 0..n-1, or 0 if n <= 0
+	 */
+	public static BigInteger RandomBnd(int n)
+	{
+		BigInteger r;
+		do 
+		{
+		    r = new BigInteger(n, rnd);
+		} 
+		while (r.compareTo(new BigInteger(Integer.toString(n))) >= 0);
+		return r;
+	}
+	
+	public static BigInteger RandomBnd(long n)
+	{
+		BigInteger r;
+		do 
+		{
+		    r = new BigInteger((int)n, rnd);
+		} 
+		while (r.compareTo(BigInteger.valueOf(n)) >= 0);
+		return r;
+	}
+	/*
+	 *
+void RandomBits(ZZ& x, long l);
+ZZ RandomBits_ZZ(long l);
+void RandomBits(long& x, long l);
+long RandomBits_long(long l);
+// x = pseudo-random number in the range 0..2^l-1.
+// EXCEPTIONS: strong ES
+
+	 */
+	
+	public static BigInteger RandomBits_ZZ(int x)
+	{
+		BigInteger r;
+		do 
+		{
+		    r = new BigInteger((int)x, rnd);
+		} 
+		while (r.compareTo(BigInteger.valueOf(x)) >= 0);
+		return r;
+	}
+	
+	public static long overflow(long x, long y)
+	{
+		if (x >= y)
+		{
+			return 1;
+		}
+		else
+		{
+			return 0;
+		}
+	}
+	public static long overflowTwo (long x, long y)
+	{
+		if (x < y)
+		{
+			return 1;
+		}
+		else
+		{
+			return 0;
+		}
+	}
 }//END OF CLASS
