@@ -78,10 +78,11 @@ public class DGKOperations
 	    	 * 	something about finding the next prime from l+2.
 	    	 * 	So I will go with that...
 	    	 */
-	    	BigInteger zU  = NextPrime(BigInteger.valueOf(l+2));        
+	    	System.out.println("Stuck at Next Prime");
+	    	BigInteger zU  = NextPrime(BigInteger.valueOf(l+2));      
 	    	u = zU.longValue();
-	        vp = new BigInteger(t, certainty, rnd);//(512,40,random)
-	        vq = new BigInteger(t, certainty, rnd);//(512,40,random)
+	        vp = new BigInteger(t, certainty, rnd);//(160,40,random)
+	        vq = new BigInteger(t, certainty, rnd);//(160,40,random)
 	        vpvq = vp.multiply(vq);
 	        tmp = BigInteger.valueOf(u).multiply(vp);
 
@@ -115,24 +116,30 @@ public class DGKOperations
 	        
 	        //while(!ProbPrime(q,10));  
 	        // Thus we ensure that q is a prime, with p-1 dividable by prime numbers vq and u
+	       
+	        System.out.println("While Loop 1: initiational computations completed.");
 	        if(!POSMOD(rq,BigInteger.valueOf(u)).equals(BigInteger.ZERO) && !POSMOD(rp,BigInteger.valueOf(u)).equals(BigInteger.ZERO))
 	        {
 	            break;
 	        }
-	        
-	        System.out.println("p and q sucessfully generated!");
 	    }
 	    n = p.multiply(q);
 	    tmp = rp.multiply(rq).multiply(BigInteger.valueOf(u));
-	    
+	    System.out.println("n, p and q sucessfully generated!");
 
 	    while(true)
 	    {
 	        do
 	        {
 	            r = new BigInteger(n.bitLength(), rnd);
+	            System.out.println("bitlength of r: "+ r.bitLength());
+	            System.out.println("bitlength of n: " + n.bitLength());
+	            if (r.bitLength()==n.bitLength())
+	            {
+	            	System.out.println("escape the loop!");
+	            }
 	        } 
-	        while (!BigInteger.valueOf(r.bitLength()).equals(n));//Ensure it is n-bit Large number
+	        while (!( r.bitLength()==n.bitLength()) );//Ensure it is n-bit Large number
 	        
 	        h = r.modPow(tmp,n);
 	        
@@ -140,6 +147,7 @@ public class DGKOperations
 	        {
 	            continue;
 	        }
+	        
 	        if (h.modPow(vp,n).equals(BigInteger.ONE))
 	        {
 	            continue;
@@ -166,7 +174,7 @@ public class DGKOperations
 	        }
 
 	        if (h.gcd(n).equals(BigInteger.ONE))
-	        {
+	        {                                               
 	            break;
 	        }
 	    }
@@ -180,7 +188,7 @@ public class DGKOperations
 	    	{
 	    		r = new BigInteger(n.bitLength(), rnd);
 	    	} 
-	    	while (!BigInteger.valueOf(r.bitLength()).equals(n));
+	    	while (! (r.bitLength()==n.bitLength()) );
 		        
 	        g = r.modPow(rprq,n);
 
@@ -239,18 +247,22 @@ public class DGKOperations
 	        {
 	            continue; // Temporary fix
 	        }
+	        
 	        if ((POSMOD(g,p).modPow(BigInteger.valueOf(u),p) == BigInteger.ONE))
 	        {
 	            continue;// Temporary fix
 	        }
+	        
 	        if (POSMOD(g,q).modPow(vq,q) == BigInteger.ONE)
 	        {
 	            continue;// Temporary fix
 	        }
+	        
 	        if ((POSMOD(g,q).modPow(BigInteger.valueOf(u),q) == BigInteger.ONE))
 	        {
 	            continue;// Temporary fix
 	        }
+	        
 	        break;
 	    }
 	    
@@ -355,7 +367,6 @@ public class DGKOperations
 	    {
 	    	/*
 	    	 * 
-
 long bit(const ZZ& a, long k);
 long bit(long a, long k); 
 // returns bit k of |a|, position 0 being the low-order bit.
@@ -797,7 +808,12 @@ long bit(long a, long k);
 	{
 		//Find next Prime number after x
 		//Example if x =18, return 19 (closest prime)
-		
+
+		if(x.mod(new BigInteger("2")).equals(BigInteger.ZERO))
+		{
+			x=x.add(BigInteger.ONE);
+		}
+
 		BigInteger factor = new BigInteger("2");
 		while (true)
 		{
@@ -805,6 +821,7 @@ long bit(long a, long k);
 			{
 				return factor;
 			}
+			//System.out.print(x.toString());
 			factor= factor.add(new BigInteger("2"));
 		}
 	}
@@ -812,9 +829,10 @@ long bit(long a, long k);
 	public static boolean isPrime(BigInteger x)
 	{
 		BigInteger factor = new BigInteger("3");
+		
 		while (!factor.equals(x))
 		{
-			if (factor.mod(x).equals(BigInteger.ZERO))
+			if (x.mod(factor).equals(BigInteger.ZERO))
 			{
 				return false;
 			}
@@ -890,7 +908,6 @@ void RandomBits(long& x, long l);
 long RandomBits_long(long l);
 // x = pseudo-random number in the range 0..2^l-1.
 // EXCEPTIONS: strong ES
-
 	 */
 	
 	public static BigInteger RandomBits_ZZ(int x)
