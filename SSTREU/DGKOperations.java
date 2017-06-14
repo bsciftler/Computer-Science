@@ -99,7 +99,7 @@ public class DGKOperations
 	        do
 	        {
 	        	//rp can be a random number?
-	        	rp = new BigInteger(needed_bits, certainty, rnd);//(512,40,random)
+	        	rp = new BigInteger(needed_bits, rnd);//(512,40,random)
 		        rp = rp.setBit(needed_bits - 1 );
 		        /*
 	from NTL:
@@ -126,7 +126,7 @@ public class DGKOperations
 	        do
 	        {
 	        	// Same method for q than for p
-		        rq = new BigInteger(needed_bits, certainty, rnd);//(512,40,random)
+		        rq = new BigInteger(needed_bits, rnd);//(512,40,random)
 		        rq = rq.setBit(needed_bits -1);
 		        q = rq.multiply(tmp).add(BigInteger.ONE);
 		        System.out.println("q is not prime");
@@ -148,7 +148,7 @@ public class DGKOperations
 	    {
 	        do
 	        {
-	            r = new BigInteger(n.bitLength(), certainty, rnd);//(bit size,40,random)
+	            r = new BigInteger(n.bitLength(), rnd);//(bit size,40,random)
 	            //System.out.println("bitlength of r: "+ r.bitLength());
 	            //System.out.println("bitlength of n: " + n.bitLength());
 	            if (r.bitLength()==n.bitLength())
@@ -203,7 +203,7 @@ public class DGKOperations
 	    {
 	    	do
 	    	{
-	    		r = new BigInteger(n.bitLength(), certainty, rnd);//(bit length,40,random)
+	    		r = new BigInteger(n.bitLength(), rnd);//(bit length,40,random)
 	    	} 
 	    	while (! (r.bitLength()==n.bitLength()) );
 		        
@@ -370,7 +370,7 @@ public class DGKOperations
 	    }
 		do
     	{
-    		r = new BigInteger(2*t, certainty, rnd);//(512,40,random);
+    		r = new BigInteger(2*t, rnd);//(512,40,random);
     	} 
     	while (! (r.bitLength()==(2*t)) );
 	        
