@@ -89,13 +89,15 @@ public class DGKOperations
 	        System.out.println("Completed generating vp, vq");
 	        
 	        int needed_bits = k/2 - (tmp.bitLength());
+	        //if k = 1,024
+	        //needed is 512 - u-bit - vp bits
 
 	        // Generate rp until p is prime such that uvp divde p-1
 	        do
 	        {
 	        	//rp can be a random number?
 	        	rp = new BigInteger(needed_bits, certainty, rnd);//(512,40,random)
-		        rp.setBit(needed_bits -1);
+		        rp = rp.setBit(needed_bits - 1 );
 		        /*
 	from NTL:
 	long SetBit(ZZ& x, long p);
@@ -109,7 +111,7 @@ public class DGKOperations
 		        // vp | p - 1
 		        p = rp.multiply(tmp).add(BigInteger.ONE);
 	        }
-	        while(!AKSTest(p));
+	        while(!p.isProbablePrime(40));
 	        //while(!p.isProbablePrime(90));
 	        
 	        //Thus we ensure that p is a prime, with p-1 divisible by prime numbers vp and u
@@ -121,10 +123,10 @@ public class DGKOperations
 	        {
 	        	// Same method for q than for p
 		        rq = new BigInteger(needed_bits, certainty, rnd);//(512,40,random)
-		        rq.setBit(needed_bits -1);
+		        rq = rq.setBit(needed_bits -1);
 		        q = rq.multiply(tmp).add(BigInteger.ONE);	
 	        }
-	        while(!AKSTest(q));    
+	        while(!q.isProbablePrime(40));    
 	       //Thus we ensure that q is a prime, with p-1 divides the prime numbers vq and u
 	       
 	        System.out.println("While Loop 1: initiational computations completed.");
@@ -141,9 +143,9 @@ public class DGKOperations
 	    {
 	        do
 	        {
-	            r = new BigInteger(n.bitLength(), rnd);
-	            System.out.println("bitlength of r: "+ r.bitLength());
-	            System.out.println("bitlength of n: " + n.bitLength());
+	            r = new BigInteger(n.bitLength(), certainty, rnd);//(bit size,40,random)
+	            //System.out.println("bitlength of r: "+ r.bitLength());
+	            //System.out.println("bitlength of n: " + n.bitLength());
 	            if (r.bitLength()==n.bitLength())
 	            {
 	            	System.out.println("escape the loop!");
@@ -196,7 +198,7 @@ public class DGKOperations
 	    {
 	    	do
 	    	{
-	    		r = new BigInteger(n.bitLength(), rnd);
+	    		r = new BigInteger(n.bitLength(), certainty, rnd);//(bit length,40,random)
 	    	} 
 	    	while (! (r.bitLength()==n.bitLength()) );
 		        
@@ -363,11 +365,11 @@ public class DGKOperations
 	    }
 		do
     	{
-    		r = new BigInteger(2*t, rnd);
+    		r = new BigInteger(2*t, certainty, rnd);//(512,40,random);
     	} 
     	while (! (r.bitLength()==(2*t)) );
 	        
-	    r.setBit(t*2-1);
+	    r = r.setBit(t*2-1);
 	    BigInteger firstpart = pubKey.getGLUT().get(plaintext);
 	    BigInteger secondpart = BigInteger.ZERO;
 	    if (h.equals(BigInteger.ZERO))
@@ -557,7 +559,7 @@ long bit(long a, long k);
 	                           DGKAdd(pubKey, DGKAdd(pubKey,DGKMultiply(pubKey,encBetaTab[l-1-i],u-1),encrypt(pubKey, POSMOD(s + bit(alphaZZ, l-1-i), N) )), DGKMultiply(pubKey,d,alphaexp)));
 
 	        BigInteger rBlind = RandomBits_ZZ(pubKey.t * 2);
-	        rBlind.setBit(pubKey.t * 2 -1);
+	        rBlind = rBlind.setBit(pubKey.t * 2 -1);
 	        //TODO BLIND
 	        wProduct = DGKAdd(pubKey,wProduct,DGKMultiply(pubKey, W[l-1-i],3));
 
@@ -713,8 +715,15 @@ long bit(long a, long k);
 	public static void main (String args [])
 	{
 		int l=16, t=160, k=1024;
-		//DGKOperations FIU = new DGKOperations(l,t,k);
 		DGKOperations.GenerateKeys(l, t, k);
+		
+		//for (int i=0;i<h.size();i++)
+		//{
+			//System.out.println(h.get(i));
+			//System.out.println("Mods: " + h.get(i).mod(new BigInteger("5")));
+		//}
+		
+	
 //		
 //		String filelocation= "C:\\Users\\Andrew\\Desktop\\Practice.txt";
 //		
@@ -972,15 +981,15 @@ long RandomBits_long(long l);
 		//Using Binomial Theorem, I obtain the coefficients of all
 		//terms from the expansion (x-1)^p
 		ArrayList<BigInteger> coeff = BinomialTheorem(p);
-		/*
-		 * 	Peel off first and last term...
-		 */
-		coeff.remove(0);
-		coeff.remove(coeff.remove(coeff.size()-1));
+		
+		coeff.remove(0); //Remove first term
+		coeff.remove(coeff.remove(coeff.size()-1)); //Remove last term
 		
 		for (int i=0;i<coeff.size();i++)
 		{
-			if (!p.mod(coeff.get(i)).equals(BigInteger.ZERO))
+			//System.out.println(coeff.get(i));
+			//System.out.println(coeff.get(i).mod(p));
+			if (!coeff.get(i).mod(p).equals(BigInteger.ZERO))
 			{
 				return false;
 			}
@@ -988,7 +997,7 @@ long RandomBits_long(long l);
 		return true;
 	}
 	//AKS-Test, I can use binomial theorem
-	private static ArrayList<BigInteger> BinomialTheorem (BigInteger x)
+	public static ArrayList<BigInteger> BinomialTheorem (BigInteger x)
 	{
 		ArrayList<BigInteger> coeff = new ArrayList<BigInteger>();
 		/*
@@ -997,13 +1006,14 @@ long RandomBits_long(long l);
 		 * 	0	1	2	...	n
 		 */
 		BigInteger start = BigInteger.ZERO;
-		while (!start.equals(x))
+		while (! (start.equals(x.add(BigInteger.ONE))) )
 		{
 			coeff.add(nCr(x,start));
+			start = start.add(BigInteger.ONE);
 		}
 		return coeff;
 	}
-	private static BigInteger nCr (BigInteger n, BigInteger r)
+	public static BigInteger nCr (BigInteger n, BigInteger r)
 	{
 		BigInteger nCr=factorial(n);
 		nCr=nCr.divide(factorial(r));
@@ -1013,13 +1023,16 @@ long RandomBits_long(long l);
 		return nCr;
 	}
 	
-	private static BigInteger factorial(BigInteger x)
+	public static BigInteger factorial(BigInteger x)
 	{
-		if(x.equals(BigInteger.ONE))
+		BigInteger result = BigInteger.ONE;
+		BigInteger n = x;
+		while (!n.equals(BigInteger.ZERO))
 		{
-			return BigInteger.ONE;
+			result = result.multiply(n);
+			n= n.subtract(BigInteger.ONE);
 		}
-		return x.multiply(factorial(x.subtract(BigInteger.ONE)));
+		return result;
 	}
 	
 }//END OF CLASS
