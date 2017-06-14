@@ -79,8 +79,11 @@ public class DGKOperations
 	    	 * 	So I will go with that...
 	    	 */
 	    	//System.out.println("Stuck at Next Prime");
-	    	BigInteger zU  = NextPrime(BigInteger.valueOf(l+2));      
+	    	BigInteger Lplustwo = BigInteger.valueOf((long) l).add(new BigInteger("2"));
+	    	System.out.println(Lplustwo.toString());
+	    	BigInteger zU  = NextPrime(Lplustwo);      
 	    	u = zU.longValue();
+	    	System.out.println(u +" " +Lplustwo.toString());
 	        vp = new BigInteger(t, certainty, rnd);//(160,40,random)
 	        vq = new BigInteger(t, certainty, rnd);//(160,40,random)
 	        vpvq = vp.multiply(vq);
@@ -110,8 +113,9 @@ public class DGKOperations
 		        // u | p - 1
 		        // vp | p - 1
 		        p = rp.multiply(tmp).add(BigInteger.ONE);
+		        System.out.println("p is not prime");
 	        }
-	        while(!p.isProbablePrime(40));
+	        while(!p.isProbablePrime(certainty));
 	        //while(!p.isProbablePrime(90));
 	        
 	        //Thus we ensure that p is a prime, with p-1 divisible by prime numbers vp and u
@@ -124,17 +128,18 @@ public class DGKOperations
 	        	// Same method for q than for p
 		        rq = new BigInteger(needed_bits, certainty, rnd);//(512,40,random)
 		        rq = rq.setBit(needed_bits -1);
-		        q = rq.multiply(tmp).add(BigInteger.ONE);	
+		        q = rq.multiply(tmp).add(BigInteger.ONE);
+		        System.out.println("q is not prime");
 	        }
-	        while(!q.isProbablePrime(40));    
+	        while(!q.isProbablePrime(certainty));    
 	       //Thus we ensure that q is a prime, with p-1 divides the prime numbers vq and u
 	       
-	        System.out.println("While Loop 1: initiational computations completed.");
 	        if(!POSMOD(rq,BigInteger.valueOf(u)).equals(BigInteger.ZERO) && !POSMOD(rp,BigInteger.valueOf(u)).equals(BigInteger.ZERO))
 	        {
 	            break;//done!!
 	        }
 	    }
+	    System.out.println("While Loop 1: initiational computations completed.");
 	    n = p.multiply(q);
 	    tmp = rp.multiply(rq).multiply(BigInteger.valueOf(u));
 	    System.out.println("n, p and q sucessfully generated!");
@@ -204,73 +209,73 @@ public class DGKOperations
 		        
 	        g = r.modPow(rprq,n);
 
-	        if (g == BigInteger.ONE)
+	        if (g.equals(BigInteger.ONE))
 	        {
 	            continue;
 	        }
 
-	        if (g.gcd(n) != BigInteger.ONE)
+	        if (!g.gcd(n).equals(BigInteger.ONE))
 	        {
 	            continue;
 	        } // Then h can still be of order u, vp, vq , or a combination of them different that uvpvq
 
-	        if (g.modPow(BigInteger.valueOf(u),n) == BigInteger.ONE)
+	        if (g.modPow(BigInteger.valueOf(u),n).equals(BigInteger.ONE))
 	        {
 	            continue;
 	        }
-	        if (g.modPow(BigInteger.valueOf(u).multiply(BigInteger.valueOf(u)),n) == BigInteger.ONE)
+	        if (g.modPow(BigInteger.valueOf(u).multiply(BigInteger.valueOf(u)),n).equals(BigInteger.ONE))
 	        {
 	            continue;
 	        }
-	        if (g.modPow(BigInteger.valueOf(u).multiply(BigInteger.valueOf(u)).multiply(vp),n) == BigInteger.ONE)
+	        if (g.modPow(BigInteger.valueOf(u).multiply(BigInteger.valueOf(u)).multiply(vp),n).equals(BigInteger.ONE))
 	        {
 	            continue;
 	        }
-	        if (g.modPow(BigInteger.valueOf(u).multiply(BigInteger.valueOf(u)).multiply(vq),n) == BigInteger.ONE)
-	        {
-	            continue;
-	        }
-
-	        if (g.modPow(vp,n) == BigInteger.ONE)
+	        if (g.modPow(BigInteger.valueOf(u).multiply(BigInteger.valueOf(u)).multiply(vq),n).equals(BigInteger.ONE))
 	        {
 	            continue;
 	        }
 
-	        if (g.modPow(vq,n) == BigInteger.ONE)
+	        if (g.modPow(vp,n).equals(BigInteger.ONE))
 	        {
 	            continue;
 	        }
 
-	        if (g.modPow(BigInteger.valueOf(u).multiply(vq),n) == BigInteger.ONE)
+	        if (g.modPow(vq,n).equals(BigInteger.ONE))
 	        {
 	            continue;
 	        }
 
-	        if (g.modPow(BigInteger.valueOf(u).multiply(vp),n) == BigInteger.ONE)
+	        if (g.modPow(BigInteger.valueOf(u).multiply(vq),n).equals(BigInteger.ONE))
 	        {
 	            continue;
 	        }
 
-	        if (g.modPow(vpvq,n) == BigInteger.ONE)
+	        if (g.modPow(BigInteger.valueOf(u).multiply(vp),n).equals(BigInteger.ONE))
 	        {
 	            continue;
 	        }
-	        if (POSMOD(g,p).modPow(vp,p) == BigInteger.ONE)
+
+	        if (g.modPow(vpvq,n).equals(BigInteger.ONE))
+	        {
+	            continue;
+	        }
+	        if (POSMOD(g,p).modPow(vp,p).equals(BigInteger.ONE))
 	        {
 	            continue; // Temporary fix
 	        }
 	        
-	        if ((POSMOD(g,p).modPow(BigInteger.valueOf(u),p) == BigInteger.ONE))
+	        if ((POSMOD(g,p).modPow(BigInteger.valueOf(u),p).equals(BigInteger.ONE)))
 	        {
 	            continue;// Temporary fix
 	        }
 	        
-	        if (POSMOD(g,q).modPow(vq,q) == BigInteger.ONE)
+	        if (POSMOD(g,q).modPow(vq,q).equals(BigInteger.ONE))
 	        {
 	            continue;// Temporary fix
 	        }
 	        
-	        if ((POSMOD(g,q).modPow(BigInteger.valueOf(u),q) == BigInteger.ONE))
+	        if ((POSMOD(g,q).modPow(BigInteger.valueOf(u),q).equals(BigInteger.ONE)))
 	        {
 	            continue;// Temporary fix
 	            //((g%q)+q)%q^{u}(mod q) = 1;
@@ -332,13 +337,13 @@ public class DGKOperations
 			pw.println("N: " + n);
 			pw.println("G: " + g);
 			pw.println("H: " + h);
-			pw.println("U " + u);
+			pw.println("U: " + u);
 			pw.println("Private Key");
-			pw.println("p "+p);
-			pw.println("q "+q);
-			pw.println("vp " + vp);
-			pw.println("vq " + vq);
-			pw.println("u " + u);
+			pw.println("p: "+p);
+			pw.println("q: "+q);
+			pw.println("vp: " + vp);
+			pw.println("vq: " + vq);
+			pw.println("U: " + u);
 			pw.flush();
 			pw.close();
 	    }
@@ -837,15 +842,14 @@ long bit(long a, long k);
 			x=x.add(BigInteger.ONE);
 		}
 
-		BigInteger factor = new BigInteger("2");
 		while (true)
 		{
 			if (isPrime(x))
 			{
-				return factor;
+				return x;
 			}
 			//System.out.print(x.toString());
-			factor= factor.add(new BigInteger("2"));
+			x = x.add(new BigInteger("2"));
 		}
 	}
 	
