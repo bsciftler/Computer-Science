@@ -1,5 +1,6 @@
 import java.io.*;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.StringTokenizer;
 
@@ -74,17 +75,28 @@ public class Paillier
         BigInteger ciphertext = ciphertext1.multiply(ciphertext2).mod(pk.modulous);
         return ciphertext;
     }
+    
+    public static BigInteger subtract(BigInteger ciphertext1, BigInteger ciphertext2, PublicKey pk)
+    {
+    	ciphertext2= Paillier.multiply(ciphertext2, -1, pk);
+    	BigInteger ciphertext = ciphertext1.multiply(ciphertext2).mod(pk.modulous);
+    	return ciphertext;
+    }
 
     // On input an encrypted value x and a scalar c, returns an encryption of
     // cx.
     public static BigInteger multiply(BigInteger ciphertext1, BigInteger scalar, PublicKey pk)
     {
+    	//CITATION: https://crypto.stackexchange.com/questions/17862/paillier-can-add-and-multiply-why-is-it-only-partially-homomorphic
+    	//NOTE: scalar is NOT encrypted
         BigInteger ciphertext = ciphertext1.modPow(scalar, pk.modulous);
         return ciphertext;
     }
 
     public static BigInteger multiply(BigInteger ciphertext1, int scalar, PublicKey pk)
     {
+    	//NOTE: SCALAR IS NOT ECRYPTED!
+    	//CITATION: https://crypto.stackexchange.com/questions/17862/paillier-can-add-and-multiply-why-is-it-only-partially-homomorphic
         return multiply(ciphertext1, BigInteger.valueOf(scalar), pk);
     }
 
@@ -214,6 +226,31 @@ public class Paillier
     /*
     is z(mod 2^L) = Z prime * [Lambda]^(2l)
      */
+    public static BigInteger computeDistance(ArrayList<BigInteger> fingerPrint, ArrayList<BigInteger> incoming, PublicKey pk)
+    {
+    	/*
+    	 * 	This computes distance for two vectors
+    	 */
+    	/*
+    	 *  let y be new input...
+    	 *  compare it with distance to x1, x2, x3, etc.
+    	 */
+    	BigInteger temp=null;
+    	BigInteger distance=null;
+    	if (fingerPrint.size()!=incoming.size())
+    	{
+    		System.err.println("VECTORS NOT SAME SIZE!!");
+    	}
+    	
+    	for (int i=0;i<fingerPrint.size();i++)
+    	{
+    		temp = Paillier.subtract(fingerPrint.get(i),incoming.get(i),pk);
+    		temp=temp.multiply(temp);
+    		distance= distance.add(temp);
+    	}
+    	return distance;
+    }
+    
     public static void main (String [] args)
     {
     	/*
@@ -327,30 +364,19 @@ PALLIER IS ON LOCALIZED EUCLIDEAN DETAIL but commented out
     	}
     	 */
     	
-    	BigInteger enc = Paillier.encrypt(new BigInteger("-100"), pk);//Positive
-    	BigInteger enc2 = Paillier.encrypt(new BigInteger("1"), pk);//Positive
+    	BigInteger enc = Paillier.encrypt(new BigInteger("100"), pk);//Positive
+    	BigInteger enc2 = Paillier.encrypt(new BigInteger("100"), pk);//Positive
+    	enc2=Paillier.multiply(enc2, -1, pk);
     	BigInteger answer = Paillier.add(enc, enc2, pk);
     
     	//TEST ANSWER SIGNUM
     	
     	//answer = Paillier.add(answer, encryptedN, pk);
     	
-    	if (answer.compareTo(Paillier.encrypt(BigInteger.ZERO, pk))==1)
-    	{
-    		System.out.println("ENCRYPTED ANSWER VALUE IS POSITIVE");
-    	}
-    	else if (answer.compareTo(Paillier.encrypt(BigInteger.ZERO, pk))==0)
-    	{
-    		System.out.println("BOTH VALUES ARE EQUAL");
-    	}
-    	else
-    	{
-    		System.out.println("ENCRYPTED DIFFERENCE IS NEGATIVE");
-    	}
     /*
      * 	CompareTo enc(0), sometimes correct, sometimes NOT...	
      */
-    	System.out.println("Paillier answer: " + Paillier.decrypt(answer, sk).subtract(pk.n));
+    	System.out.println("Paillier answer: " + Paillier.decrypt(answer, sk));
 
     }//END OF MAIN
 }//END OF CLASS

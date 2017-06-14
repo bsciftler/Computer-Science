@@ -1,3 +1,11 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,6 +60,8 @@ public class DGKOperations
 	    {
 	        throw new IllegalArgumentException("DGK Keygen Invalid parameters: t must be divisible by 2 ");
 	    }
+	    System.out.println("No Exceptions in data found");
+	    
 	    BigInteger p, rp;
 	    BigInteger q, rq;
 	    BigInteger g, h ;
@@ -75,6 +85,8 @@ public class DGKOperations
 	        vpvq = vp.multiply(vq);
 	        tmp = BigInteger.valueOf(u).multiply(vp);
 
+	        System.out.println("Completed generating vp, vq");
+	        
 	        int needed_bits = k/2 - (tmp.bitLength());
 
 	        // Generate rp until p is prime such that uvp divde p-1
@@ -107,6 +119,8 @@ public class DGKOperations
 	        {
 	            break;
 	        }
+	        
+	        System.out.println("p and q sucessfully generated!");
 	    }
 	    n = p.multiply(q);
 	    tmp = rp.multiply(rq).multiply(BigInteger.valueOf(u));
@@ -158,7 +172,8 @@ public class DGKOperations
 	    }
 
 	    BigInteger rprq = rp.multiply(rq);
-
+	    System.out.println("h and g generated");
+	    
 	    while(true)
 	    {
 	    	do
@@ -239,6 +254,7 @@ public class DGKOperations
 	        break;
 	    }
 	    
+	    System.out.println("Final variable tests completed");
 	    /*
 	        ZZ gvp = PowerMod(POSMOD(g,n),vp*vq,n);
 	        for (int i=0; i<u; ++i){
@@ -246,6 +262,8 @@ public class DGKOperations
 	            lut[decipher] = i;
 	        }
 	    */
+	    System.out.println("Generating hashmap");
+	    
 	    HashMap<BigInteger, Long> lut = new HashMap <BigInteger, Long>((int)u);
 	    
 	    BigInteger gvp = POSMOD(g,p).modPow(vp,p);
@@ -272,9 +290,37 @@ public class DGKOperations
 	        //gLUT[i] = out;
 	        gLUT.put((long)i,out);
 	    }
-	    
+	    System.out.println("Printing values!!");
 	    pubkey =  new DGKPublicKey(n,g,h, u, gLUT,hLUT,l,t,k);
 	    privkey = new DGKPrivateKey(p,q,vp,vq,lut,u);
+	    
+	    try
+	    {
+	    	String filelocation= "C:\\Users\\Andrew\\Desktop\\DGKKeys.txt";
+		
+			PrintWriter pw = new PrintWriter(
+							 new BufferedWriter(
+							 new OutputStreamWriter(
+							 new FileOutputStream(filelocation))));
+			pw.print("Public Key");
+			pw.println("N: " + n);
+			pw.println("G: " + g);
+			pw.println("H: " + h);
+			pw.println("U " + u);
+			pw.println("Private Key");
+			pw.println("p "+p);
+			pw.println("q "+q);
+			pw.println("vp " + vp);
+			pw.println("vq " + vq);
+			pw.println("u " + u);
+			pw.flush();
+			pw.close();
+	    }
+	    catch (IOException ioe)
+	    {
+	    	System.out.println("Failure at printing values");
+	    }
+	    
 	}//End of Generate Key Method
 
 	public static BigInteger encrypt(DGKPublicKey pubKey, long plaintext)
@@ -647,10 +693,50 @@ long bit(long a, long k);
 	{
 		int l=16, t=160, k=1024;
 		DGKOperations FIU = new DGKOperations(l,t,k);
+		String filelocation= "C:\\Users\\Andrew\\Desktop\\Practice.txt";
 		/*
 		 * 	Test 1:
 		 * 	Successfully encrypt and decrypt all numbers from -100 to 100
 		 */
+		long [] Control = null;
+		String [] inControl= null;
+		ArrayList<Long> Experiment = new ArrayList<Long>();
+		try
+		{
+			BufferedReader br = new BufferedReader(
+					new InputStreamReader(
+					new FileInputStream(filelocation)));
+			String line = br.readLine();
+			inControl = line.split(";");
+			Control = new long [inControl.length];
+			for (int i=0;i<inControl.length;i++)
+			{
+				Control[i]=(long)Integer.parseInt(inControl[i]);
+			}
+		}
+		catch (IOException ioe)
+		{
+			System.err.println("TRIAL 1 FAILED");
+		}
+		//Now Encrypt and Decrpyt the data
+		
+		String toInt;
+		for (int i=0;i<100;i++)
+		{
+			toInt = inControl[i];
+			BigInteger temp = FIU.encrypt(pubkey, (long)Integer.parseInt(toInt));
+			Experiment.add(FIU.decrypt(pubkey, privkey, temp));
+		}
+		//Test it
+		for (int i=0;i<100;i++)
+		{
+			if (Experiment.get(i)!=Control[i])
+			{
+				System.out.println("FAILURE AT " + i);
+				return;
+			}
+		}
+		
 		
 		/*
 		 * 	Test 2: Successfully add 2 to all numbers and get the correct answer
