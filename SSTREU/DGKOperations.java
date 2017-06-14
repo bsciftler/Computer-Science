@@ -78,7 +78,7 @@ public class DGKOperations
 	    	 * 	something about finding the next prime from l+2.
 	    	 * 	So I will go with that...
 	    	 */
-	    	System.out.println("Stuck at Next Prime");
+	    	//System.out.println("Stuck at Next Prime");
 	    	BigInteger zU  = NextPrime(BigInteger.valueOf(l+2));      
 	    	u = zU.longValue();
 	        vp = new BigInteger(t, certainty, rnd);//(160,40,random)
@@ -91,36 +91,46 @@ public class DGKOperations
 	        int needed_bits = k/2 - (tmp.bitLength());
 
 	        // Generate rp until p is prime such that uvp divde p-1
-	       
-	        rp = new BigInteger(needed_bits, certainty, rnd);//(512,40,random)
-	        rp.setBit(needed_bits -1);
-	            /*
-	             * long SetBit(ZZ& x, long p);
-// returns original value of p-th bit of |a|, and replaces p-th bit of
-// a by 1 if it was zero; low order bit is bit 0; error if p < 0;
-// the sign of x is maintained
-	             */
-	            
-	        p = rp.multiply(tmp).add(BigInteger.ONE);
+	        do
+	        {
+	        	//rp can be a random number?
+	        	rp = new BigInteger(needed_bits, certainty, rnd);//(512,40,random)
+		        rp.setBit(needed_bits -1);
+		        /*
+	from NTL:
+	long SetBit(ZZ& x, long p);
+	returns original value of p-th bit of |a|, and replaces p-th bit of
+	a by 1 if it was zero; low order bit is bit 0; error if p < 0;
+	the sign of x is maintained
+		         */
+		        
+		        // p = rp * u * vp + 1
+		        // u | p - 1
+		        // vp | p - 1
+		        p = rp.multiply(tmp).add(BigInteger.ONE);
+	        }
+	        while(!AKSTest(p));
+	        //while(!p.isProbablePrime(90));
 	        
-	        //while(!ProbPrime(p,10));  
-	        // Thus we ensure that p is a prime, with p-1 dividable by prime numbers vp and u
-
+	        //Thus we ensure that p is a prime, with p-1 divisible by prime numbers vp and u
+	        //I can implement AKS for 100% certainty if need be
+	        
 	        tmp = BigInteger.valueOf(u).multiply(vq);
 	        needed_bits = k/2 - (tmp.bitLength());
-
-	// Same method for q than for p
-	        rq = new BigInteger(needed_bits, certainty, rnd);//(512,40,random)
-	        rq.setBit(needed_bits -1);
-	        q = rq.multiply(tmp).add(BigInteger.ONE);
-	        
-	        //while(!ProbPrime(q,10));  
-	        // Thus we ensure that q is a prime, with p-1 dividable by prime numbers vq and u
+	        do
+	        {
+	        	// Same method for q than for p
+		        rq = new BigInteger(needed_bits, certainty, rnd);//(512,40,random)
+		        rq.setBit(needed_bits -1);
+		        q = rq.multiply(tmp).add(BigInteger.ONE);	
+	        }
+	        while(!AKSTest(q));    
+	       //Thus we ensure that q is a prime, with p-1 divides the prime numbers vq and u
 	       
 	        System.out.println("While Loop 1: initiational computations completed.");
 	        if(!POSMOD(rq,BigInteger.valueOf(u)).equals(BigInteger.ZERO) && !POSMOD(rp,BigInteger.valueOf(u)).equals(BigInteger.ZERO))
 	        {
-	            break;
+	            break;//done!!
 	        }
 	    }
 	    n = p.multiply(q);
@@ -200,7 +210,7 @@ public class DGKOperations
 	        if (g.gcd(n) != BigInteger.ONE)
 	        {
 	            continue;
-	        } // Then h can still be of order u,vp, vq , or a combination of them different that uvpvq
+	        } // Then h can still be of order u, vp, vq , or a combination of them different that uvpvq
 
 	        if (g.modPow(BigInteger.valueOf(u),n) == BigInteger.ONE)
 	        {
@@ -261,6 +271,8 @@ public class DGKOperations
 	        if ((POSMOD(g,q).modPow(BigInteger.valueOf(u),q) == BigInteger.ONE))
 	        {
 	            continue;// Temporary fix
+	            //((g%q)+q)%q^{u}(mod q) = 1;
+	            //Test if g^{u} = 1 (mod q)
 	        }
 	        
 	        break;
@@ -353,7 +365,7 @@ public class DGKOperations
     	{
     		r = new BigInteger(2*t, rnd);
     	} 
-    	while (!BigInteger.valueOf(r.bitLength()).equals(2*t));
+    	while (! (r.bitLength()==(2*t)) );
 	        
 	    r.setBit(t*2-1);
 	    BigInteger firstpart = pubKey.getGLUT().get(plaintext);
@@ -592,9 +604,7 @@ long bit(long a, long k);
 	    		DGKAdd(pubKey,divZ,
 	    		DGKMultiply(pubKey,DGKAdd(pubKey, encrypt(pubKey,r/powL),betaInfAlpha), u-1))
 	             , overflow);
-	    long lastpush = 0;
-
-	    lastpush = decrypt(pubKey,privKey,d) *
+	    long lastpush = decrypt(pubKey,privKey,d) *
 	    (
 	    	(1 -decrypt(pubKey,privKey,betaInfAlpha))*(1 - (overflowTwo(alpha,POSMOD(N,powL))))* (overflow(beta,(powL - POSMOD(N,powL))))
 	    	+(decrypt(pubKey,privKey,betaInfAlpha))*(0 - (overflowTwo(alpha,POSMOD(N,powL)))* (1-(overflow(beta,(powL - POSMOD(N,powL))))
@@ -703,63 +713,67 @@ long bit(long a, long k);
 	public static void main (String args [])
 	{
 		int l=16, t=160, k=1024;
-		DGKOperations FIU = new DGKOperations(l,t,k);
-		String filelocation= "C:\\Users\\Andrew\\Desktop\\Practice.txt";
-		/*
-		 * 	Test 1:
-		 * 	Successfully encrypt and decrypt all numbers from -100 to 100
-		 */
-		long [] Control = null;
-		String [] inControl= null;
-		ArrayList<Long> Experiment = new ArrayList<Long>();
-		try
-		{
-			BufferedReader br = new BufferedReader(
-					new InputStreamReader(
-					new FileInputStream(filelocation)));
-			String line = br.readLine();
-			inControl = line.split(";");
-			Control = new long [inControl.length];
-			for (int i=0;i<inControl.length;i++)
-			{
-				Control[i]=(long)Integer.parseInt(inControl[i]);
-			}
-		}
-		catch (IOException ioe)
-		{
-			System.err.println("TRIAL 1 FAILED");
-		}
-		//Now Encrypt and Decrpyt the data
-		
-		String toInt;
-		for (int i=0;i<100;i++)
-		{
-			toInt = inControl[i];
-			BigInteger temp = FIU.encrypt(pubkey, (long)Integer.parseInt(toInt));
-			Experiment.add(FIU.decrypt(pubkey, privkey, temp));
-		}
-		//Test it
-		for (int i=0;i<100;i++)
-		{
-			if (Experiment.get(i)!=Control[i])
-			{
-				System.out.println("FAILURE AT " + i);
-				return;
-			}
-		}
-		
-		
-		/*
-		 * 	Test 2: Successfully add 2 to all numbers and get the correct answer
-		 */
-		
-		/*
-		 * 	Test 3: Successfully multiply 3 to all numbers and get the correct answer
-		 */
-		
-		/*
-		 * 	Test 4: Actually compare it!
-		 */
+		//DGKOperations FIU = new DGKOperations(l,t,k);
+		DGKOperations.GenerateKeys(l, t, k);
+//		
+//		String filelocation= "C:\\Users\\Andrew\\Desktop\\Practice.txt";
+//		
+//		/*
+//		 * 	Test 1:
+//		 * 	Successfully encrypt and decrypt all numbers from -100 to 100
+//		 */
+//		long [] Control = null;
+//		String [] inControl= null;
+//		ArrayList<Long> Experiment = new ArrayList<Long>();
+//		try
+//		{
+//			BufferedReader br = new BufferedReader(
+//					new InputStreamReader(
+//					new FileInputStream(filelocation)));
+//			String line = br.readLine();
+//			inControl = line.split(";");
+//			Control = new long [inControl.length];
+//			for (int i=0;i<inControl.length;i++)
+//			{
+//				Control[i]=(long)Integer.parseInt(inControl[i]);
+//			}
+//			br.close();
+//		}
+//		catch (IOException ioe)
+//		{
+//			System.err.println("TRIAL 1 FAILED");
+//		}
+//		//Now Encrypt and Decrypt the data
+//		
+//		String toInt;
+//		for (int i=0;i<100;i++)
+//		{
+//			toInt = inControl[i];
+//			BigInteger temp = DGKOperations.encrypt(pubkey, (long)Integer.parseInt(toInt));
+//			Experiment.add(DGKOperations.decrypt(pubkey, privkey, temp));
+//		}
+//		//Test it
+//		for (int i=0;i<100;i++)
+//		{
+//			if (Experiment.get(i)!=Control[i])
+//			{
+//				System.out.println("FAILURE AT " + i);
+//				return;
+//			}
+//		}
+//		
+//		
+//		/*
+//		 * 	Test 2: Successfully add 2 to all numbers and get the correct answer
+//		 */
+//		
+//		/*
+//		 * 	Test 3: Successfully multiply 3 to all numbers and get the correct answer
+//		 */
+//		
+//		/*
+//		 * 	Test 4: Actually compare it!
+//		 */
 	}
 	
 /*
@@ -943,4 +957,69 @@ long RandomBits_long(long l);
 			return 0;
 		}
 	}
+	
+	/*
+	 * 	Polynomial running time 100% fool proof prime test.
+	 * 	Paper is from 2002.
+	 */
+	public static boolean AKSTest(BigInteger p)
+	{
+		//(x-1)^p - (x^p - 1)
+		//Test if p divides all the coefficients
+		//excluding the first and last term of (x-1)^p
+		//If it can divide all of them then p is a prime
+	
+		//Using Binomial Theorem, I obtain the coefficients of all
+		//terms from the expansion (x-1)^p
+		ArrayList<BigInteger> coeff = BinomialTheorem(p);
+		/*
+		 * 	Peel off first and last term...
+		 */
+		coeff.remove(0);
+		coeff.remove(coeff.remove(coeff.size()-1));
+		
+		for (int i=0;i<coeff.size();i++)
+		{
+			if (!p.mod(coeff.get(i)).equals(BigInteger.ZERO))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+	//AKS-Test, I can use binomial theorem
+	private static ArrayList<BigInteger> BinomialTheorem (BigInteger x)
+	{
+		ArrayList<BigInteger> coeff = new ArrayList<BigInteger>();
+		/*
+		 * 	Binomial Theorem: Choose
+		 * 	n	n	n	...	n
+		 * 	0	1	2	...	n
+		 */
+		BigInteger start = BigInteger.ZERO;
+		while (!start.equals(x))
+		{
+			coeff.add(nCr(x,start));
+		}
+		return coeff;
+	}
+	private static BigInteger nCr (BigInteger n, BigInteger r)
+	{
+		BigInteger nCr=factorial(n);
+		nCr=nCr.divide(factorial(r));
+		nCr=nCr.divide(factorial(n.subtract(r)));
+		//nCr = n!/r!(n-r)!
+		//or (n * n-1 * ... r+1)/(n-r)!
+		return nCr;
+	}
+	
+	private static BigInteger factorial(BigInteger x)
+	{
+		if(x.equals(BigInteger.ONE))
+		{
+			return BigInteger.ONE;
+		}
+		return x.multiply(factorial(x.subtract(BigInteger.ONE)));
+	}
+	
 }//END OF CLASS
