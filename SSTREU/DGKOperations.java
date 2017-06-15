@@ -27,7 +27,7 @@ import java.util.Random;
  */
 public class DGKOperations
 {
-	private static DGKPublicKey pubkey;
+	private static DGKPublicKey pubKey;
 	private static DGKPrivateKey privkey;
 	private static Random rnd = new Random();
 	private static int certainty = 40;
@@ -37,6 +37,7 @@ public class DGKOperations
 	{
 		GenerateKeys(l,t,k);
 	}
+	
 	
 	public static void GenerateKeys(int l, int t, int k)
 	{
@@ -322,9 +323,10 @@ public class DGKOperations
 	        gLUT.put((long)i,out);
 	    }
 	    System.out.println("Printing values!!");
-	    pubkey =  new DGKPublicKey(n,g,h, u, gLUT,hLUT,l,t,k);
-	    privkey = new DGKPrivateKey(p,q,vp,vq,lut,u);
 	    
+	    pubKey =  new DGKPublicKey(n,g,h, u, gLUT,hLUT,l,t,k);
+	    privkey = new DGKPrivateKey(p,q,vp,vq,lut,u);
+
 	    try
 	    {
 	    	String filelocation= "C:\\Users\\Andrew\\Desktop\\DGKKeys.txt";
@@ -351,9 +353,19 @@ public class DGKOperations
 	    {
 	    	System.out.println("Failure at printing values");
 	    }
-	    
-	}//End of Generate Key Method
 
+	}//End of Generate Key Method
+	
+	public DGKPublicKey getPublicKey()
+	{
+		return pubKey;
+	}
+	
+	public DGKPrivateKey getPrivateKey()
+	{
+		return privkey;
+	}
+	
 	public static BigInteger encrypt(DGKPublicKey pubKey, long plaintext)
 	{
 	    int t = pubKey.t;
@@ -361,10 +373,10 @@ public class DGKOperations
 	    BigInteger h = pubKey.h;
 	    BigInteger u = pubKey.bigU;
 	    int U=u.intValue();
-	    //Through error is plaintext not in Zu
+	    //Through error is plain text not in Zu
 	    BigInteger ciphertext,r;
 
-	    if (0 > plaintext || plaintext >= U )
+	    if (plaintext < 0 || plaintext >= U )
 	    {
 	        throw new IllegalArgumentException("Encryption Invalid Parameter : the plaintext is not in Zu");
 	    }
@@ -373,8 +385,8 @@ public class DGKOperations
     		r = new BigInteger(2*t, rnd);//(512,40,random);
     	} 
     	while (! (r.bitLength()==(2*t)) );
-	        
 	    r = r.setBit(t*2-1);
+	    
 	    BigInteger firstpart = pubKey.getGLUT().get(plaintext);
 	    BigInteger secondpart = BigInteger.ZERO;
 	    if (h.equals(BigInteger.ZERO))
@@ -398,8 +410,15 @@ long bit(long a, long k);
 	    }
 
 	    //secondpart = h.modPow(r,n);
-
+	    
 	    ciphertext = POSMOD(firstpart.multiply(secondpart), n);
+	    
+	    //PREVENT ERRORS AT ENCRYPTION!
+	    while ( (isGreaterthan(ciphertext,n)) )
+	    {
+	    	System.out.println("Shrink cipher!");
+	    	ciphertext = ciphertext.mod(n);
+	    }
 	    return ciphertext;
 	}
 	
@@ -408,9 +427,13 @@ long bit(long a, long k);
 	    BigInteger vp = privKey.GetVP();
 	    BigInteger p = privKey.GetP();
 	    BigInteger n = pubKey.n;
-	    long u = pubKey.u;
+	    //long u = pubKey.u;
 	
-	    if (ciphertext.signum()==-1 || (isGreaterthan(ciphertext,n)))
+	    if (ciphertext.signum()==-1)
+	    {
+	    	throw new IllegalArgumentException("Decryption Invalid Parameter : the ciphertext is not in Zn");
+	    }
+	    if((isGreaterthan(ciphertext,n)))
 	    {
 	    	throw new IllegalArgumentException("Decryption Invalid Parameter : the ciphertext is not in Zn");
 	    }
@@ -422,7 +445,7 @@ long bit(long a, long k);
 	
 	public static BigInteger DGKAdd(DGKPublicKey pubKey, BigInteger a, BigInteger b)
 	{
-	    BigInteger n= DGKPublicKey.n;
+	    BigInteger n= pubKey.n;
 	    if (a.signum()==-1 || (isLessthanorEqualto(n,a))|| b.signum()==-1 || isLessthanorEqualto(n,b))
 	    {
 	        throw new IllegalArgumentException("DGKAdd Invalid Parameter : at least one of the ciphertext is not in Zn");
@@ -435,8 +458,8 @@ long bit(long a, long k);
 
 	public static BigInteger DGKMultiply(DGKPublicKey pubKey, BigInteger cipher, long plaintext)
 	{
-	    BigInteger n = DGKPublicKey.n;
-	    long u = DGKPublicKey.u;
+	    BigInteger n = pubKey.getN();
+	    long u = pubKey.getU();
 	    if (cipher.signum()==-1 || (isLessthanorEqualto(n,cipher)) )
 	    {
 	    	 throw new IllegalArgumentException("DGKMultiply Invalid Parameter :  the ciphertext is not in Zn");
@@ -452,9 +475,9 @@ long bit(long a, long k);
  
 	public static HashMap<Long, BigInteger> generateLUT(DGKPublicKey pubKey, DGKPrivateKey privKey)
 	{
-    	BigInteger n = pubKey.n;
+    	//BigInteger n = pubKey.getN();
     	BigInteger g = pubKey.g;
-    	BigInteger h = pubKey.h;
+    	//BigInteger h = pubKey.h;
     	BigInteger u = pubKey.bigU;
     	BigInteger p = privKey.GetP();
     	BigInteger vp = privKey.GetVP() ;
@@ -637,11 +660,11 @@ long bit(long a, long k);
 	    long by = RandomBnd(u).longValue();
 	    long p = (RandomBnd(u-1).add(BigInteger.ONE)).longValue();
 
-	    long secrets[]= {ca, cm, bx, by,p};
+	    //long secrets[]= {ca, cm, bx, by,p};
 	    BigInteger caEncrypted = encrypt(pubKey, ca);
 	    BigInteger bxEncrypted = encrypt(pubKey, bx);
 	    BigInteger byEncrypted = encrypt(pubKey, by);
-	    BigInteger pEncrypted  = encrypt(pubKey, p);
+	    //BigInteger pEncrypted  = encrypt(pubKey, p);
 
 	    BigInteger xBlinded  = DGKAdd(pubKey, x, bxEncrypted);
 	    BigInteger yBlinded  = DGKAdd(pubKey, y, byEncrypted);
@@ -717,79 +740,7 @@ long bit(long a, long k);
 	/*
 	 *  MAIN METHOD TO TEST 
 	 */
-	public static void main (String args [])
-	{
-		int l=16, t=160, k=1024;
-		DGKOperations.GenerateKeys(l, t, k);
-		
-		//for (int i=0;i<h.size();i++)
-		//{
-			//System.out.println(h.get(i));
-			//System.out.println("Mods: " + h.get(i).mod(new BigInteger("5")));
-		//}
-		
-	
-//		
-//		String filelocation= "C:\\Users\\Andrew\\Desktop\\Practice.txt";
-//		
-//		/*
-//		 * 	Test 1:
-//		 * 	Successfully encrypt and decrypt all numbers from -100 to 100
-//		 */
-//		long [] Control = null;
-//		String [] inControl= null;
-//		ArrayList<Long> Experiment = new ArrayList<Long>();
-//		try
-//		{
-//			BufferedReader br = new BufferedReader(
-//					new InputStreamReader(
-//					new FileInputStream(filelocation)));
-//			String line = br.readLine();
-//			inControl = line.split(";");
-//			Control = new long [inControl.length];
-//			for (int i=0;i<inControl.length;i++)
-//			{
-//				Control[i]=(long)Integer.parseInt(inControl[i]);
-//			}
-//			br.close();
-//		}
-//		catch (IOException ioe)
-//		{
-//			System.err.println("TRIAL 1 FAILED");
-//		}
-//		//Now Encrypt and Decrypt the data
-//		
-//		String toInt;
-//		for (int i=0;i<100;i++)
-//		{
-//			toInt = inControl[i];
-//			BigInteger temp = DGKOperations.encrypt(pubkey, (long)Integer.parseInt(toInt));
-//			Experiment.add(DGKOperations.decrypt(pubkey, privkey, temp));
-//		}
-//		//Test it
-//		for (int i=0;i<100;i++)
-//		{
-//			if (Experiment.get(i)!=Control[i])
-//			{
-//				System.out.println("FAILURE AT " + i);
-//				return;
-//			}
-//		}
-//		
-//		
-//		/*
-//		 * 	Test 2: Successfully add 2 to all numbers and get the correct answer
-//		 */
-//		
-//		/*
-//		 * 	Test 3: Successfully multiply 3 to all numbers and get the correct answer
-//		 */
-//		
-//		/*
-//		 * 	Test 4: Actually compare it!
-//		 */
-	}
-	
+
 /*
  * 	COMPUTATIONAL METHODS USED	
  */
@@ -1038,5 +989,76 @@ long RandomBits_long(long l);
 		}
 		return result;
 	}
+	
+	public static void main (String args [])
+	{
+		int l=16, t=160, k=1024;
+		DGKOperations FIU = new DGKOperations(l,t,k);
+		//Get keys
+		DGKPublicKey pubKey = FIU.getPublicKey();
+		DGKPrivateKey privKey = FIU.getPrivateKey();
+		
+		String filelocation= "C:\\Users\\Andrew\\Desktop\\Practice.txt";
+		
+		/*
+		 * 	Test 1:
+		 * 	Successfully encrypt and decrypt all numbers from -100 to 100
+		 */
+		long [] Control = null;
+		String [] inControl= null;
+		ArrayList<Long> Experiment = new ArrayList<Long>();
+		try
+		{
+			BufferedReader br = new BufferedReader(
+					new InputStreamReader(
+					new FileInputStream(filelocation)));
+			String line = br.readLine();
+			inControl = line.split(";");
+			Control = new long [inControl.length];
+			for (int i=0;i<inControl.length;i++)
+			{
+				Control[i]=(long)Integer.parseInt(inControl[i]);
+			}
+			br.close();
+		}
+		catch (IOException ioe)
+		{
+			System.err.println("TRIAL 1 FAILED");
+		}
+		//Now Encrypt and compare the data
+		
+		String toInt;
+		for (int i=101;i<118;i++)
+		{
+			toInt = inControl[i];
+			System.out.println(toInt);
+			BigInteger temp = DGKOperations.encrypt(pubKey, (long)Integer.parseInt(toInt));
+			System.out.println("encrypt one complete");
+			Experiment.add(DGKOperations.decrypt(pubKey, privKey, temp));
+		}
+		//Test it
+		for (int i=101;i<118;i++)
+		{
+			if (Experiment.get(i)!=Control[i])
+			{
+				System.out.println("FAILURE AT " + i);
+				return;
+			}
+		}
+//		
+//		
+//		/*
+//		 * 	Test 2: Successfully add 2 to all numbers and get the correct answer
+//		 */
+//		
+//		/*
+//		 * 	Test 3: Successfully multiply 3 to all numbers and get the correct answer
+//		 */
+//		
+//		/*
+//		 * 	Test 4: Actually compare it!
+//		 */
+	}
+	
 	
 }//END OF CLASS

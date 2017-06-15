@@ -8,10 +8,10 @@ public class DGKPrivateKey
 	private BigInteger vp;
 	private BigInteger vq;
 	private long u;
-	HashMap LUT;
+	HashMap <BigInteger, Long>LUT;
 	
     public DGKPrivateKey (BigInteger P, BigInteger Q, BigInteger VP, 
-    		BigInteger VQ, HashMap lut, long U)
+    		BigInteger VQ, HashMap <BigInteger, Long> lut, long U)
     {
         p=P;
         q=Q;
@@ -44,5 +44,4 @@ public class DGKPrivateKey
     {
     	return u;
     }
-    
 }

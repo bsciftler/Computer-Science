@@ -5,26 +5,26 @@ public class DGKPublicKey
 {
 	// k1 is the security parameter. It is the number of bits in n.
     public int k1;
-    public static BigInteger n;
-	public static BigInteger g;
-	public static BigInteger h;
-	public static long u;
-	public static BigInteger bigU;
-	public static int l;
-	public static int t;
+    public  BigInteger n;
+	public BigInteger g;
+	public BigInteger h;
+	public long u;
+	public BigInteger bigU;
+	public int l;
+	public int t;
 	public static int k;
 	//public BigInteger u;
-	public HashMap gLUT;
-	public HashMap hLUT;
+	public HashMap <Long, BigInteger> gLUT;
+	public HashMap <Long, BigInteger> hLUT;
 	
 	public DGKPublicKey(BigInteger N, BigInteger G, BigInteger H, long U, 
-			HashMap GLUT, HashMap HLUT, int L, int T, int K)
+			HashMap <Long,BigInteger> GLUT, HashMap<Long,BigInteger> HLUT, int L, int T, int K)
 	{
 		n=N;
 		g=G;
 		h=H;
-		bigU=BigInteger.valueOf(u);
 		u=U;
+		bigU=BigInteger.valueOf(u);
 		gLUT=GLUT;
 		hLUT=HLUT;
 		l=L;
@@ -38,5 +38,13 @@ public class DGKPublicKey
 	public HashMap<Long,BigInteger> getHLUT()
 	{
 		return hLUT;
+	}
+	public BigInteger getN()
+	{
+		return n;
+	}
+	public Long getU()
+	{
+		return u;
 	}
 }
