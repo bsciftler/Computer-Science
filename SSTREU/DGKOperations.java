@@ -17,9 +17,9 @@ import java.util.Random;
  * 	Most likely errors I made
  * 	- Random Number Generation:
  * I am not sure the difference between randombnd and random_zz
- * Also I dont understand how random number generation works with big integers.
+ * Also I don't understand how random number generation works with big integers.
  * (See bottom)
- * 	- I have ommitted some methods
+ * 	- I have omitted some methods
  * 	- Potentially did Hashmapping wrong
  * 	- The IsSuperiorMethod is difficult to understand, so i probably made mistakes there
  * 
@@ -38,6 +38,49 @@ public class DGKOperations
 		GenerateKeys(l,t,k);
 	}
 	
+	/*	This method will only be activated in the Server:
+	 * 	Goal: Compute the Euclidean distance between two vectors 
+	 * 	composed of RSS values.
+	 * 	x is a value from the server.
+	 * 	y is a value from the client (Android Phone).
+	 * 	(x - y)^2 = x^2 - 2xy + y^2
+	 * 	S_1 = x^2, square and encrypt
+	 * 	S_2 = -2xy, SOLVE BY: [-2y]^x
+	 * 	S_3 = y^2 (COMPLETED)
+	 * 	Then sum all terms to get first term in Eucliedan Distance.
+	 * 	Repeat it
+	 * 	x is in plaintext at the server.
+	 */
+	public static BigInteger EuclideanDistance(ArrayList <BigInteger> cipherServer, ArrayList<BigInteger []> cipherClient, PublicKey pk)
+	{
+		BigInteger distanceSquared = Paillier.encrypt(BigInteger.ZERO, pk);
+		//CipherClient has ([-2y], [y^2])
+		//Encrypted -2y is coming from the client BigInteger[0]
+		//Encrypted y^2 is coming from the client BigInteger[1]
+		
+		//CipherServer has (x_1,..., xn
+		//x is a value unencrypted and stored in plain text.
+		
+		BigInteger S1=null;
+		BigInteger S2=null;
+		for (int i=0;i<cipherServer.size();i++)
+		{
+			//Obtain S_1 which is x^2
+			S1 = cipherServer.get(i);
+			S1 = S1.pow(2);
+			S1 = Paillier.encrypt(S1, pk);
+			
+			//obtain S_2, which is [-2y]^x
+			S2 = cipherClient.get(i)[0];
+			S2 = S2.pow(cipherServer.get(i).intValue());
+			
+			//Add S_1 + S_2 + S_3
+			distanceSquared = Paillier.add(distanceSquared, S1, pk);
+			distanceSquared = Paillier.add(distanceSquared, S2, pk);
+			distanceSquared = Paillier.add(distanceSquared, cipherClient.get(i)[1], pk);
+		}
+		return distanceSquared;
+	}
 	
 	public static void GenerateKeys(int l, int t, int k)
 	{
@@ -868,23 +911,34 @@ x = pseudo-random number in the range 0..n-1, or 0 if n <= 0
 	 */
 	public static BigInteger RandomBnd(int n)
 	{
+		if (n == 0)
+		{
+			return BigInteger.ZERO;
+		}
 		BigInteger r;
 		do 
 		{
 		    r = new BigInteger(n, rnd);
-		} 
+		}
+		//while (r >= n), stay stuck!
 		while (r.compareTo(new BigInteger(Integer.toString(n))) >= 0);
 		return r;
 	}
 	
 	public static BigInteger RandomBnd(long n)
 	{
+		if (n <= 0)
+		{
+			return BigInteger.ZERO;
+		}
 		BigInteger r;
 		do 
 		{
 		    r = new BigInteger((int)n, rnd);
-		} 
-		while (r.compareTo(BigInteger.valueOf(n)) >= 0);
+		}
+		// 0 <= r <= n - 1
+		//if r is negative or r >= n, keep generating random numbers
+		while (r.compareTo(BigInteger.valueOf(n)) >= 0 || r.signum()==-1);
 		return r;
 	}
 	/*
@@ -893,18 +947,21 @@ void RandomBits(ZZ& x, long l);
 ZZ RandomBits_ZZ(long l);
 void RandomBits(long& x, long l);
 long RandomBits_long(long l);
-// x = pseudo-random number in the range 0..2^l-1.
+// x = pseudo-random number in the range 0..2^L-1.
 // EXCEPTIONS: strong ES
 	 */
 	
 	public static BigInteger RandomBits_ZZ(int x)
 	{
+		BigInteger max = new BigInteger("2").pow(x);
 		BigInteger r;
 		do 
 		{
-		    r = new BigInteger((int)x, rnd);
-		} 
-		while (r.compareTo(BigInteger.valueOf(x)) >= 0);
+		    r = new BigInteger(x, rnd);
+		}
+		//New number must be 0 <=  r <= 2^l - 1
+		//If r >= 2^l or r <= 0 keep generating
+		while (r.compareTo(max) >= 0 || r.signum()==-1);
 		return r;
 	}
 	

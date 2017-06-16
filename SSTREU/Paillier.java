@@ -73,6 +73,7 @@ public class Paillier
     public static BigInteger add(BigInteger ciphertext1, BigInteger ciphertext2, PublicKey pk)
     {
         BigInteger ciphertext = ciphertext1.multiply(ciphertext2).mod(pk.modulous);
+        //(Cipher1 * Cipher 2 (mod N)
         return ciphertext;
     }
     
@@ -90,12 +91,14 @@ public class Paillier
     	//CITATION: https://crypto.stackexchange.com/questions/17862/paillier-can-add-and-multiply-why-is-it-only-partially-homomorphic
     	//NOTE: scalar is NOT encrypted
         BigInteger ciphertext = ciphertext1.modPow(scalar, pk.modulous);
+        //Paillier.ciphertext = (mn+1)r^n (mod n^2)
+        //cipher^(scalar)(mod N)
         return ciphertext;
     }
 
     public static BigInteger multiply(BigInteger ciphertext1, int scalar, PublicKey pk)
     {
-    	//NOTE: SCALAR IS NOT ECRYPTED!
+    	//NOTE: SCALAR IS NOT ENCRYPTED!
     	//CITATION: https://crypto.stackexchange.com/questions/17862/paillier-can-add-and-multiply-why-is-it-only-partially-homomorphic
         return multiply(ciphertext1, BigInteger.valueOf(scalar), pk);
     }
@@ -251,6 +254,126 @@ public class Paillier
     	return distance;
     }
     
+    /*
+     * 	This method was created using this paper as my guide:
+     * 	http://www.fkerschbaum.org/bps09a.pdf
+     */
+    public static BigInteger isSuperiorTo(BigInteger ciphertextx0, BigInteger ciphertextx1, PublicKey pk, PrivateKey sk)
+    {
+    	BigInteger EncC = Paillier.subtract(ciphertextx0, ciphertextx1, pk);
+    	ArrayList<BigInteger> rand = GenerateRandom();
+    	//ArrayList.get(0) holds r
+    	//ArrayList.get(1) holds r'
+    	EncC = Paillier.multiply(EncC, rand.get(0), pk);
+    	EncC = Paillier.subtract(EncC, rand.get(1), pk);
+    	//Currently, Enc(c) = Enc(r(x_0 - x_1) - r')
+    	//Section 2.1.1 Step 1 Complete!
+    	
+    	//Step 2: party x_1 sends Enc(c), Enc(1), Enc(0)
+    	//Since this is done at the server...I will just encrypt a 1 and 0
+    	BigInteger EncOne = Paillier.encrypt(BigInteger.ONE, pk);
+    	BigInteger EncZero = Paillier.encrypt(BigInteger.ZERO, pk);
+    	
+    	//Flip a coin for b_i 
+    	Random randomNum = new Random();
+    	int b_i = randomNum.nextInt(2);
+    	
+    	//Step 3B: Compute a_1, a_2, a_3
+    	BigInteger a_1=null;
+    	BigInteger a_2=null;
+    	if (b_i==1)
+    	{
+    		a_1=EncZero.multiply(Paillier.encrypt(BigInteger.ZERO, pk));
+    		a_2=EncOne.multiply(Paillier.encrypt(BigInteger.ZERO, pk));
+    	}
+    	else if (b_i==0)
+    	{
+    		a_1=EncOne.multiply(Paillier.encrypt(BigInteger.ZERO, pk));
+    		a_2=EncZero.multiply(Paillier.encrypt(BigInteger.ZERO, pk));
+    	}
+    	
+    	ArrayList<BigInteger> moreRandom = GenerateRandom();
+    	//r is in index 0, and r' is in index 1
+    	//part 1: a_3 = E(C)^[-1^b_i*r_i]
+    	BigInteger a_3= Paillier.multiply(EncC, new BigInteger("-1").pow(b_i).multiply(moreRandom.get(0)), pk);
+    	//part 2: part 1 (Encrpyted) * E( (-1)^[b_i-1]*r' )
+    	BigInteger temp;
+    	if (b_i == 1)//Then b_1-1 = 0, meaning 1
+    	{
+    		temp = new BigInteger("1");
+    	}
+    	else
+    	{
+    		temp = new BigInteger("-1");
+    	}
+    	temp = temp.multiply(moreRandom.get(1));
+    	temp = Paillier.encrypt(temp, pk);
+    	a_3= Paillier.add(EncC, temp, pk);
+    	
+    	//Step 4:
+    	//1 = True
+    	//0 = False
+    	
+    	/*
+    	 * 	To compute which value is the smallest I must do
+    	 *  Enc(x_1 + [x_0 <= x_1](x_0 - x_1) )
+    	 */
+    	BigInteger small = null;
+    	if (a_3.signum()==-1)
+    	{
+    		//if a_3 is negative then a_1 holds the boolean 
+    		//of x_0 <= x_1, Compute smallest using above formula
+    		BigInteger decrypta_1 = Paillier.decrypt(a_1, sk);
+    		System.out.println("a_3 decrypted is: "+decrypta_1);
+    		small = Paillier.subtract(ciphertextx0, ciphertextx1, pk);
+    		small = Paillier.multiply(small, decrypta_1, pk);
+    		System.out.println(Paillier.decrypt(small, sk));
+    		small = Paillier.add(ciphertextx1, small, pk);
+    		System.out.println(Paillier.decrypt(small, sk));
+    	}
+    	else
+    	{
+    		//if a_3 is positive then a_2 holds the boolean
+    		//of x_0 <= x_1
+    		BigInteger decrypta_2 = Paillier.decrypt(a_2, sk);
+    		System.out.println("a_2 decrypted is: "+decrypta_2);
+    		small = Paillier.subtract(ciphertextx0, ciphertextx1, pk);
+    		small = Paillier.multiply(small, decrypta_2, pk);
+    		System.out.println(Paillier.decrypt(small, sk));
+    		small = Paillier.add(ciphertextx1, small, pk);
+    		System.out.println(Paillier.decrypt(small, sk));
+    	}
+    	return small;
+    }
+    
+    public static BigInteger reRandomize(BigInteger ciphertext, PublicKey pk)
+    {
+    	return Paillier.add(ciphertext, BigInteger.ZERO, pk);
+    }
+    
+    public static ArrayList<BigInteger> GenerateRandom()
+    {
+    	ArrayList<BigInteger> random = new ArrayList<BigInteger>();
+    	//ArrayList.get(0) holds r
+    	BigInteger r;
+    	do
+    	{
+    		r = new BigInteger(100,rnd);
+    		random.add(r);
+    	}
+    	while(r.bitLength()==100);
+    	//ArrayList.get(1) holds r'
+    	//r' < r
+    	do
+    	{
+    		r = new BigInteger(30, rnd);
+    		random.add(r);
+    	}
+    	while(r.bitLength()==30);
+    	
+    	return random;
+    }
+    
     public static void main (String [] args)
     {
     	/*
@@ -338,7 +461,15 @@ PALLIER IS ON LOCALIZED EUCLIDEAN DETAIL but commented out
     	{
     		System.out.println("CRAP!");
     	}
-
+    	
+    	BigInteger testa = Paillier.encrypt(new BigInteger("50"),pk);
+    	BigInteger testb = Paillier.encrypt(new BigInteger("10"), pk);
+    	//System.out.println("The smallest is: " + testa + " " + testb);
+    	
+    	//testa <= testb
+    	BigInteger small = Paillier.isSuperiorTo(testa, testb, pk, sk);
+    	small = Paillier.decrypt(small, sk);
+    	System.out.println("The smallest is: " +small);
     	/*
     	 * 
     	 	if (enc.equals(enc2))
