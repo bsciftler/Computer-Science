@@ -414,11 +414,11 @@ long bit(long a, long k);
 	    ciphertext = POSMOD(firstpart.multiply(secondpart), n);
 	    
 	    //PREVENT ERRORS AT ENCRYPTION!
-	    while ( (isGreaterthan(ciphertext,n)) )
-	    {
-	    	System.out.println("Shrink cipher!");
-	    	ciphertext = ciphertext.mod(n);
-	    }
+	    //while ( (isGreaterthan(ciphertext,n)) )
+	    //{
+	    	//System.out.println("Shrink cipher!");
+	    	//ciphertext = ciphertext.mod(n);
+	    //}
 	    return ciphertext;
 	}
 	
@@ -428,17 +428,18 @@ long bit(long a, long k);
 	    BigInteger p = privKey.GetP();
 	    BigInteger n = pubKey.n;
 	    //long u = pubKey.u;
-	
+	    System.out.println("Value of N: ");
+	    System.out.println(n);
 	    if (ciphertext.signum()==-1)
 	    {
 	    	throw new IllegalArgumentException("Decryption Invalid Parameter : the ciphertext is not in Zn");
 	    }
-	    if((isGreaterthan(ciphertext,n)))
+	    if(ciphertext.compareTo(n)==1)
 	    {
 	    	throw new IllegalArgumentException("Decryption Invalid Parameter : the ciphertext is not in Zn");
 	    }
-
-	    BigInteger decipher = POSMOD(ciphertext,p.modPow(vp,p));
+	    BigInteger decipher = POSMOD(ciphertext,p);
+	    decipher = ciphertext.modPow(vp,p);
 	    long plain = privKey.GetLUT().get(decipher).longValue();
 	    return plain;
 	}
@@ -746,7 +747,15 @@ long bit(long a, long k);
  */
 	public static BigInteger POSMOD(BigInteger x, BigInteger n)
 	{
-		return ((x.mod(n).add(n)).mod(n));
+		//while (!(x.signum()==-1) )
+		//{
+			//x = x.add(n);
+			//x = x.mod(n);
+		//}
+		BigInteger answer = x.mod(n);
+		answer = answer.add(n);
+		answer = answer.mod(n);
+		return answer;
 	}
 	
 	public static long POSMOD(long x, long n)
@@ -1033,6 +1042,7 @@ long RandomBits_long(long l);
 			toInt = inControl[i];
 			System.out.println(toInt);
 			BigInteger temp = DGKOperations.encrypt(pubKey, (long)Integer.parseInt(toInt));
+			System.out.println(temp);
 			System.out.println("encrypt one complete");
 			Experiment.add(DGKOperations.decrypt(pubKey, privKey, temp));
 		}
