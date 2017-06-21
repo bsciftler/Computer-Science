@@ -7,7 +7,8 @@ public class Paillier
     // k2 controls the error probability of the primality testing algorithm
     // (specifically, with probability at most 2^(-k2) a NON prime is chosen).
     private static int k2 = 40;
-
+    static int r;
+    static int rPrime;
     private static Random rnd = new Random();
 
     public static void keyGen(PrivateKey sk, PublicKey pk)
@@ -98,13 +99,22 @@ public class Paillier
     {
     	//CITATION: https://crypto.stackexchange.com/questions/17862/paillier-can-add-and-multiply-why-is-it-only-partially-homomorphic
     	//NOTE: scalar is NOT encrypted
-    	while (scalar.signum()==-1)
-    	{
-    		scalar = scalar.add(pk.modulous);
-    	}
+    	//boolean exponentSign= (scalar.signum()==-1);
+    	boolean negativeScalar = (scalar.signum()==-1);
+    
         BigInteger ciphertext = ciphertext1.modPow(scalar, pk.modulous);
+        //if (exponentSign==true)
+        //{
+        	//ciphertext = ciphertext.subtract(pk.modulous);
+        //}
         //Paillier.ciphertext = (mn+1)r^n (mod n^2)
         //cipher^(scalar)(mod N)
+        //if (negativeScalar==true)
+        //{	
+        	//ciphertext = ciphertext.subtract(pk.modulous);
+        	//return ciphertext;
+        //}
+        
         return ciphertext;
     }
 
@@ -163,12 +173,33 @@ public class Paillier
      */
     public static BigInteger isSuperiorTo(BigInteger ciphertextx0, BigInteger ciphertextx1, PublicKey pk, PrivateKey sk)
     {
-    	int rBit = 200;
-    	int rPrimeBit = 100;
+    	/*
+    	 * 	Assume d = 8-bit number (256 contains everything from 0 to 200.
+    	 * 	let rprime = 16 bit
+    	 * 	let r = 32 bit
+    	 */
+    	r=32;
+    	rPrime=16;
     	BigInteger EncC = Paillier.subtract(ciphertextx0, ciphertextx1, pk);
+    	//Subtraction can work like this...
+    	//System.out.println("Does subtraction work? " + Paillier.decrypt(EncC, sk).subtract(pk.n));
     	
-    	EncC = Paillier.multiply(EncC, GenerateRandom(rBit), pk);
-    	EncC = Paillier.subtract(EncC, Paillier.encrypt(GenerateRandom(rPrimeBit), pk), pk);
+    	
+    	BigInteger testR=GenerateRandom(r);
+    	//System.out.println(testR);
+    	EncC = Paillier.multiply(EncC, testR, pk);//But it says EncC ^ r??
+    	
+    	
+//    	if (d.pow(testR.intValue()).equals(Paillier.decrypt(EncC, sk)))
+//    	{
+//    		System.out.println("Yeah it works...");
+//    	}
+//    	else
+//    	{
+//    		System.err.println("Java Disagrees");
+//    	}
+    	EncC = Paillier.subtract(EncC, Paillier.encrypt(GenerateRandom(rPrime), pk), pk);
+    
     	//Currently, Enc(c) = Enc(r(x_0 - x_1) - r')
     	//Section 2.1.1 Step 1 Complete!
     	
@@ -182,23 +213,22 @@ public class Paillier
     	int b_i = randomNum.nextInt(2);
     	System.out.println("B_i value: " + b_i);//If 1 BAD, if 0 GOOD??s
     	
-    	System.out.println(Paillier.decrypt(EncC, sk));
-    	EncC    = Paillier.reRandomize(EncC, pk);
-    	EncOne  = Paillier.reRandomize(EncOne, pk);
-    	EncZero = Paillier.reRandomize(EncZero, pk);
-    	System.out.println(Paillier.decrypt(EncC, sk));
+       	//EncC    = Paillier.reRandomize(EncC, pk);
+    	//EncOne  = Paillier.reRandomize(EncOne, pk);
+    	//EncZero = Paillier.reRandomize(EncZero, pk);
+
     	//Step 3B: Compute a_1, a_2, a_3
     	BigInteger a_1=null;
     	BigInteger a_2=null;
     	if (b_i==1)
     	{
-    		a_1=EncZero.multiply(Paillier.encrypt(BigInteger.ZERO, pk));
-    		a_2=EncOne.multiply(Paillier.encrypt(BigInteger.ZERO, pk));
+    		a_1=Paillier.add(EncZero,Paillier.encrypt(BigInteger.ZERO, pk),pk);;
+    		a_2=Paillier.add(EncOne,Paillier.encrypt(BigInteger.ZERO, pk),pk);
     	}
     	else if (b_i==0)
     	{
-    		a_1=EncOne.multiply(Paillier.encrypt(BigInteger.ZERO, pk));
-    		a_2=EncZero.multiply(Paillier.encrypt(BigInteger.ZERO, pk));
+    		a_1=Paillier.add(EncOne,Paillier.encrypt(BigInteger.ZERO, pk),pk);
+    		a_2=Paillier.add(EncZero,Paillier.encrypt(BigInteger.ZERO, pk),pk);;
     	}
     	
     	//r is in index 0, and r' is in index 1
@@ -208,23 +238,31 @@ public class Paillier
     	BigInteger a_3 = null;
     	if (b_i == 1)//Then b_1-1 = 0, meaning (-1)^0=1
     	{
-    		temp = GenerateRandom(rPrimeBit);
-    		
     		//part 1: a_3 = E(C)^[-1^b_i*r_i]
-    		a_3= Paillier.multiply(EncC,GenerateRandom(rBit).multiply(new BigInteger("-1")), pk);
+    		temp = GenerateRandom(rPrime);
+    		BigInteger random = GenerateRandom(r).negate();
+    		System.out.println("temp: " + temp);
+    		System.out.println("r: " + random);
+    		//Cipher ^ (random) mod n^2
+    		a_3= Paillier.multiply(EncC,random, pk);
     		//System.out.println(Paillier.decrypt(EncC, sk));
     	}
     	else//(-1)^1
     	{
-    		temp = GenerateRandom(rPrimeBit).multiply(new BigInteger("-1"));
+    		temp = GenerateRandom(rPrime).negate();
+    		BigInteger random = GenerateRandom(r);
+    		System.out.println("temp: " + temp);
+    		System.out.println("r:" + random);
     		//part 1: a_3 = E(C)^[-1^b_i*r_i]
-    		a_3= Paillier.multiply(EncC, GenerateRandom(rBit), pk);
+    		a_3= Paillier.multiply(EncC, random, pk);
     		//System.out.println(Paillier.decrypt(EncC, sk));
     	}
     	temp = Paillier.encrypt(temp, pk);
-    	System.out.println("temp at Line 222: "+temp);
-    	System.out.println("a_3 at Line 223 : " + a_3);//Why is it 0 here?
     	
+    	a_3 = Paillier.decrypt(a_3, sk);
+    	System.out.println("a_3 at Line 263 : " + a_3 + " and " + a_3.signum());
+    
+    	a_3 = Paillier.encrypt(a_3, pk);
     	a_3= Paillier.add(a_3, temp, pk);
     	
     	//Step 4:
@@ -236,38 +274,43 @@ public class Paillier
     	 *  Enc(x_1 + [x_0 <= x_1](x_0 - x_1) )
     	 */
     	BigInteger small = null;
-    	System.out.println("Value of a_3: " + a_3);
+    	
     	BigInteger decrypta_3=Paillier.decrypt(a_3, sk);
+    	while(decrypta_3.signum()==1 && b_i==1)
+		{
+    		decrypta_3 = decrypta_3.subtract(pk.n);
+    		System.out.println("a_3 at Line 267 : " + a_3);
+		}
+    	
     	
     	if (decrypta_3.signum()==-1)
     	{
     		//if a_3 is negative then a_1 holds the boolean 
     		//of x_0 <= x_1, Compute smallest using above formula
     		BigInteger decrypta_1 = Paillier.decrypt(a_1, sk);
-    		BigInteger guess = Paillier.subtract(a_1, Paillier.encrypt(BigInteger.ONE, pk), pk);
-    		System.out.println("sig: "+guess.signum());
+    		//BigInteger guess = Paillier.subtract(a_1, Paillier.encrypt(BigInteger.ONE, pk), pk);
+    		//System.out.println("sig: "+guess.signum());
     		
-    		System.out.println("a_1 decrypted is: "+decrypta_1);
+    		//E(x_1 * (x_0 <= x_1)* (x_0 - x_1))
+    		System.out.println("a_1 decrypted is: (1= TRUE, 0 = FALSE): "+decrypta_1);
     		small = Paillier.subtract(ciphertextx0, ciphertextx1, pk);
     		small = Paillier.multiply(small, decrypta_1, pk);
-    		System.out.println("value of small 1: "+Paillier.decrypt(small, sk));
     		small = Paillier.add(ciphertextx1, small, pk);
-    		System.out.println("value of small 2: "+Paillier.decrypt(small, sk));
     	}
     	else
     	{
     		//if a_3 is positive then a_2 holds the boolean
     		//of x_0 <= x_1
     		BigInteger decrypta_2 = Paillier.decrypt(a_2, sk);
-    		BigInteger guess = Paillier.subtract(a_1, Paillier.encrypt(BigInteger.ONE, pk), pk);
-    		System.out.println("sig: "+guess.signum());
+    		//BigInteger guess = Paillier.subtract(a_1, Paillier.encrypt(BigInteger.ONE, pk), pk);
+    		//System.out.println("sig: "+guess.signum());
     		
-    		System.out.println("a_2 decrypted is: "+decrypta_2);
+    		System.out.println("a_2 decrypted is: (1= TRUE, 0 = FALSE): "+decrypta_2);
+    		
+    		//E(x_1 * (x_0 <= x_1)* (x_0 - x_1))
     		small = Paillier.subtract(ciphertextx0, ciphertextx1, pk);
     		small = Paillier.multiply(small, decrypta_2, pk);
-    		System.out.println("value of small 1: "+Paillier.decrypt(small, sk));
     		small = Paillier.add(ciphertextx1, small, pk);
-    		System.out.println("value of small 2: "+Paillier.decrypt(small, sk));
     	}
     	return small;
     }
@@ -293,10 +336,15 @@ public class Paillier
     	PrivateKey sk = new PrivateKey(1024);
        	PublicKey pk = new PublicKey();
        	Paillier.keyGen(sk,pk);
+       	System.out.println("N: " + pk.n);
        	
     	BigInteger testa = Paillier.encrypt(new BigInteger("100"),pk);
-    	BigInteger testb = Paillier.encrypt(new BigInteger("145"), pk);
+    	BigInteger testb = Paillier.encrypt(new BigInteger("45"), pk);
     	//System.out.println("The smallest is: " + testa + " " + testb);
+    	
+    	testa = Paillier.multiply(testa, -400, pk);
+    	System.out.println("pk.n bit" + pk.n.bitLength() + " testa bit: " +testa.bitLength());
+    	System.out.println("decrypt testa multiply negative: " + Paillier.decrypt(testa, sk).subtract(pk.n));
     	
     	//testa <= testb
     	BigInteger small = Paillier.isSuperiorTo(testa, testb, pk, sk);
