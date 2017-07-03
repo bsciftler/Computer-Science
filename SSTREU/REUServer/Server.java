@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintStream;
+import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ public class Server extends Thread
 	/*
 	 * 	REU Variables
 	 */
-    Paillier.PublicKey pk;//Public Key
+	PublicKey pk = new PublicKey();//Public Key
     SecureTriple transmission; //For Encrypted Paillier Transmission
     String [] MACAddress; //For unencrypted transmission Part 1
     Integer [] RSS;//For unencrpypted transmission Part 2
@@ -51,12 +52,12 @@ public class Server extends Thread
 				 * 	Acquire Data
 				 */
 				incomingClient = SQLServer.accept();//Accept an incoming Client Socket
-				input = new Scanner(incomingClient.getInputStream());//Read from the Client Socket
-				compute = input.nextInt();
+				//input = new Scanner(incomingClient.getInputStream());//Read from the Client Socket
+				//compute = input.nextInt();
 				
-//				ObjectInputStream fromClient= new ObjectInputStream(incomingClient.getInputStream());
+				ObjectInputStream fromClient= new ObjectInputStream(incomingClient.getInputStream());
 				
-				//Get the Paillier Key
+//				Get the Paillier Key
 //				try
 //				{
 //					pk = (Paillier.PublicKey)fromClient.readObject();
@@ -69,59 +70,55 @@ public class Server extends Thread
 				
 				//If I dont have a MAC Address I probably have secure transmission!
 				//Is it encrypted/unencrypted
-//				try
-//				{
-//					MACAddress = (String [])fromClient.readObject();
-//					RSS = (Integer [])fromClient.readObject();
-//					secure=false;
-//				}
-//				catch(ClassNotFoundException cnf)
-//				{
+				try
+				{
+					MACAddress = (String [])fromClient.readObject();
+					RSS = (Integer [])fromClient.readObject();
+					System.out.println("UNSECURE DATA RECEIVED");
+					secure=false;
+				}
+				catch(ClassNotFoundException cnf)
+				{
 //					If I fail here, then I have big trouble!
-//					try 
-//					{
-//						transmission = (SecureTriple) fromClient.readObject();
-//						secure = true;					
-//					}
-//					catch (ClassNotFoundException cnfTwo)
-//					{
-//						cnfTwo.printStackTrace();
-//					}
-//				}
-				
-				//After getting the data, send it to the Euclidean Computation Class
-				
+					try 
+					{
+						transmission = (SecureTriple) fromClient.readObject();
+						System.out.println("SECURE DATA RECEIVED");
+						secure = true;					
+					}
+					catch (ClassNotFoundException cnfTwo)
+					{
+						cnfTwo.printStackTrace();
+					}
+				}
 				
 				
+		
 				/*
-				 * 	Do Required Computations...see Euclidean Computation Class
+				 	After getting the data, send it to the Euclidean Computation Class
+				  	Do Required Computations...see Euclidean Computation Class
 				 */
 				
-//				if (secure==true)
-//				{
-//					comp = new EuclideanComputation(transmission, pk);
-//				}
-//				else
-//				{
-//					comp = new EuclideanComputation(MACAddress,RSS);
-//				}
-//				location = comp.findCoordinate();
-				
-				if (compute==0)
+				if (secure==true)
 				{
-					this.closeClientConnection();
-					return;
+					comp = new EuclideanComputation(transmission, pk);
 				}
-				compute = compute*=2;
+				else
+				{
+					comp = new EuclideanComputation(MACAddress,RSS);
+				}
+				location = comp.findCoordinate();
+
+				//compute = compute*=2;
 
 				/*
 				 * 	Return Data to Client
 				 */
 				
-				//ObjectOutputStream responseToClient = new ObjectOutputStream(incomingClient.getOutputStream());
-				//responseToClient.writeObject(location);
-				PrintStream responseToClient = new PrintStream(incomingClient.getOutputStream());
-				responseToClient.println(compute); //Give back the X, Y Coordinate
+				ObjectOutputStream responseToClient = new ObjectOutputStream(incomingClient.getOutputStream());
+				responseToClient.writeObject(location);
+				//PrintStream responseToClient = new PrintStream(incomingClient.getOutputStream());
+				//responseToClient.println(compute); //Give back the X, Y Coordinate
 				
 				
 				this.closeClientConnection();//Close Connection of Socket

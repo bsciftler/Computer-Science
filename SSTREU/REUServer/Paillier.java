@@ -46,36 +46,7 @@ public class Paillier
  * .org/licenses/mit-license.php
  */
 
-    public static class PublicKey implements Serializable
-    {
 
-        // k1 is the security parameter. It is the number of bits in n.
-        public int k1;
-
-        // n=pq is a product of two large primes (such N is known as RSA modulous.
-        public BigInteger n, modulous;
-
-        private static final long serialVersionUID = -4979802656002515205L;
-
-        private void readObject(ObjectInputStream aInputStream) throws ClassNotFoundException,
-                IOException
-        {
-            // always perform the default de-serialization first
-            aInputStream.defaultReadObject();
-        }
-
-        private void writeObject(ObjectOutputStream aOutputStream) throws IOException
-        {
-            // perform the default serialization for all non-transient, non-static
-            // fields
-            aOutputStream.defaultWriteObject();
-        }
-
-        public String toString()
-        {
-            return "k1 = " + k1 + ", n = " + n + ", modulous = " + modulous;
-        }
-    }
     // k2 controls the error probability of the primality testing algorithm
     // (specifically, with probability at most 2^(-k2) a NON prime is chosen).
     private static int k2 = 40;
@@ -106,12 +77,11 @@ public class Paillier
     // Compute ciphertext = (mn+1)r^n (mod n^2) in two stages: (mn+1) and (r^n).
     public static BigInteger encrypt(BigInteger plaintext, PublicKey pk)
     {
-        BigInteger randomness = new BigInteger(pk.k1, rnd); // creates
-        // randomness of
-        // length k1
-        BigInteger tmp1 = plaintext.multiply(pk.n).add(BigInteger.ONE).mod(pk.modulous);
-        BigInteger tmp2 = randomness.modPow(pk.n, pk.modulous);
-        BigInteger ciphertext = tmp1.multiply(tmp2).mod(pk.modulous);
+        BigInteger randomness = new BigInteger(pk.getk1(), rnd); // creates
+        // randomness of length k1
+        BigInteger tmp1 = plaintext.multiply(pk.getN()).add(BigInteger.ONE).mod(pk.getMod());
+        BigInteger tmp2 = randomness.modPow(pk.getN(), pk.getMod());
+        BigInteger ciphertext = tmp1.multiply(tmp2).mod(pk.getMod());
 
         return ciphertext;
     }

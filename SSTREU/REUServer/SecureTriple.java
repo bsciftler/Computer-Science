@@ -7,9 +7,9 @@ import java.math.BigInteger;
 
 public class SecureTriple
 {
-    private final String [] MACAddress;
-    private final BigInteger [] S2;
-    private final BigInteger [] S3;
+    private String [] MACAddress;
+    private BigInteger [] S2;
+    private BigInteger [] S3;
 
     public SecureTriple(String [] first, BigInteger [] second, BigInteger [] third)
     {
