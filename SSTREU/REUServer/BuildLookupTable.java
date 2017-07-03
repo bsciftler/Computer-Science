@@ -461,8 +461,8 @@ public class BuildLookupTable
 		 * Build the Tables: (It was already made)
 		 */
 		//build.createTables();
-		build.GetDataforLUT();
-		build.UpdateTables();
+		//build.GetDataforLUT();
+		//build.UpdateTables();
 		
 		//Print the Database to a CSV File
 		String Q3 = "SELECT * from FIU.REUPlainLUT";
@@ -511,24 +511,25 @@ public class BuildLookupTable
 			}
 			while(E.next())
 			{
-				tuple += P.getDouble("Xcoordinate") + ",";
-				tuple += P.getDouble("Ycoordinate")  + ",";;
-				tuple += P.getString("ONE")  + ",";
-				tuple += P.getString("TWO")  + ",";
-				tuple += P.getString("THREE")  + ",";
-				tuple += P.getString("FOUR")  + ",";
-				tuple += P.getString("FIVE")  + ",";
-				tuple += P.getString("SIX")  + ",";
-				tuple += P.getString("SEVEN")  + ",";
-				tuple += P.getString("EIGHT") + ",";
-				tuple += P.getString("NINE")  + ",";
-				tuple += P.getString("TEN") + ",";
+				tuple += E.getDouble("Xcoordinate") + ",";
+				tuple += E.getDouble("Ycoordinate")  + ",";;
+				tuple += E.getString("ONE")  + ",";
+				tuple += E.getString("TWO")  + ",";
+				tuple += E.getString("THREE")  + ",";
+				tuple += E.getString("FOUR")  + ",";
+				tuple += E.getString("FIVE")  + ",";
+				tuple += E.getString("SIX")  + ",";
+				tuple += E.getString("SEVEN")  + ",";
+				tuple += E.getString("EIGHT") + ",";
+				tuple += E.getString("NINE")  + ",";
+				tuple += E.getString("TEN") + ",";
 				WriteE.println(tuple);
 				tuple = "";
 			}
 			
 			WriteP.close();
 			WriteE.close();
+			System.out.println("Don't forget to put the Header Info on the CSV Files!");
 		}
 		catch(IOException ioe)
 		{
