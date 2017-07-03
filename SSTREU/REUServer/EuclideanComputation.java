@@ -137,6 +137,7 @@ Order by XCoordinate ASC;
 		{
 			this.SQLAccess();
 			this.computeDistance();
+			//Compare Paillier
 		}
 		
 		//Return that to Client Thread
